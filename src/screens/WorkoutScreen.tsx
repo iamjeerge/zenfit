@@ -46,6 +46,60 @@ const PRESET_EXERCISES = [
   { name: 'Plank', emoji: '🧘' },
 ];
 
+interface NumberInputProps {
+  label: string;
+  value: string;
+  onChangeText: (text: string) => void;
+  placeholder: string;
+  keyboardType: 'number-pad' | 'decimal-pad';
+  accessibilityLabel: string;
+}
+
+const NumberInput = ({
+  label,
+  value,
+  onChangeText,
+  placeholder,
+  keyboardType,
+  accessibilityLabel,
+}: NumberInputProps) => (
+  <View style={numberInputStyles.group}>
+    <Text style={numberInputStyles.label}>{label}</Text>
+    <TextInput
+      style={numberInputStyles.input}
+      value={value}
+      onChangeText={onChangeText}
+      keyboardType={keyboardType}
+      placeholder={placeholder}
+      placeholderTextColor={Colors.textMuted}
+      accessibilityLabel={accessibilityLabel}
+    />
+  </View>
+);
+
+const numberInputStyles = StyleSheet.create({
+  group: {
+    flex: 1,
+  },
+  label: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.xs,
+    fontWeight: '600',
+  },
+  input: {
+    backgroundColor: Colors.card,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    color: Colors.textPrimary,
+    fontSize: FontSizes.md,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    marginBottom: Spacing.md,
+  },
+});
+
 export default function WorkoutScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   const [exerciseName, setExerciseName] = useState('');
@@ -334,42 +388,30 @@ export default function WorkoutScreen() {
             />
 
             <View style={styles.inputRow}>
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Sets</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={sets}
-                  onChangeText={setSets}
-                  keyboardType="number-pad"
-                  placeholder="3"
-                  placeholderTextColor={Colors.textMuted}
-                  accessibilityLabel="Sets input"
-                />
-              </View>
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Reps</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={reps}
-                  onChangeText={setReps}
-                  keyboardType="number-pad"
-                  placeholder="10"
-                  placeholderTextColor={Colors.textMuted}
-                  accessibilityLabel="Reps input"
-                />
-              </View>
-              <View style={styles.inputGroup}>
-                <Text style={styles.inputLabel}>Weight (kg)</Text>
-                <TextInput
-                  style={styles.textInput}
-                  value={weight}
-                  onChangeText={setWeight}
-                  keyboardType="decimal-pad"
-                  placeholder="0"
-                  placeholderTextColor={Colors.textMuted}
-                  accessibilityLabel="Weight input"
-                />
-              </View>
+              <NumberInput
+                label="Sets"
+                value={sets}
+                onChangeText={setSets}
+                placeholder="3"
+                keyboardType="number-pad"
+                accessibilityLabel="Sets input"
+              />
+              <NumberInput
+                label="Reps"
+                value={reps}
+                onChangeText={setReps}
+                placeholder="10"
+                keyboardType="number-pad"
+                accessibilityLabel="Reps input"
+              />
+              <NumberInput
+                label="Weight (kg)"
+                value={weight}
+                onChangeText={setWeight}
+                placeholder="0"
+                keyboardType="decimal-pad"
+                accessibilityLabel="Weight input"
+              />
             </View>
 
             <View style={styles.modalButtons}>
@@ -667,9 +709,6 @@ const styles = StyleSheet.create({
   inputRow: {
     flexDirection: 'row',
     gap: Spacing.sm,
-  },
-  inputGroup: {
-    flex: 1,
   },
   modalButtons: {
     flexDirection: 'row',
