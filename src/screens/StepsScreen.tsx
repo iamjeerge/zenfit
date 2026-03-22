@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import {
   Colors,
   Gradients,
@@ -17,6 +18,9 @@ import {
   FontSizes,
   Shadows,
 } from '../theme/colors';
+import AnimatedEntry from '../components/AnimatedEntry';
+import SectionHeader from '../components/SectionHeader';
+import { GradientButton } from '../components';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -196,12 +200,15 @@ export default function StepsScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        <AnimatedEntry delay={0}>
         <View style={styles.header}>
           <Text style={styles.title}>Steps</Text>
           <Text style={styles.subtitle}>Today</Text>
         </View>
+        </AnimatedEntry>
 
         {/* Circular Progress */}
+        <AnimatedEntry delay={100}>
         <View style={styles.progressSection}>
           <CircularProgress />
           <Text style={styles.progressLabel}>
@@ -209,7 +216,10 @@ export default function StepsScreen() {
           </Text>
         </View>
 
+        </AnimatedEntry>
+
         {/* Stats Row */}
+        <AnimatedEntry delay={200}>
         <View style={styles.statsGrid}>
           {stats.map((stat, index) => (
             <View key={index} style={styles.statGridItem}>
@@ -218,15 +228,21 @@ export default function StepsScreen() {
           ))}
         </View>
 
+        </AnimatedEntry>
+
         {/* Weekly Chart */}
+        <AnimatedEntry delay={300}>
         <View style={styles.chartSection}>
-          <Text style={styles.sectionTitle}>This Week</Text>
+          <SectionHeader title="This Week" />
           <WeeklyChart />
         </View>
 
+        </AnimatedEntry>
+
         {/* Heart Rate Section */}
+        <AnimatedEntry delay={400}>
         <View style={styles.heartRateSection}>
-          <Text style={styles.sectionTitle}>Live Heart Rate</Text>
+          <SectionHeader title="Live Heart Rate" />
           <LinearGradient
             colors={Gradients.cardPrimary}
             start={{ x: 0, y: 0 }}
@@ -253,28 +269,30 @@ export default function StepsScreen() {
           </LinearGradient>
         </View>
 
+        </AnimatedEntry>
+
         {/* Sync Watch Button */}
-        <TouchableOpacity style={styles.syncButton}>
-          <LinearGradient
-            colors={Gradients.aurora}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.syncButtonGradient}
-          >
-            <Text style={styles.syncButtonIcon}>⌚</Text>
-            <Text style={styles.syncButtonText}>Sync Watch</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+        <AnimatedEntry delay={500}>
+        <GradientButton
+          title="⌚ Sync Watch"
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          }}
+          style={{ marginBottom: Spacing.xl }}
+        />
+        </AnimatedEntry>
 
         {/* Leaderboard */}
+        <AnimatedEntry delay={600}>
         <View style={styles.leaderboardSection}>
-          <Text style={styles.sectionTitle}>Friend Leaderboard</Text>
+          <SectionHeader title="Friend Leaderboard" />
           <View style={styles.leaderboardList}>
             {leaderboard.map((entry) => (
               <LeaderboardCard key={entry.id} entry={entry} />
             ))}
           </View>
         </View>
+        </AnimatedEntry>
       </ScrollView>
     </SafeAreaView>
   );

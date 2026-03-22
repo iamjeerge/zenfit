@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   StyleSheet,
   View,
@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import {
   Colors,
   Gradients,
@@ -17,6 +18,7 @@ import {
   FontSizes,
   Shadows,
 } from '../../src/theme/colors';
+import { AnimatedEntry, SectionHeader, GlassCard, GradientButton } from '../../src/components';
 
 const { width } = Dimensions.get('window');
 
@@ -128,27 +130,33 @@ export default function NutritionScreen() {
         contentContainerStyle={styles.scrollContent}
       >
         {/* Header with Aurora Gradient */}
-        <LinearGradient
-          colors={Gradients.aurora}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.headerGradient}
-        >
-          <View style={styles.headerContent}>
-            <Text style={styles.title}>Nutrition</Text>
-            <Text style={styles.subtitle}>Track your daily intake</Text>
-          </View>
-        </LinearGradient>
+        <AnimatedEntry delay={0} duration={600}>
+          <LinearGradient
+            colors={Gradients.aurora as unknown as [string, string, ...string[]]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.headerGradient}
+          >
+            <View style={styles.headerContent}>
+              <Text style={styles.title} accessibilityRole="header">Nutrition</Text>
+              <Text style={styles.subtitle}>Track your daily intake</Text>
+            </View>
+          </LinearGradient>
+        </AnimatedEntry>
 
         {/* Macro Tracking */}
+        <AnimatedEntry delay={100} duration={600}>
         <View style={styles.macroSection}>
-          <Text style={styles.sectionTitle}>Macros</Text>
+          <SectionHeader title="Macros" />
           <View style={styles.macroGrid}>
             {macros.map(renderMacroRing)}
           </View>
         </View>
 
+        </AnimatedEntry>
+
         {/* Water Tracker */}
+        <AnimatedEntry delay={200} duration={600}>
         <View style={styles.waterSection}>
           <View style={styles.waterHeader}>
             <Text style={styles.sectionTitle}>Water Intake</Text>
@@ -199,9 +207,12 @@ export default function NutritionScreen() {
           </TouchableOpacity>
         </View>
 
+        </AnimatedEntry>
+
         {/* Today's Meals */}
+        <AnimatedEntry delay={300} duration={600}>
         <View style={styles.mealsSection}>
-          <Text style={styles.sectionTitle}>Today's Meals</Text>
+          <SectionHeader title="Today's Meals" />
           <View style={styles.mealsList}>
             {meals.map((meal) => (
               <TouchableOpacity
@@ -249,9 +260,12 @@ export default function NutritionScreen() {
           </View>
         </View>
 
+        </AnimatedEntry>
+
         {/* AI Food Recommendation */}
+        <AnimatedEntry delay={400} duration={600}>
         <View style={styles.aiSection}>
-          <Text style={styles.sectionTitle}>AI Food Recommendation</Text>
+          <SectionHeader title="AI Recommendation" />
           <TouchableOpacity
             style={styles.aiCard}
             activeOpacity={0.8}
@@ -314,8 +328,10 @@ export default function NutritionScreen() {
           </TouchableOpacity>
         </View>
 
+        </AnimatedEntry>
+
         {/* Footer spacing */}
-        <View style={{ height: Spacing.xxl }} />
+        <View style={{ height: 100 }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -631,5 +647,12 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     minHeight: 48,
     ...Shadows.subtle,
+  },
+  suggestionsButtonText: {
+    fontSize: FontSizes.md,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    textAlign: 'center',
+    paddingVertical: Spacing.md,
   },
 });

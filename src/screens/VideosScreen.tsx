@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import {
   Colors,
   Gradients,
@@ -17,6 +18,8 @@ import {
   FontSizes,
   Shadows,
 } from '../theme/colors';
+import AnimatedEntry from '../components/AnimatedEntry';
+import SectionHeader from '../components/SectionHeader';
 
 type Category = 'All' | 'Yoga' | 'Meditation' | 'Strength' | 'Cardio' | 'HIIT' | 'Breathing';
 
@@ -153,7 +156,10 @@ export default function VideosScreen() {
         styles.categoryTab,
         selectedCategory === category && styles.categoryTabActive,
       ]}
-      onPress={() => setSelectedCategory(category)}
+      onPress={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setSelectedCategory(category);
+      }}
     >
       <Text
         style={[
@@ -251,10 +257,12 @@ export default function VideosScreen() {
         style={StyleSheet.absoluteFill}
       />
 
+      <AnimatedEntry delay={0}>
       <View style={styles.header}>
         <Text style={styles.title}>Videos</Text>
         <Text style={styles.subtitle}>Explore our video library</Text>
       </View>
+      </AnimatedEntry>
 
       {/* Category Tabs */}
       <ScrollView
@@ -276,23 +284,25 @@ export default function VideosScreen() {
       >
         {/* Featured Video */}
         {featuredVideo && (
+          <AnimatedEntry delay={200}>
           <View style={styles.featuredSection}>
-            <Text style={styles.sectionTitle}>Featured</Text>
+            <SectionHeader title="Featured" />
             <FeaturedCard video={featuredVideo} />
           </View>
+          </AnimatedEntry>
         )}
 
         {/* Video Grid */}
+        <AnimatedEntry delay={300}>
         <View style={styles.videosSection}>
-          <Text style={styles.sectionTitle}>
-            {selectedCategory === 'All' ? 'All Videos' : selectedCategory}
-          </Text>
+          <SectionHeader title={selectedCategory === 'All' ? 'All Videos' : selectedCategory} />
           <View style={styles.videoGrid}>
             {filteredVideos.slice(1).map((video) => (
               <VideoCard key={video.id} video={video} />
             ))}
           </View>
         </View>
+        </AnimatedEntry>
       </ScrollView>
     </SafeAreaView>
   );
@@ -510,6 +520,10 @@ const styles = StyleSheet.create({
   videoRating: {
     fontSize: FontSizes.xs,
     color: Colors.textSecondary,
+  },
+  downloadIcon: {
+    fontSize: FontSizes.md,
+    textAlign: 'center',
   },
   downloadButton: {
     paddingVertical: Spacing.xs,

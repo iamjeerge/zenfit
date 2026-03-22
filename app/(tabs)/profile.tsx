@@ -9,6 +9,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { useAuthStore } from '../../src/store/authStore';
 import {
   Colors,
@@ -17,7 +18,9 @@ import {
   BorderRadius,
   FontSizes,
   Shadows,
+  HIT_SLOP,
 } from '../../src/theme/colors';
+import { AnimatedEntry, GlassCard, SectionHeader, GradientButton, StatCard } from '../../src/components';
 
 interface MenuItem {
   id: string;
@@ -40,6 +43,7 @@ export default function ProfileScreen() {
   };
 
   const handleSignOut = async () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     await signOut();
     router.replace('/auth');
   };
@@ -96,8 +100,9 @@ export default function ProfileScreen() {
         contentContainerStyle={styles.scrollContent}
       >
         {/* Header with Aurora Gradient */}
+        <AnimatedEntry delay={0} duration={600}>
         <LinearGradient
-          colors={Gradients.aurora}
+          colors={Gradients.aurora as unknown as [string, string, ...string[]]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.headerGradient}
@@ -123,8 +128,10 @@ export default function ProfileScreen() {
             </View>
           </View>
         </LinearGradient>
+        </AnimatedEntry>
 
         {/* Stats Row */}
+        <AnimatedEntry delay={100} duration={600}>
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
             <LinearGradient
@@ -170,9 +177,12 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+        </AnimatedEntry>
+
         {/* Menu Items */}
+        <AnimatedEntry delay={200} duration={600}>
         <View style={styles.menuSection}>
-          <Text style={styles.sectionTitle}>Account</Text>
+          <SectionHeader title="Account" />
           <View style={styles.menuList}>
             {menuItems.map((item) => (
               <TouchableOpacity
@@ -205,9 +215,12 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+        </AnimatedEntry>
+
         {/* About Section */}
+        <AnimatedEntry delay={300} duration={600}>
         <View style={styles.aboutSection}>
-          <Text style={styles.sectionTitle}>About</Text>
+          <SectionHeader title="About" />
           <View style={styles.aboutCard}>
             <LinearGradient
               colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
@@ -231,22 +244,21 @@ export default function ProfileScreen() {
           </View>
         </View>
 
+        </AnimatedEntry>
+
         {/* Sign Out Button */}
-        <TouchableOpacity
-          style={styles.signOutButton}
-          onPress={handleSignOut}
-          activeOpacity={0.8}
-        >
-          <LinearGradient
-            colors={['rgba(248, 113, 113, 0.3)', 'rgba(248, 113, 113, 0.1)']}
-            style={styles.signOutGradient}
-          >
-            <Text style={styles.signOutText}>Sign Out</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+        <AnimatedEntry delay={400} duration={600}>
+          <GradientButton
+            title="Sign Out"
+            onPress={handleSignOut}
+            variant="danger"
+            style={{ marginBottom: Spacing.lg }}
+            accessibilityLabel="Sign out of your account"
+          />
+        </AnimatedEntry>
 
         {/* Footer spacing */}
-        <View style={{ height: Spacing.xxl }} />
+        <View style={{ height: 100 }} />
       </ScrollView>
     </SafeAreaView>
   );

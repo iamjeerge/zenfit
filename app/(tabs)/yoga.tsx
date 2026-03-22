@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   StyleSheet,
   View,
@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import {
   Colors,
   Gradients,
@@ -17,7 +18,9 @@ import {
   BorderRadius,
   FontSizes,
   Shadows,
+  HIT_SLOP,
 } from '../../src/theme/colors';
+import { AnimatedEntry, SectionHeader, GlassCard } from '../../src/components';
 
 const { width } = Dimensions.get('window');
 
@@ -142,7 +145,7 @@ export default function YogaScreen() {
         <View style={styles.classInfo}>
           <Text style={styles.className}>{item.title}</Text>
           <View style={styles.classMetaRow}>
-            <View style={styles.classMeta}>
+            <View style={styles.classMetaRow}>
               <Text style={styles.classMetaIcon}>⏱️</Text>
               <Text style={styles.classMetaText}>{item.duration} min</Text>
             </View>
@@ -178,10 +181,12 @@ export default function YogaScreen() {
         contentContainerStyle={styles.scrollContent}
       >
         {/* Header */}
-        <View style={styles.header}>
-          <Text style={styles.title}>Yoga & Meditation</Text>
-          <Text style={styles.subtitle}>Find your perfect practice</Text>
-        </View>
+        <AnimatedEntry delay={0} duration={500}>
+          <View style={styles.header}>
+            <Text style={styles.title} accessibilityRole="header">Yoga & Meditation</Text>
+            <Text style={styles.subtitle}>Find your perfect practice</Text>
+          </View>
+        </AnimatedEntry>
 
         {/* Filter Chips */}
         <ScrollView
@@ -222,8 +227,9 @@ export default function YogaScreen() {
         </ScrollView>
 
         {/* Featured Class */}
+        <AnimatedEntry delay={200} duration={600}>
         <View style={styles.featuredContainer}>
-          <Text style={styles.sectionTitle}>Featured Class</Text>
+          <SectionHeader title="Featured Class" />
           <TouchableOpacity style={styles.featuredCard} activeOpacity={0.8}>
             <LinearGradient
               colors={Gradients.cardPrimary}
@@ -286,9 +292,12 @@ export default function YogaScreen() {
           </TouchableOpacity>
         </View>
 
+        </AnimatedEntry>
+
         {/* Class List */}
+        <AnimatedEntry delay={400} duration={600}>
         <View style={styles.classesContainer}>
-          <Text style={styles.sectionTitle}>All Classes</Text>
+          <SectionHeader title="All Classes" />
           <FlatList
             data={filteredClasses}
             renderItem={renderClassCard}
@@ -298,8 +307,10 @@ export default function YogaScreen() {
           />
         </View>
 
+        </AnimatedEntry>
+
         {/* Footer spacing */}
-        <View style={{ height: Spacing.xxl }} />
+        <View style={{ height: 100 }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -546,18 +557,6 @@ const styles = StyleSheet.create({
   difficultyText: {
     fontSize: FontSizes.xs,
     fontWeight: '600',
-  },
-  classMetaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
-  },
-  classMetaIcon: {
-    fontSize: 12,
-  },
-  classMetaText: {
-    fontSize: FontSizes.sm,
-    color: Colors.textSecondary,
   },
   instructor: {
     fontSize: FontSizes.xs,

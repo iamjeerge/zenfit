@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,11 +8,15 @@ import {
   ActivityIndicator,
   Keyboard,
   TouchableWithoutFeedback,
+  KeyboardAvoidingView,
+  Platform,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
+import * as Haptics from 'expo-haptics';
 import { useAuthStore } from '../src/store/authStore';
-import { Colors, Gradients, Spacing, BorderRadius } from '../src/theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes } from '../src/theme/colors';
+import { GradientButton } from '../src/components';
 
 type AuthMode = 'signin' | 'signup';
 
@@ -28,7 +32,7 @@ export default function AuthScreen() {
   const { signInWithEmail, signUpWithEmail, session } = useAuthStore();
 
   // Navigate to main app when authenticated
-  useState(() => {
+  useEffect(() => {
     if (session) {
       router.replace('/(tabs)');
     }
@@ -43,6 +47,7 @@ export default function AuthScreen() {
     setError('');
 
     if (!email.trim() || !password.trim()) {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       setError('Please enter email and password');
       return;
     }
@@ -60,6 +65,7 @@ export default function AuthScreen() {
     setLoading(true);
     try {
       await signInWithEmail(email, password);
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.replace('/(tabs)');
     } catch (err) {
       setError(

@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import {
   Colors,
   Gradients,
@@ -17,6 +18,8 @@ import {
   FontSizes,
   Shadows,
 } from '../theme/colors';
+import AnimatedEntry from '../components/AnimatedEntry';
+import SectionHeader from '../components/SectionHeader';
 
 type Gender = 'men' | 'women' | 'all';
 type Category = 'Skin' | 'Hair' | 'Grooming' | 'Post-Workout' | 'Nutrition Beauty';
@@ -99,7 +102,10 @@ export default function BeautyTipsScreen() {
         styles.genderButton,
         genderFilter === value && styles.genderButtonActive,
       ]}
-      onPress={() => setGenderFilter(value)}
+      onPress={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setGenderFilter(value);
+      }}
     >
       <Text
         style={[
@@ -118,7 +124,10 @@ export default function BeautyTipsScreen() {
         styles.categoryChip,
         selectedCategory === category && styles.categoryChipActive,
       ]}
-      onPress={() => setSelectedCategory(category as Category | 'all')}
+      onPress={() => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        setSelectedCategory(category as Category | 'all');
+      }}
     >
       <Text
         style={[
@@ -162,10 +171,12 @@ export default function BeautyTipsScreen() {
         style={StyleSheet.absoluteFill}
       />
 
-      <View style={styles.header}>
-        <Text style={styles.title}>Beauty Tips</Text>
-        <Text style={styles.subtitle}>Glow from inside out</Text>
-      </View>
+      <AnimatedEntry delay={0}>
+        <View style={styles.header}>
+          <Text style={styles.title}>Beauty Tips</Text>
+          <Text style={styles.subtitle}>Glow from inside out</Text>
+        </View>
+      </AnimatedEntry>
 
       <ScrollView
         style={styles.content}
@@ -173,6 +184,7 @@ export default function BeautyTipsScreen() {
         contentContainerStyle={styles.scrollContent}
       >
         {/* Gender Filter */}
+        <AnimatedEntry delay={100}>
         <View style={styles.filterSection}>
           <Text style={styles.filterLabel}>For</Text>
           <View style={styles.genderButtonGroup}>
@@ -182,7 +194,9 @@ export default function BeautyTipsScreen() {
           </View>
         </View>
 
+        </AnimatedEntry>
         {/* Category Filter */}
+        <AnimatedEntry delay={200}>
         <View style={styles.filterSection}>
           <Text style={styles.filterLabel}>Categories</Text>
           <ScrollView
@@ -197,7 +211,9 @@ export default function BeautyTipsScreen() {
           </ScrollView>
         </View>
 
+        </AnimatedEntry>
         {/* Tips Grid */}
+        <AnimatedEntry delay={300}>
         <View style={styles.tipsContainer}>
           {filteredTips.length > 0 ? (
             filteredTips.map((tip) => <TipCard key={tip.id} tip={tip} />)
@@ -207,6 +223,7 @@ export default function BeautyTipsScreen() {
             </View>
           )}
         </View>
+        </AnimatedEntry>
       </ScrollView>
     </SafeAreaView>
   );

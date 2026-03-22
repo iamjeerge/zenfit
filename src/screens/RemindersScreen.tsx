@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import {
   Colors,
   Gradients,
@@ -17,6 +18,8 @@ import {
   FontSizes,
   Shadows,
 } from '../theme/colors';
+import AnimatedEntry from '../components/AnimatedEntry';
+import { GradientButton } from '../components';
 
 interface Reminder {
   id: string;
@@ -40,6 +43,7 @@ export default function RemindersScreen() {
   ]);
 
   const toggleReminder = (id: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setReminders((prev) =>
       prev.map((reminder) =>
         reminder.id === id
@@ -86,30 +90,33 @@ export default function RemindersScreen() {
         style={StyleSheet.absoluteFill}
       />
 
+      <AnimatedEntry delay={0}>
       <View style={styles.header}>
         <Text style={styles.title}>Reminders</Text>
         <Text style={styles.subtitle}>Stay on track with daily habits</Text>
       </View>
+      </AnimatedEntry>
 
       <ScrollView
         style={styles.content}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        {reminders.map((reminder) => (
-          <ReminderCard key={reminder.id} reminder={reminder} />
+        {reminders.map((reminder, index) => (
+          <AnimatedEntry key={reminder.id} delay={100 + index * 50}>
+            <ReminderCard reminder={reminder} />
+          </AnimatedEntry>
         ))}
 
-        <TouchableOpacity style={styles.addButton}>
-          <LinearGradient
-            colors={Gradients.aurora}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.addButtonGradient}
-          >
-            <Text style={styles.addButtonText}>+ Add Custom Reminder</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+        <AnimatedEntry delay={600}>
+        <GradientButton
+          title="+ Add Custom Reminder"
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          }}
+          style={{ marginTop: Spacing.lg, marginBottom: Spacing.md }}
+        />
+        </AnimatedEntry>
       </ScrollView>
     </SafeAreaView>
   );

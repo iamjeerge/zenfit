@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   StyleSheet,
   View,
@@ -9,6 +9,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
 import { useAuthStore } from '../../src/store/authStore';
 import {
   Colors,
@@ -17,50 +19,69 @@ import {
   BorderRadius,
   FontSizes,
   Shadows,
+  HIT_SLOP,
 } from '../../src/theme/colors';
+import {
+  GlassCard,
+  StatCard,
+  SectionHeader,
+  AnimatedEntry,
+} from '../../src/components';
 
 const { width } = Dimensions.get('window');
 
+const MANTRAS = [
+  '"Every breath is a new beginning. Be present, be grateful, be whole."',
+  '"Your body is a temple, but only if you treat it as one."',
+  '"The pose begins when you want to leave it."',
+  '"Peace comes from within. Do not seek it without."',
+  '"Inhale the future, exhale the past."',
+];
+
+const QUICK_ACTIONS = [
+  { icon: '🧘', label: 'Start Yoga', route: '/yoga' as const },
+  { icon: '🌬️', label: 'Breathe', route: '/breathe' as const },
+  { icon: '🍽️', label: 'Log Meal', route: '/nutrition' as const },
+  { icon: '📊', label: 'Progress', route: '/profile' as const },
+];
+
 export default function HomeScreen() {
+  const router = useRouter();
   const profile = useAuthStore((s) => s.profile);
   const [heartRate] = useState(72);
   const [heartZone] = useState<'rest' | 'fatburn' | 'cardio' | 'peak' | 'extreme'>('fatburn');
 
+  const todayMantra = MANTRAS[new Date().getDay() % MANTRAS.length];
+
   const getHeartZoneColor = () => {
-    switch (heartZone) {
-      case 'rest':
-        return Colors.heartRest;
-      case 'fatburn':
-        return Colors.heartFatBurn;
-      case 'cardio':
-        return Colors.heartCardio;
-      case 'peak':
-        return Colors.heartPeak;
-      case 'extreme':
-        return Colors.heartExtreme;
-      default:
-        return Colors.cosmicBlue;
-    }
+    const map = {
+      rest: Colors.heartRest,
+      fatburn: Colors.heartFatBurn,
+      cardio: Colors.heartCardio,
+      peak: Colors.heartPeak,
+      extreme: Colors.heartExtreme,
+    };
+    return map[heartZone] ?? Colors.cosmicBlue;
   };
 
   const getHeartZoneLabel = () => {
-    switch (heartZone) {
-      case 'rest':
-        return 'Rest';
-      case 'fatburn':
-        return 'Fat Burn';
-      case 'cardio':
-        return 'Cardio';
-      case 'peak':
-        return 'Peak';
-      case 'extreme':
-        return 'Extreme';
-      default:
-        return 'Unknown';
-    }
+    const map = {
+      rest: 'Rest',
+      fatburn: 'Fat Burn',
+      cardio: 'Cardio',
+      peak: 'Peak',
+      extreme: 'Extreme',
+    };
+    return map[heartZone] ?? 'Unknown';
   };
 
+  const handleQuickAction = useCallback((route: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.push(route as any);
+  }, [router]);
+
   const firstName = profile?.full_name?.split(' ')[0] || 'Friend';
+  const greeting = new Date().getHours() < 12 ? 'Good Morning' : new Date().getHours() < 17 ? 'Good Afternoon' : 'Good Evening';
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -69,99 +90,71 @@ export default function HomeScreen() {
         contentContainerStyle={styles.scrollContent}
       >
         {/* Header with Aurora Gradient */}
-        <LinearGradient
-          colors={Gradients.aurora}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.headerGradient}
-        >
-          <View style={styles.headerContent}>
-            <Text style={styles.greeting}>Namaste, {firstName}🙏</Text>
-            <Text style={styles.mantraLabel}>Daily Mantra</Text>
-          </View>
-        </LinearGradient>
+        <AnimatedEntry delay={0} duration={600}>
+          <LinearGradient
+            colors={Gradients.aurora as unknown as [string, string, ...string[]]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.headerGradient}
+          >
+            <View style={styles.headerContent}>
+              <Text style={styles.greetingSmall}>{greeting}</Text>
+              <Text style={styles.greeting} accessibilityRole="header">
+                {firstName} 🙏
+              </Text>
+            </View>
+          </LinearGradient>
+        </AnimatedEntry>
 
         {/* Daily Mantra Card */}
-        <View style={styles.mantraCard}>
-          <LinearGradient
-            colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
-            style={styles.mantraGradient}
-          >
-            <Text style={styles.mantraText}>
-              "Every breath is a new beginning. Be present, be grateful, be whole."
-            </Text>
+        <AnimatedEntry delay={100} duration={600}>
+          <GlassCard style={styles.mantraCard}>
+            <Text style={styles.mantraLabel}>DAILY MANTRA</Text>
+            <Text style={styles.mantraText}>{todayMantra}</Text>
             <Text style={styles.mantraAuthor}>— Daily Wisdom</Text>
-          </LinearGradient>
-        </View>
+          </GlassCard>
+        </AnimatedEntry>
 
         {/* Daily Stats Row */}
-        <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <LinearGradient
-              colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
-              style={styles.statGradient}
-            >
-              <Text style={styles.statValue}>8,432</Text>
-              <Text style={styles.statLabel}>Steps</Text>
-              <View style={styles.statProgress}>
-                <View
-                  style={[
-                    styles.progressBar,
-                    { width: '84%', backgroundColor: Colors.sageLeaf },
-                  ]}
-                />
-              </View>
-            </LinearGradient>
+        <AnimatedEntry delay={200} duration={600}>
+          <View style={styles.statsRow}>
+            <StatCard
+              value="8,432"
+              label="Steps"
+              progress={0.84}
+              progressColor={Colors.sageLeaf}
+              icon="👟"
+            />
+            <StatCard
+              value="6/10"
+              label="Water"
+              progress={0.6}
+              progressColor={Colors.cosmicBlue}
+              icon="💧"
+            />
+            <StatCard
+              value="320"
+              label="Calories"
+              progress={0.64}
+              progressColor={Colors.sunriseOrange}
+              icon="🔥"
+            />
           </View>
-
-          <View style={styles.statCard}>
-            <LinearGradient
-              colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
-              style={styles.statGradient}
-            >
-              <Text style={styles.statValue}>6/10</Text>
-              <Text style={styles.statLabel}>Water</Text>
-              <View style={styles.statProgress}>
-                <View
-                  style={[
-                    styles.progressBar,
-                    { width: '60%', backgroundColor: Colors.cosmicBlue },
-                  ]}
-                />
-              </View>
-            </LinearGradient>
-          </View>
-
-          <View style={styles.statCard}>
-            <LinearGradient
-              colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
-              style={styles.statGradient}
-            >
-              <Text style={styles.statValue}>320</Text>
-              <Text style={styles.statLabel}>Calories</Text>
-              <View style={styles.statProgress}>
-                <View
-                  style={[
-                    styles.progressBar,
-                    { width: '64%', backgroundColor: Colors.sunriseOrange },
-                  ]}
-                />
-              </View>
-            </LinearGradient>
-          </View>
-        </View>
+        </AnimatedEntry>
 
         {/* Heart Rate Widget */}
-        <View style={styles.heartRateCard}>
-          <LinearGradient
-            colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
-            style={styles.heartRateGradient}
-          >
+        <AnimatedEntry delay={300} duration={600}>
+          <GlassCard style={{ marginBottom: Spacing.lg }}>
             <View style={styles.heartRateContent}>
               <View style={styles.heartRateLeft}>
-                <Text style={styles.heartRateLabel}>Live Heart Rate</Text>
+                <Text style={styles.heartRateLabel}>LIVE HEART RATE</Text>
                 <View style={styles.heartRateDisplay}>
-                  <Text style={styles.heartRateValue}>{heartRate}</Text>
+                  <Text
+                    style={styles.heartRateValue}
+                    accessibilityLabel={`Heart rate: ${heartRate} beats per minute`}
+                  >
+                    {heartRate}
+                  </Text>
                   <Text style={styles.heartRateUnit}>BPM</Text>
                 </View>
               </View>
@@ -169,68 +162,48 @@ export default function HomeScreen() {
                 <View
                   style={[
                     styles.heartRateZoneIndicator,
-                    { backgroundColor: getHeartZoneColor() },
+                    {
+                      backgroundColor: getHeartZoneColor(),
+                      shadowColor: getHeartZoneColor(),
+                    },
                   ]}
                 />
                 <Text style={styles.heartZoneLabel}>{getHeartZoneLabel()}</Text>
               </View>
             </View>
-          </LinearGradient>
-        </View>
+          </GlassCard>
+        </AnimatedEntry>
 
         {/* Quick Action Buttons */}
-        <View style={styles.quickActionsContainer}>
-          <Text style={styles.sectionTitle}>Quick Actions</Text>
+        <AnimatedEntry delay={400} duration={600}>
+          <SectionHeader title="Quick Actions" />
           <View style={styles.actionButtonsRow}>
-            <TouchableOpacity style={styles.actionButton} activeOpacity={0.8}>
-              <LinearGradient
-                colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
-                style={styles.actionButtonGradient}
+            {QUICK_ACTIONS.map((action, idx) => (
+              <TouchableOpacity
+                key={action.label}
+                style={styles.actionButton}
+                activeOpacity={0.7}
+                onPress={() => handleQuickAction(action.route)}
+                accessibilityRole="button"
+                accessibilityLabel={action.label}
+                hitSlop={HIT_SLOP}
               >
-                <Text style={styles.actionButtonIcon}>🧘</Text>
-                <Text style={styles.actionButtonText}>Start Yoga</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.actionButton} activeOpacity={0.8}>
-              <LinearGradient
-                colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
-                style={styles.actionButtonGradient}
-              >
-                <Text style={styles.actionButtonIcon}>🌬️</Text>
-                <Text style={styles.actionButtonText}>Breathe</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.actionButton} activeOpacity={0.8}>
-              <LinearGradient
-                colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
-                style={styles.actionButtonGradient}
-              >
-                <Text style={styles.actionButtonIcon}>🍽️</Text>
-                <Text style={styles.actionButtonText}>Log Meal</Text>
-              </LinearGradient>
-            </TouchableOpacity>
-
-            <TouchableOpacity style={styles.actionButton} activeOpacity={0.8}>
-              <LinearGradient
-                colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
-                style={styles.actionButtonGradient}
-              >
-                <Text style={styles.actionButtonIcon}>💄</Text>
-                <Text style={styles.actionButtonText}>Beauty Tips</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+                <LinearGradient
+                  colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
+                  style={styles.actionButtonGradient}
+                >
+                  <Text style={styles.actionButtonIcon}>{action.icon}</Text>
+                  <Text style={styles.actionButtonText}>{action.label}</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            ))}
           </View>
-        </View>
+        </AnimatedEntry>
 
         {/* Streak & XP Section */}
-        <View style={styles.streakContainer}>
-          <View style={styles.streakCard}>
-            <LinearGradient
-              colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
-              style={styles.streakGradient}
-            >
+        <AnimatedEntry delay={500} duration={600}>
+          <View style={styles.streakContainer}>
+            <GlassCard style={{ flex: 1 }}>
               <View style={styles.streakContent}>
                 <Text style={styles.streakIcon}>🔥</Text>
                 <View style={styles.streakInfo}>
@@ -238,14 +211,9 @@ export default function HomeScreen() {
                   <Text style={styles.streakLabel}>Day Streak</Text>
                 </View>
               </View>
-            </LinearGradient>
-          </View>
+            </GlassCard>
 
-          <View style={styles.xpCard}>
-            <LinearGradient
-              colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
-              style={styles.xpGradient}
-            >
+            <GlassCard style={{ flex: 1 }}>
               <View style={styles.xpContent}>
                 <View style={styles.levelBadge}>
                   <Text style={styles.levelText}>LV</Text>
@@ -256,12 +224,12 @@ export default function HomeScreen() {
                   <Text style={styles.xpLabel}>Total XP</Text>
                 </View>
               </View>
-            </LinearGradient>
+            </GlassCard>
           </View>
-        </View>
+        </AnimatedEntry>
 
         {/* Footer spacing for tab bar */}
-        <View style={{ height: Spacing.xxl }} />
+        <View style={{ height: 100 }} />
       </ScrollView>
     </SafeAreaView>
   );
@@ -279,40 +247,42 @@ const styles = StyleSheet.create({
   headerGradient: {
     borderRadius: BorderRadius.xl,
     padding: Spacing.lg,
+    paddingTop: Spacing.xl,
+    paddingBottom: Spacing.xl,
     marginBottom: Spacing.lg,
   },
   headerContent: {
     gap: Spacing.xs,
   },
+  greetingSmall: {
+    fontSize: FontSizes.sm,
+    color: 'rgba(255,255,255,0.7)',
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    marginBottom: Spacing.xs,
+  },
   greeting: {
-    fontSize: FontSizes.xxxl,
+    fontSize: FontSizes.display,
     fontWeight: '800',
     color: Colors.textPrimary,
-  },
-  mantraLabel: {
-    fontSize: FontSizes.sm,
-    color: Colors.textSecondary,
-    textTransform: 'uppercase',
-    letterSpacing: 1.5,
+    letterSpacing: -0.5,
   },
   mantraCard: {
     marginBottom: Spacing.lg,
-    borderRadius: BorderRadius.xl,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    ...Shadows.subtle,
   },
-  mantraGradient: {
-    padding: Spacing.lg,
-    minHeight: 100,
-    justifyContent: 'center',
+  mantraLabel: {
+    fontSize: FontSizes.xs,
+    color: Colors.textMuted,
+    textTransform: 'uppercase',
+    letterSpacing: 2,
+    marginBottom: Spacing.sm,
+    fontWeight: '600',
   },
   mantraText: {
     fontSize: FontSizes.md,
     color: Colors.lavender,
     fontStyle: 'italic',
-    lineHeight: 22,
+    lineHeight: 24,
     marginBottom: Spacing.sm,
   },
   mantraAuthor: {
@@ -325,52 +295,6 @@ const styles = StyleSheet.create({
     gap: Spacing.md,
     marginBottom: Spacing.lg,
   },
-  statCard: {
-    flex: 1,
-    borderRadius: BorderRadius.lg,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    ...Shadows.subtle,
-  },
-  statGradient: {
-    padding: Spacing.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  statValue: {
-    fontSize: FontSizes.xl,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-    marginBottom: Spacing.xs,
-  },
-  statLabel: {
-    fontSize: FontSizes.sm,
-    color: Colors.textSecondary,
-    marginBottom: Spacing.sm,
-  },
-  statProgress: {
-    width: '100%',
-    height: 4,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: BorderRadius.sm,
-    overflow: 'hidden',
-  },
-  progressBar: {
-    height: '100%',
-    borderRadius: BorderRadius.sm,
-  },
-  heartRateCard: {
-    marginBottom: Spacing.lg,
-    borderRadius: BorderRadius.xl,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    ...Shadows.subtle,
-  },
-  heartRateGradient: {
-    padding: Spacing.lg,
-  },
   heartRateContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -380,11 +304,11 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   heartRateLabel: {
-    fontSize: FontSizes.sm,
+    fontSize: FontSizes.xs,
     color: Colors.textSecondary,
     marginBottom: Spacing.sm,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 1.5,
+    fontWeight: '600',
   },
   heartRateDisplay: {
     flexDirection: 'row',
@@ -392,7 +316,7 @@ const styles = StyleSheet.create({
     gap: Spacing.xs,
   },
   heartRateValue: {
-    fontSize: FontSizes.xxxl,
+    fontSize: FontSizes.display,
     fontWeight: '800',
     color: Colors.textPrimary,
   },
@@ -406,11 +330,11 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
   },
   heartRateZoneIndicator: {
-    width: 48,
-    height: 48,
+    width: 52,
+    height: 52,
     borderRadius: BorderRadius.full,
     shadowOpacity: 0.6,
-    shadowRadius: 12,
+    shadowRadius: 16,
     elevation: 8,
   },
   heartZoneLabel: {
@@ -418,22 +342,14 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     fontWeight: '600',
   },
-  quickActionsContainer: {
-    marginBottom: Spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: FontSizes.lg,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-    marginBottom: Spacing.md,
-  },
   actionButtonsRow: {
     flexDirection: 'row',
-    gap: Spacing.sm,
     flexWrap: 'wrap',
+    gap: Spacing.md,
+    marginBottom: Spacing.lg,
   },
   actionButton: {
-    width: '48%',
+    width: (width - Spacing.md * 2 - Spacing.md) / 2,
     borderRadius: BorderRadius.lg,
     overflow: 'hidden',
     borderWidth: 1,
@@ -441,14 +357,14 @@ const styles = StyleSheet.create({
     ...Shadows.subtle,
   },
   actionButtonGradient: {
-    padding: Spacing.md,
+    padding: Spacing.lg,
     alignItems: 'center',
-    gap: Spacing.xs,
+    gap: Spacing.sm,
     minHeight: 100,
     justifyContent: 'center',
   },
   actionButtonIcon: {
-    fontSize: 32,
+    fontSize: 36,
   },
   actionButtonText: {
     fontSize: FontSizes.sm,
@@ -460,18 +376,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: Spacing.md,
     marginBottom: Spacing.lg,
-  },
-  streakCard: {
-    flex: 1,
-    borderRadius: BorderRadius.lg,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    ...Shadows.subtle,
-  },
-  streakGradient: {
-    padding: Spacing.lg,
-    justifyContent: 'center',
   },
   streakContent: {
     flexDirection: 'row',
@@ -493,52 +397,41 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.sm,
     color: Colors.textSecondary,
   },
-  xpCard: {
-    flex: 1,
-    borderRadius: BorderRadius.lg,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    ...Shadows.subtle,
-  },
-  xpGradient: {
-    padding: Spacing.lg,
-    justifyContent: 'center',
-  },
   xpContent: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.md,
   },
   levelBadge: {
-    width: 50,
-    height: 50,
+    width: 48,
+    height: 48,
     borderRadius: BorderRadius.full,
     backgroundColor: Colors.violet,
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 2,
+    ...Shadows.glow,
   },
   levelText: {
     fontSize: FontSizes.xs,
     fontWeight: '700',
-    color: Colors.textPrimary,
+    color: Colors.lavender,
   },
   levelNumber: {
     fontSize: FontSizes.lg,
     fontWeight: '800',
     color: Colors.textPrimary,
+    marginTop: -2,
   },
   xpInfo: {
     flex: 1,
   },
   xpValue: {
-    fontSize: FontSizes.lg,
-    fontWeight: '700',
-    color: Colors.textPrimary,
+    fontSize: FontSizes.xxl,
+    fontWeight: '800',
+    color: Colors.violetLight,
   },
   xpLabel: {
-    fontSize: FontSizes.xs,
+    fontSize: FontSizes.sm,
     color: Colors.textSecondary,
   },
 });

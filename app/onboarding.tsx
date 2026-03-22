@@ -12,7 +12,9 @@ import {
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Colors, Gradients, Spacing, BorderRadius } from '../src/theme/colors';
+import * as Haptics from 'expo-haptics';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes } from '../src/theme/colors';
+import { GradientButton } from '../src/components';
 
 const { width } = Dimensions.get('window');
 
@@ -62,6 +64,7 @@ export default function OnboardingScreen() {
   };
 
   const handleNext = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (currentPage < pages.length - 1) {
       scrollViewRef.current?.scrollTo({
         x: (currentPage + 1) * width,
@@ -71,6 +74,7 @@ export default function OnboardingScreen() {
   };
 
   const handleGetStarted = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     router.replace('/auth');
   };
 
@@ -171,28 +175,14 @@ export default function OnboardingScreen() {
 
       {/* Action buttons */}
       <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={styles.nextButtonOutline}
+        <GradientButton
+          title={currentPage === pages.length - 1 ? 'Get Started' : 'Next'}
           onPress={
             currentPage === pages.length - 1
               ? handleGetStarted
               : handleNext
           }
-          activeOpacity={0.8}
-        >
-          <LinearGradient
-            colors={Gradients.aurora}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.nextButtonGradient}
-          >
-            <Text style={styles.nextButtonText}>
-              {currentPage === pages.length - 1
-                ? 'Get Started'
-                : 'Next'}
-            </Text>
-          </LinearGradient>
-        </TouchableOpacity>
+        />
       </View>
     </LinearGradient>
   );
@@ -235,25 +225,25 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.lg,
   },
   title: {
-    fontSize: 32,
-    fontWeight: '700',
+    fontSize: FontSizes.xxxl,
+    fontWeight: '800',
     color: Colors.moonlight,
     textAlign: 'center',
     marginBottom: Spacing.md,
-    letterSpacing: 0.5,
+    letterSpacing: -0.5,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: FontSizes.lg,
     color: Colors.lavender,
     textAlign: 'center',
     marginBottom: Spacing.lg,
-    fontWeight: '500',
+    fontWeight: '600',
   },
   description: {
-    fontSize: 14,
+    fontSize: FontSizes.md,
     color: Colors.textSecondary,
     textAlign: 'center',
-    lineHeight: 22,
+    lineHeight: 24,
     maxWidth: width - Spacing.xl,
     marginBottom: Spacing.xxl,
   },

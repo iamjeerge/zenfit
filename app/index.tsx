@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { useAuthStore } from '../src/store/authStore';
 import { Colors, Gradients, Spacing } from '../src/theme/colors';
@@ -74,6 +75,7 @@ export default function SplashScreen() {
     if (!initialized) return;
 
     const timer = setTimeout(() => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       if (session) {
         router.replace('/(tabs)');
       } else {

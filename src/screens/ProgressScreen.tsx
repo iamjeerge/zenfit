@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import {
   Colors,
   Gradients,
@@ -17,6 +18,9 @@ import {
   FontSizes,
   Shadows,
 } from '../theme/colors';
+import AnimatedEntry from '../components/AnimatedEntry';
+import SectionHeader from '../components/SectionHeader';
+import { GradientButton } from '../components';
 
 const CALENDAR_DAYS = 21;
 const screenWidth = Dimensions.get('window').width;
@@ -167,11 +171,14 @@ export default function ProgressScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        <AnimatedEntry delay={0}>
         <View style={styles.header}>
           <Text style={styles.title}>Your Progress</Text>
         </View>
+        </AnimatedEntry>
 
         {/* Streak Section */}
+        <AnimatedEntry delay={100}>
         <LinearGradient
           colors={Gradients.cardPrimary}
           start={{ x: 0, y: 0 }}
@@ -187,15 +194,21 @@ export default function ProgressScreen() {
           </View>
         </LinearGradient>
 
+        </AnimatedEntry>
+
         {/* Calendar Heatmap */}
+        <AnimatedEntry delay={200}>
         <View style={styles.heatmapSection}>
-          <Text style={styles.sectionTitle}>21-Day Habit Tracker</Text>
+          <SectionHeader title="21-Day Habit Tracker" />
           <CalendarHeatmap />
         </View>
 
+        </AnimatedEntry>
+
         {/* Stats Grid */}
+        <AnimatedEntry delay={300}>
         <View style={styles.statsSection}>
-          <Text style={styles.sectionTitle}>Your Stats</Text>
+          <SectionHeader title="Your Stats" />
           <View style={styles.statsGrid}>
             {stats.map((stat, index) => (
               <View
@@ -211,15 +224,21 @@ export default function ProgressScreen() {
           </View>
         </View>
 
+        </AnimatedEntry>
+
         {/* Weekly Chart */}
+        <AnimatedEntry delay={400}>
         <View style={styles.chartSection}>
-          <Text style={styles.sectionTitle}>Weekly Steps</Text>
+          <SectionHeader title="Weekly Steps" />
           <WeeklyChart />
         </View>
 
+        </AnimatedEntry>
+
         {/* Badges Section */}
+        <AnimatedEntry delay={500}>
         <View style={styles.badgesSection}>
-          <Text style={styles.sectionTitle}>Achievements</Text>
+          <SectionHeader title="Achievements" />
           <View style={styles.badgesGrid}>
             {badges.map((badge) => (
               <View key={badge.id} style={styles.badgeGridItem}>
@@ -229,17 +248,19 @@ export default function ProgressScreen() {
           </View>
         </View>
 
+        </AnimatedEntry>
+
         {/* Generate Report Button */}
-        <TouchableOpacity style={styles.reportButton}>
-          <LinearGradient
-            colors={Gradients.aurora}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={styles.reportButtonGradient}
-          >
-            <Text style={styles.reportButtonText}>Generate Health Report</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+        <AnimatedEntry delay={600}>
+        <GradientButton
+          title="Generate Health Report"
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+          }}
+          icon="📊"
+          style={{ marginBottom: Spacing.md }}
+        />
+        </AnimatedEntry>
       </ScrollView>
     </SafeAreaView>
   );
