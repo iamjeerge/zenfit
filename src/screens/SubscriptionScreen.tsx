@@ -8,6 +8,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import {
   Colors,
   Gradients,
@@ -16,6 +17,8 @@ import {
   FontSizes,
   Shadows,
 } from '../theme/colors';
+import AnimatedEntry from '../components/AnimatedEntry';
+import { GradientButton } from '../components';
 
 type BillingPeriod = 'monthly' | 'annual';
 
@@ -51,19 +54,25 @@ export default function SubscriptionScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
+        <AnimatedEntry delay={0}>
         <View style={styles.header}>
           <Text style={styles.title}>Premium</Text>
           <Text style={styles.subtitle}>Unlock your full potential</Text>
         </View>
+        </AnimatedEntry>
 
         {/* Billing Toggle */}
+        <AnimatedEntry delay={100}>
         <View style={styles.billingToggleContainer}>
           <TouchableOpacity
             style={[
               styles.billingOption,
               billingPeriod === 'monthly' && styles.billingOptionActive,
             ]}
-            onPress={() => setBillingPeriod('monthly')}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setBillingPeriod('monthly');
+            }}
           >
             <Text
               style={[
@@ -79,7 +88,10 @@ export default function SubscriptionScreen() {
               styles.billingOption,
               billingPeriod === 'annual' && styles.billingOptionActive,
             ]}
-            onPress={() => setBillingPeriod('annual')}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setBillingPeriod('annual');
+            }}
           >
             <Text
               style={[
@@ -95,7 +107,10 @@ export default function SubscriptionScreen() {
           </TouchableOpacity>
         </View>
 
+        </AnimatedEntry>
+
         {/* Premium Plan Card */}
+        <AnimatedEntry delay={200}>
         <LinearGradient
           colors={Gradients.aurora}
           start={{ x: 0, y: 0 }}
@@ -137,23 +152,24 @@ export default function SubscriptionScreen() {
             </View>
 
             {/* CTA Button */}
-            <TouchableOpacity style={styles.ctaButton}>
-              <LinearGradient
-                colors={Gradients.aurora}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={styles.ctaButtonGradient}
-              >
-                <Text style={styles.ctaButtonText}>Start Free Trial</Text>
-              </LinearGradient>
-            </TouchableOpacity>
+            <GradientButton
+              title="Start Free Trial"
+              onPress={() => {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+              }}
+              style={{ marginTop: Spacing.md }}
+            />
           </LinearGradient>
         </LinearGradient>
 
+        </AnimatedEntry>
+
         {/* Restore Purchase Link */}
+        <AnimatedEntry delay={300}>
         <TouchableOpacity style={styles.restoreButton}>
           <Text style={styles.restoreButtonText}>Restore Purchase</Text>
         </TouchableOpacity>
+        </AnimatedEntry>
       </ScrollView>
     </SafeAreaView>
   );
