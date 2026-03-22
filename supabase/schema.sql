@@ -286,3 +286,54 @@ create policy "Anyone can view beauty tips" on public.beauty_tips for select usi
 create policy "Anyone can view exercise videos" on public.exercise_videos for select using (true);
 create policy "Anyone can view yoga classes" on public.yoga_classes for select using (true);
 create policy "Anyone can view achievements" on public.achievements for select using (true);
+
+-- ═══════════════════════════════════════════════
+-- 13. WORKOUT SESSIONS
+-- ═══════════════════════════════════════════════
+create table public.workout_sessions (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  exercises jsonb not null default '[]', -- [{name, sets, reps, weight_kg}]
+  duration_minutes integer,
+  notes text,
+  started_at timestamptz default now(),
+  completed_at timestamptz
+);
+
+alter table public.workout_sessions enable row level security;
+create policy "Users can manage own workout sessions" on public.workout_sessions for all using (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════
+-- 14. SLEEP LOGS
+-- ═══════════════════════════════════════════════
+create table public.sleep_logs (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  bedtime timestamptz not null,
+  wake_time timestamptz not null,
+  duration_hours numeric(4,2) generated always as (
+    extract(epoch from (wake_time - bedtime)) / 3600.0
+  ) stored,
+  quality integer check (quality between 1 and 5),
+  notes text,
+  date date not null,
+  created_at timestamptz default now()
+);
+
+alter table public.sleep_logs enable row level security;
+create policy "Users can manage own sleep logs" on public.sleep_logs for all using (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════
+-- 15. MOOD JOURNAL
+-- ═══════════════════════════════════════════════
+create table public.mood_journal (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  mood_level integer not null check (mood_level between 1 and 5),
+  notes text,
+  logged_at timestamptz default now(),
+  date date not null default current_date
+);
+
+alter table public.mood_journal enable row level security;
+create policy "Users can manage own mood journal" on public.mood_journal for all using (auth.uid() = user_id);

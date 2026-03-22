@@ -85,6 +85,27 @@ export default function ProfileScreen() {
       onPress: () => {},
     },
     {
+      id: 'workout',
+      icon: '🏋️',
+      title: 'Workout Tracker',
+      subtitle: 'Log exercises & track progress',
+      onPress: () => {},
+    },
+    {
+      id: 'sleep',
+      icon: '🌙',
+      title: 'Sleep Tracker',
+      subtitle: 'Monitor your rest & recovery',
+      onPress: () => {},
+    },
+    {
+      id: 'mood',
+      icon: '😊',
+      title: 'Mood Journal',
+      subtitle: 'Daily emotional check-in',
+      onPress: () => {},
+    },
+    {
       id: 'settings',
       icon: '⚙️',
       title: 'Settings',
