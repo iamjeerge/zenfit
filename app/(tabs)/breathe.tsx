@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as Haptics from 'expo-haptics';
 import {
   Colors,
   Gradients,
@@ -17,25 +18,41 @@ import {
   FontSizes,
   Shadows,
 } from '../../src/theme/colors';
+import { GlassCard, GradientButton, AnimatedEntry } from '../../src/components';
 
 type BreathingPhase = 'idle' | 'inhale' | 'hold' | 'exhale';
+
+const INHALE_DURATION = 4000;
+const HOLD_DURATION = 7000;
+const EXHALE_DURATION = 8000;
+
+const PHASE_SECONDS: Record<BreathingPhase, number> = {
+  idle: 0,
+  inhale: INHALE_DURATION / 1000,
+  hold: HOLD_DURATION / 1000,
+  exhale: EXHALE_DURATION / 1000,
+};
+
+const PHASE_COLORS: Record<BreathingPhase, string> = {
+  idle: Colors.violet,
+  inhale: Colors.cosmicBlue,
+  hold: Colors.sacredGold,
+  exhale: Colors.rosePetal,
+};
 
 export default function BreatheScreen() {
   const [isActive, setIsActive] = useState(false);
   const [phase, setPhase] = useState<BreathingPhase>('idle');
   const [cycles, setCycles] = useState(0);
   const [elapsedTime, setElapsedTime] = useState(0);
+  const [countdown, setCountdown] = useState(0);
   const [scaleAnim] = useState(new Animated.Value(0.3));
-
-  // Breathing cycle: 4 inhale, 7 hold, 8 exhale
-  const INHALE_DURATION = 4000;
-  const HOLD_DURATION = 7000;
-  const EXHALE_DURATION = 8000;
-  const CYCLE_DURATION = INHALE_DURATION + HOLD_DURATION + EXHALE_DURATION;
+  const phaseStartRef = useRef(0);
 
   useEffect(() => {
-    let timer: NodeJS.Timeout;
-    let cycleTimer: NodeJS.Timeout;
+    let timer: ReturnType<typeof setTimeout>;
+    let cycleTimer: ReturnType<typeof setInterval>;
+    let countdownTimer: ReturnType<typeof setInterval>;
 
     if (isActive) {
       cycleTimer = setInterval(() => {
@@ -43,11 +60,29 @@ export default function BreatheScreen() {
       }, 1000);
     }
 
+    if (isActive && phase !== 'idle') {
+      // Start countdown for current phase
+      const phaseSecs = PHASE_SECONDS[phase];
+      setCountdown(phaseSecs);
+      phaseStartRef.current = Date.now();
+
+      countdownTimer = setInterval(() => {
+        const elapsed = (Date.now() - phaseStartRef.current) / 1000;
+        const remaining = Math.max(0, Math.ceil(phaseSecs - elapsed));
+        setCountdown(remaining);
+      }, 200);
+    }
+
     if (isActive) {
-      const schedulePhase = (phase: BreathingPhase, duration: number, nextPhase: BreathingPhase) => {
+      // Haptic on phase change
+      if (phase !== 'idle') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      }
+
+      const schedulePhase = (currentPhase: BreathingPhase, duration: number, nextPhase: BreathingPhase) => {
         timer = setTimeout(() => {
           setPhase(nextPhase);
-          if (nextPhase === 'inhale' && phase === 'exhale') {
+          if (nextPhase === 'inhale' && currentPhase === 'exhale') {
             setCycles((c) => c + 1);
           }
         }, duration);
@@ -67,6 +102,7 @@ export default function BreatheScreen() {
     return () => {
       clearTimeout(timer);
       clearInterval(cycleTimer);
+      clearInterval(countdownTimer);
     };
   }, [isActive, phase]);
 
@@ -112,20 +148,7 @@ export default function BreatheScreen() {
       case 'exhale':
         return 'Exhale';
       default:
-        return 'Ready to breathe?';
-    }
-  };
-
-  const getPhaseDuration = () => {
-    switch (phase) {
-      case 'inhale':
-        return 4;
-      case 'hold':
-        return 7;
-      case 'exhale':
-        return 8;
-      default:
-        return 0;
+        return 'Ready?';
     }
   };
 
@@ -136,116 +159,127 @@ export default function BreatheScreen() {
   };
 
   const handleReset = () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
     setIsActive(false);
     setPhase('idle');
     setCycles(0);
     setElapsedTime(0);
+    setCountdown(0);
   };
+
+  const handleToggle = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+    setIsActive(!isActive);
+  };
+
+  const phaseColor = PHASE_COLORS[phase];
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <LinearGradient
-        colors={Gradients.lotus}
+        colors={Gradients.lotus as unknown as [string, string, ...string[]]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
       >
         <View style={styles.content}>
           {/* Header */}
-          <View style={styles.header}>
-            <Text style={styles.title}>4-7-8 Breathing</Text>
-            <Text style={styles.subtitle}>
-              Calm your mind, ease your soul
-            </Text>
-          </View>
+          <AnimatedEntry delay={0} duration={600}>
+            <View style={styles.header}>
+              <Text style={styles.title} accessibilityRole="header">
+                4-7-8 Breathing
+              </Text>
+              <Text style={styles.subtitle}>
+                Calm your mind, ease your soul
+              </Text>
+            </View>
+          </AnimatedEntry>
 
           {/* Main Circle Animation */}
-          <View style={styles.circleContainer}>
-            <Animated.View
-              style={[
-                styles.breathingCircle,
-                {
-                  transform: [{ scale: scaleAnim }],
-                },
-              ]}
-            />
-
-            {/* Phase Label */}
-            <View style={styles.phaseOverlay}>
-              <Text style={styles.phaseText}>{getPhaseLabel()}</Text>
-              {phase !== 'idle' && (
-                <Text style={styles.phaseDuration}>{getPhaseDuration()}</Text>
-              )}
+          <AnimatedEntry delay={200} duration={800}>
+            <View style={styles.circleContainer}>
+              <Animated.View
+                style={[
+                  styles.breathingCircle,
+                  {
+                    transform: [{ scale: scaleAnim }],
+                    backgroundColor: phaseColor,
+                    shadowColor: phaseColor,
+                  },
+                ]}
+              />
+              <View style={styles.phaseOverlay}>
+                <Text style={styles.phaseText}>{getPhaseLabel()}</Text>
+                {phase !== 'idle' && (
+                  <Text
+                    style={[styles.countdownText, { color: phaseColor }]}
+                    accessibilityLabel={`${countdown} seconds remaining`}
+                  >
+                    {countdown}
+                  </Text>
+                )}
+              </View>
             </View>
-          </View>
+          </AnimatedEntry>
 
           {/* Stats Section */}
-          <View style={styles.statsSection}>
-            <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Cycles</Text>
-              <Text style={styles.statValue}>{cycles}</Text>
+          <AnimatedEntry delay={300} duration={600}>
+            <View style={styles.statsSection}>
+              <View style={styles.statBox}>
+                <Text style={styles.statLabel}>CYCLES</Text>
+                <Text style={styles.statValue}>{cycles}</Text>
+              </View>
+              <View style={styles.divider} />
+              <View style={styles.statBox}>
+                <Text style={styles.statLabel}>ELAPSED</Text>
+                <Text style={styles.statValue}>{formatTime(elapsedTime)}</Text>
+              </View>
             </View>
-
-            <View style={styles.divider} />
-
-            <View style={styles.statBox}>
-              <Text style={styles.statLabel}>Elapsed</Text>
-              <Text style={styles.statValue}>{formatTime(elapsedTime)}</Text>
-            </View>
-          </View>
+          </AnimatedEntry>
 
           {/* Technique Info */}
-          <View style={styles.infoCard}>
-            <LinearGradient
-              colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
-              style={styles.infoGradient}
-            >
+          <AnimatedEntry delay={400} duration={600}>
+            <GlassCard style={styles.infoCard}>
               <Text style={styles.techniqueTitle}>4-7-8 Technique</Text>
-              <View style={styles.techniqueStep}>
-                <Text style={styles.stepNumber}>1</Text>
-                <Text style={styles.stepText}>Inhale for 4 seconds</Text>
-              </View>
-              <View style={styles.techniqueStep}>
-                <Text style={styles.stepNumber}>2</Text>
-                <Text style={styles.stepText}>Hold for 7 seconds</Text>
-              </View>
-              <View style={styles.techniqueStep}>
-                <Text style={styles.stepNumber}>3</Text>
-                <Text style={styles.stepText}>Exhale for 8 seconds</Text>
+              <View style={styles.techniqueSteps}>
+                {[
+                  { num: '1', text: 'Inhale for 4 seconds', color: Colors.cosmicBlue },
+                  { num: '2', text: 'Hold for 7 seconds', color: Colors.sacredGold },
+                  { num: '3', text: 'Exhale for 8 seconds', color: Colors.rosePetal },
+                ].map((step) => (
+                  <View key={step.num} style={styles.techniqueStep}>
+                    <View style={[styles.stepBadge, { backgroundColor: step.color }]}>
+                      <Text style={styles.stepNumber}>{step.num}</Text>
+                    </View>
+                    <Text style={styles.stepText}>{step.text}</Text>
+                  </View>
+                ))}
               </View>
               <Text style={styles.benefitText}>
-                Repeat this cycle to reduce anxiety, improve focus, and enhance sleep quality.
+                Reduces anxiety, improves focus, and enhances sleep quality.
               </Text>
-            </LinearGradient>
-          </View>
+            </GlassCard>
+          </AnimatedEntry>
 
           {/* Control Buttons */}
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[styles.button, styles.primaryButton]}
-              onPress={() => setIsActive(!isActive)}
-              activeOpacity={0.8}
-            >
-              <LinearGradient
-                colors={Gradients.aurora}
-                style={styles.buttonGradient}
-              >
-                <Text style={styles.buttonText}>
-                  {isActive ? 'Pause' : 'Start'}
-                </Text>
-              </LinearGradient>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[styles.button, styles.secondaryButton]}
-              onPress={handleReset}
-              activeOpacity={0.8}
-            >
-              <View style={styles.resetButton}>
-                <Text style={styles.resetButtonText}>Reset</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
+          <AnimatedEntry delay={500} duration={600}>
+            <View style={styles.buttonContainer}>
+              <GradientButton
+                title={isActive ? 'Pause' : 'Start'}
+                onPress={handleToggle}
+                variant="primary"
+                style={{ flex: 2 }}
+                accessibilityLabel={isActive ? 'Pause breathing exercise' : 'Start breathing exercise'}
+              />
+              <GradientButton
+                title="Reset"
+                onPress={handleReset}
+                variant="secondary"
+                style={{ flex: 1 }}
+                accessibilityLabel="Reset breathing exercise"
+              />
+            </View>
+          </AnimatedEntry>
         </View>
       </LinearGradient>
     </SafeAreaView>
@@ -269,36 +303,35 @@ const styles = StyleSheet.create({
   },
   header: {
     alignItems: 'center',
-    marginTop: Spacing.xl,
+    marginTop: Spacing.lg,
   },
   title: {
     fontSize: FontSizes.xxxl,
     fontWeight: '800',
     color: Colors.textPrimary,
     marginBottom: Spacing.sm,
+    letterSpacing: -0.5,
   },
   subtitle: {
     fontSize: FontSizes.md,
-    color: Colors.textSecondary,
+    color: 'rgba(255,255,255,0.6)',
     fontStyle: 'italic',
   },
   circleContainer: {
-    width: 240,
-    height: 240,
+    width: 260,
+    height: 260,
     justifyContent: 'center',
     alignItems: 'center',
-    marginVertical: Spacing.xl,
+    marginVertical: Spacing.lg,
   },
   breathingCircle: {
     width: '100%',
     height: '100%',
-    borderRadius: 120,
-    backgroundColor: Colors.violet,
-    opacity: 0.6,
-    shadowColor: Colors.violet,
+    borderRadius: 130,
+    opacity: 0.5,
     shadowOpacity: 0.8,
-    shadowRadius: 30,
-    elevation: 10,
+    shadowRadius: 40,
+    elevation: 12,
   },
   phaseOverlay: {
     position: 'absolute',
@@ -311,29 +344,30 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.xxl,
     fontWeight: '700',
     color: Colors.textPrimary,
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.xs,
+    letterSpacing: 1,
   },
-  phaseDuration: {
-    fontSize: FontSizes.xl,
-    fontWeight: '600',
-    color: Colors.lavender,
+  countdownText: {
+    fontSize: 48,
+    fontWeight: '800',
+    letterSpacing: -1,
   },
   statsSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: Spacing.lg,
-    marginVertical: Spacing.lg,
+    gap: Spacing.xl,
+    marginVertical: Spacing.md,
   },
   statBox: {
     alignItems: 'center',
     flex: 1,
   },
   statLabel: {
-    fontSize: FontSizes.sm,
-    color: Colors.textSecondary,
+    fontSize: FontSizes.xs,
+    color: 'rgba(255,255,255,0.5)',
     marginBottom: Spacing.xs,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 2,
+    fontWeight: '600',
   },
   statValue: {
     fontSize: FontSizes.xxl,
@@ -343,19 +377,11 @@ const styles = StyleSheet.create({
   divider: {
     width: 1,
     height: 50,
-    backgroundColor: Colors.glassBorder,
+    backgroundColor: 'rgba(255,255,255,0.2)',
   },
   infoCard: {
     width: '100%',
-    borderRadius: BorderRadius.lg,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    ...Shadows.subtle,
-    marginVertical: Spacing.lg,
-  },
-  infoGradient: {
-    padding: Spacing.lg,
+    marginVertical: Spacing.md,
   },
   techniqueTitle: {
     fontSize: FontSizes.lg,
@@ -363,19 +389,24 @@ const styles = StyleSheet.create({
     color: Colors.textPrimary,
     marginBottom: Spacing.md,
   },
+  techniqueSteps: {
+    gap: Spacing.md,
+    marginBottom: Spacing.md,
+  },
   techniqueStep: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: Spacing.md,
-    marginBottom: Spacing.md,
   },
-  stepNumber: {
+  stepBadge: {
     width: 32,
     height: 32,
     borderRadius: BorderRadius.full,
-    backgroundColor: Colors.violet,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  stepNumber: {
+    fontSize: FontSizes.md,
     fontWeight: '700',
     color: Colors.textPrimary,
   },
@@ -387,54 +418,14 @@ const styles = StyleSheet.create({
   },
   benefitText: {
     fontSize: FontSizes.sm,
-    color: Colors.textSecondary,
+    color: Colors.textMuted,
     lineHeight: 20,
-    marginTop: Spacing.sm,
     fontStyle: 'italic',
   },
   buttonContainer: {
     flexDirection: 'row',
     gap: Spacing.md,
     width: '100%',
-    marginBottom: Spacing.lg,
-  },
-  button: {
-    flex: 1,
-    borderRadius: BorderRadius.lg,
-    overflow: 'hidden',
-    minHeight: 56,
-    justifyContent: 'center',
-    ...Shadows.subtle,
-  },
-  primaryButton: {
-    flex: 2,
-  },
-  secondaryButton: {
-    flex: 1,
-  },
-  buttonGradient: {
-    paddingVertical: Spacing.md,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  resetButton: {
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.md,
-    backgroundColor: Colors.glassBackground,
-    borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    borderRadius: BorderRadius.lg,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonText: {
-    fontSize: FontSizes.lg,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-  },
-  resetButtonText: {
-    fontSize: FontSizes.md,
-    fontWeight: '700',
-    color: Colors.textPrimary,
+    marginBottom: Spacing.md,
   },
 });
