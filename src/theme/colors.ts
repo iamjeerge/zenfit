@@ -1,0 +1,125 @@
+// ─────────────────────────────────────────────
+// ZenFit Design System — Colors & Gradients
+// The single source of truth for every pixel
+// ─────────────────────────────────────────────
+
+export const Colors = {
+  // ── Backgrounds ──────────────────────────────
+  background: '#0D0B1A',
+  backgroundLight: '#151326',
+  card: '#1A1730',
+  cardHover: '#221F3A',
+
+  // ── Primary Palette ──────────────────────────
+  violet: '#7C3AED',
+  violetLight: '#A78BFA',
+  lavender: '#C4B5FD',
+  rosePetal: '#F472B6',
+  rosePetalLight: '#FBCFE8',
+
+  // ── Accent Colors ────────────────────────────
+  sacredGold: '#FBBF24',
+  sageLeaf: '#34D399',
+  moonlight: '#F1F5F9',
+  cosmicBlue: '#60A5FA',
+  sunriseOrange: '#FB923C',
+
+  // ── Text Colors ──────────────────────────────
+  textPrimary: '#F8FAFC',
+  textSecondary: '#94A3B8',
+  textMuted: '#64748B',
+  textAccent: '#C4B5FD',
+
+  // ── Status Colors ────────────────────────────
+  success: '#34D399',
+  warning: '#FBBF24',
+  error: '#F87171',
+  info: '#60A5FA',
+
+  // ── Heart Rate Zones ─────────────────────────
+  heartRest: '#34D399',
+  heartFatBurn: '#60A5FA',
+  heartCardio: '#FBBF24',
+  heartPeak: '#F87171',
+  heartExtreme: '#EF4444',
+
+  // ── Glassmorphism ────────────────────────────
+  glassBorder: 'rgba(196, 181, 253, 0.2)',
+  glassBackground: 'rgba(26, 23, 48, 0.6)',
+  glassBackgroundLight: 'rgba(26, 23, 48, 0.4)',
+
+  // ── Overlays ─────────────────────────────────
+  overlay: 'rgba(13, 11, 26, 0.7)',
+  overlayLight: 'rgba(13, 11, 26, 0.4)',
+};
+
+export const Gradients = {
+  // ── Aurora Gradients ─────────────────────────
+  aurora: ['#7C3AED', '#C4B5FD', '#F472B6'],
+  auroraSubtle: ['#7C3AED', '#A78BFA'],
+  cosmic: ['#0D0B1A', '#1A1730', '#2D2554'],
+  sunrise: ['#F472B6', '#FBBF24', '#FB923C'],
+  ocean: ['#60A5FA', '#7C3AED'],
+  forest: ['#34D399', '#059669'],
+  lotus: ['#F472B6', '#C4B5FD', '#7C3AED'],
+
+  // ── Card Gradients ───────────────────────────
+  cardPrimary: ['rgba(124, 58, 237, 0.3)', 'rgba(244, 114, 182, 0.1)'],
+  cardSecondary: ['rgba(196, 181, 253, 0.1)', 'rgba(124, 58, 237, 0.05)'],
+  cardGold: ['rgba(251, 191, 36, 0.2)', 'rgba(251, 191, 36, 0.05)'],
+
+  // ── Tab Bar ──────────────────────────────────
+  tabGlow: ['rgba(124, 58, 237, 0.8)', 'rgba(124, 58, 237, 0)'],
+};
+
+export const Shadows = {
+  glow: {
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  card: {
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  subtle: {
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+};
+
+export const Spacing = {
+  xs: 4,
+  sm: 8,
+  md: 16,
+  lg: 24,
+  xl: 32,
+  xxl: 48,
+};
+
+export const BorderRadius = {
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
+  full: 9999,
+};
+
+export const FontSizes = {
+  xs: 10,
+  sm: 12,
+  md: 14,
+  lg: 16,
+  xl: 20,
+  xxl: 24,
+  xxxl: 32,
+  display: 40,
+};
