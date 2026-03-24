@@ -5,20 +5,22 @@ import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useAuthStore } from '../src/store/authStore';
-import { Colors } from '../src/theme/colors';
+import { ThemeProvider, useTheme } from '../src/theme/ThemeContext';
 import { useOfflineSync } from '../src/hooks/useOfflineSync';
 import OfflineBanner from '../src/components/OfflineBanner';
 
-function AppShell() {
+function AppNavigator() {
+  const { colors, isDark } = useTheme();
   const { isConnected, pendingCount, isSyncing } = useOfflineSync();
 
   return (
     <View style={{ flex: 1 }}>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
       <OfflineBanner isConnected={isConnected} pendingCount={pendingCount} isSyncing={isSyncing} />
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: Colors.background },
+          contentStyle: { backgroundColor: colors.background },
           animation: 'fade',
         }}
       >
@@ -26,6 +28,7 @@ function AppShell() {
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="auth" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="appearance" />
         <Stack.Screen name="bmi" />
         <Stack.Screen name="workout-plan" />
         <Stack.Screen name="progress-photos" />
@@ -53,8 +56,9 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <StatusBar style="light" />
-        <AppShell />
+        <ThemeProvider>
+          <AppNavigator />
+        </ThemeProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );
