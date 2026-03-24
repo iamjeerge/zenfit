@@ -30,6 +30,15 @@ export default function RootLayout() {
           <Stack.Screen name="auth" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="progress-photos" />
+          <Stack.Screen name="social" />
+          <Stack.Screen name="reminders" />
+          <Stack.Screen name="subscription" />
+          <Stack.Screen name="beauty-tips" />
+          <Stack.Screen name="progress" />
+          <Stack.Screen name="workout" />
+          <Stack.Screen name="sleep" />
+          <Stack.Screen name="mood" />
+          <Stack.Screen name="settings" />
         </Stack>
       </SafeAreaProvider>
     </GestureHandlerRootView>
