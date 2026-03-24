@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   ScrollView,
@@ -9,6 +9,7 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -20,6 +21,8 @@ import {
   FontSizes,
   Shadows,
 } from '../theme/colors';
+import { supabase } from '../lib/supabase';
+import { useAuthStore } from '../store/authStore';
 
 interface Exercise {
   id: string;
@@ -101,6 +104,7 @@ const numberInputStyles = StyleSheet.create({
 });
 
 export default function WorkoutScreen() {
+  const user = useAuthStore((s) => s.user);
   const [modalVisible, setModalVisible] = useState(false);
   const [exerciseName, setExerciseName] = useState('');
   const [sets, setSets] = useState('3');
@@ -108,29 +112,112 @@ export default function WorkoutScreen() {
   const [weight, setWeight] = useState('0');
   const [todayExercises, setTodayExercises] = useState<Exercise[]>([]);
   const [isWorkoutActive, setIsWorkoutActive] = useState(false);
+  const [recentSessions, setRecentSessions] = useState<WorkoutSession[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const workoutStartTime = useRef<Date | null>(null);
 
-  const recentSessions: WorkoutSession[] = [
-    {
-      id: '1',
-      date: 'Yesterday',
-      exercises: [
-        { id: 'a', name: 'Push-ups', sets: 3, reps: 15, weightKg: 0 },
-        { id: 'b', name: 'Squats', sets: 4, reps: 12, weightKg: 60 },
-      ],
-      durationMinutes: 45,
-      notes: 'Great session!',
-    },
-    {
-      id: '2',
-      date: '2 days ago',
-      exercises: [
-        { id: 'c', name: 'Deadlift', sets: 3, reps: 8, weightKg: 80 },
-        { id: 'd', name: 'Pull-ups', sets: 3, reps: 10, weightKg: 0 },
-      ],
-      durationMinutes: 60,
+  useEffect(() => {
+    if (user) fetchRecentSessions();
+  }, [user]);
+
+  const fetchRecentSessions = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('workout_sessions')
+        .select('*')
+        .eq('user_id', user!.id)
+        .order('started_at', { ascending: false })
+        .limit(10);
+
+      if (fetchError) throw fetchError;
+      const sessions: WorkoutSession[] = (data || []).map((row: any) => ({
+        id: row.id,
+        date: new Date(row.started_at).toLocaleDateString('en-US', {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+        }),
+        exercises: Array.isArray(row.exercises) ? row.exercises : [],
+        durationMinutes: row.duration_minutes ?? 0,
+        notes: row.notes ?? '',
+      }));
+      setRecentSessions(sessions);
+    } catch (err: any) {
+      setError('Failed to load sessions. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleWorkoutToggle = async () => {
+    if (!isWorkoutActive) {
+      workoutStartTime.current = new Date();
+      setIsWorkoutActive(true);
+      return;
+    }
+
+    // End workout — save to Supabase
+    if (!user) { setIsWorkoutActive(false); return; }
+    setIsSaving(true);
+    const startedAt = workoutStartTime.current ?? new Date();
+    const durationMinutes = Math.round((Date.now() - startedAt.getTime()) / 60000);
+    const newSession: Omit<WorkoutSession, 'id' | 'date'> & { user_id: string; started_at: string; completed_at: string; duration_minutes: number } = {
+      user_id: user.id,
+      exercises: todayExercises,
+      durationMinutes,
+      duration_minutes: durationMinutes,
       notes: '',
-    },
-  ];
+      started_at: startedAt.toISOString(),
+      completed_at: new Date().toISOString(),
+    };
+
+    // Optimistic update
+    const optimistic: WorkoutSession = {
+      id: `temp-${Date.now()}`,
+      date: 'Just now',
+      exercises: todayExercises,
+      durationMinutes,
+      notes: '',
+    };
+    setRecentSessions((prev) => [optimistic, ...prev]);
+    setTodayExercises([]);
+    setIsWorkoutActive(false);
+
+    try {
+      const { data, error: saveError } = await supabase
+        .from('workout_sessions')
+        .insert({
+          user_id: newSession.user_id,
+          exercises: newSession.exercises,
+          duration_minutes: newSession.duration_minutes,
+          notes: newSession.notes,
+          started_at: newSession.started_at,
+          completed_at: newSession.completed_at,
+        })
+        .select()
+        .single();
+
+      if (saveError) throw saveError;
+      // Replace optimistic entry with real one
+      setRecentSessions((prev) =>
+        prev.map((s) =>
+          s.id === optimistic.id
+            ? { ...optimistic, id: data.id }
+            : s
+        )
+      );
+    } catch {
+      setError('Failed to save workout. Check your connection.');
+      // Remove optimistic entry on failure
+      setRecentSessions((prev) => prev.filter((s) => s.id !== optimistic.id));
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   const handleAddExercise = () => {
     if (!exerciseName.trim()) return;
@@ -236,7 +323,8 @@ export default function WorkoutScreen() {
         {/* Start / Stop Workout Button */}
         <TouchableOpacity
           style={styles.workoutToggle}
-          onPress={() => setIsWorkoutActive((v) => !v)}
+          onPress={handleWorkoutToggle}
+          disabled={isSaving}
           accessibilityLabel={isWorkoutActive ? 'End workout' : 'Start workout'}
         >
           <LinearGradient
@@ -245,10 +333,16 @@ export default function WorkoutScreen() {
             end={{ x: 1, y: 1 }}
             style={styles.workoutToggleGradient}
           >
-            <Text style={styles.workoutToggleIcon}>{isWorkoutActive ? '🛑' : '🏋️'}</Text>
-            <Text style={styles.workoutToggleText}>
-              {isWorkoutActive ? 'End Workout' : 'Start Workout'}
-            </Text>
+            {isSaving ? (
+              <ActivityIndicator color={Colors.textPrimary} />
+            ) : (
+              <>
+                <Text style={styles.workoutToggleIcon}>{isWorkoutActive ? '🛑' : '🏋️'}</Text>
+                <Text style={styles.workoutToggleText}>
+                  {isWorkoutActive ? 'End Workout' : 'Start Workout'}
+                </Text>
+              </>
+            )}
           </LinearGradient>
         </TouchableOpacity>
 
@@ -352,9 +446,19 @@ export default function WorkoutScreen() {
         {/* Recent Sessions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Recent Sessions</Text>
-          {recentSessions.map((session) => (
-            <SessionCard key={session.id} session={session} />
-          ))}
+          {error ? (
+            <TouchableOpacity onPress={fetchRecentSessions}>
+              <Text style={styles.errorText}>{error} Tap to retry.</Text>
+            </TouchableOpacity>
+          ) : isLoading ? (
+            <ActivityIndicator color={Colors.violet} style={{ marginVertical: Spacing.lg }} />
+          ) : recentSessions.length === 0 ? (
+            <Text style={styles.emptyStateHint}>No sessions logged yet. Start your first workout!</Text>
+          ) : (
+            recentSessions.map((session) => (
+              <SessionCard key={session.id} session={session} />
+            ))
+          )}
         </View>
       </ScrollView>
 
@@ -744,5 +848,11 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.md,
     fontWeight: '700',
     color: Colors.textPrimary,
+  },
+  errorText: {
+    fontSize: FontSizes.sm,
+    color: Colors.error,
+    textAlign: 'center',
+    marginVertical: Spacing.md,
   },
 });
