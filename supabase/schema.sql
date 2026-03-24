@@ -337,3 +337,60 @@ create table public.mood_journal (
 
 alter table public.mood_journal enable row level security;
 create policy "Users can manage own mood journal" on public.mood_journal for all using (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════
+-- Migrations for wearable integration (Issue #12)
+-- ═══════════════════════════════════════════════
+
+-- Add source column to sleep_logs for wearable-synced entries
+alter table public.sleep_logs
+  add column if not exists source text default 'manual'
+    check (source in ('manual', 'apple_watch', 'android_watch', 'health_connect'));
+
+-- Add health_connect to heart_rate_logs source check
+alter table public.heart_rate_logs
+  drop constraint if exists heart_rate_logs_source_check;
+alter table public.heart_rate_logs
+  add constraint heart_rate_logs_source_check
+    check (source in ('apple_watch', 'android_watch', 'manual', 'health_connect'));
+
+-- ═══════════════════════════════════════════════
+-- 16. WORKOUT PLANS (Issue #8)
+-- ═══════════════════════════════════════════════
+create table if not exists public.workout_plans (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  name text not null,
+  description text,
+  days_per_week integer not null check (days_per_week between 1 and 7),
+  plan_days jsonb not null default '[]',
+  is_active boolean not null default false,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+alter table public.workout_plans enable row level security;
+create policy "Users can manage own workout plans" on public.workout_plans
+  for all using (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════
+-- 17. WEIGHT LOGS (Issue #9)
+-- ═══════════════════════════════════════════════
+create table if not exists public.weight_logs (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  weight_kg numeric(5,2) not null check (weight_kg > 0),
+  logged_at date not null default current_date,
+  unique(user_id, logged_at),
+  created_at timestamptz default now()
+);
+alter table public.weight_logs enable row level security;
+create policy "Users can manage own weight logs" on public.weight_logs
+  for all using (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════
+-- 18. REMINDERS — add notification_id column (Issue #11)
+-- ═══════════════════════════════════════════════
+alter table public.reminders
+  add column if not exists time_hh integer check (time_hh between 0 and 23),
+  add column if not exists time_mm integer check (time_mm between 0 and 59),
+  add column if not exists notification_id text;
