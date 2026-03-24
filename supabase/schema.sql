@@ -337,3 +337,22 @@ create table public.mood_journal (
 
 alter table public.mood_journal enable row level security;
 create policy "Users can manage own mood journal" on public.mood_journal for all using (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════
+-- 16. WORKOUT PLANS
+-- ═══════════════════════════════════════════════
+create table public.workout_plans (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  name text not null,
+  description text,
+  days_per_week integer not null check (days_per_week between 1 and 7),
+  plan_days jsonb not null default '[]',
+  is_active boolean not null default false,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+alter table public.workout_plans enable row level security;
+create policy "Users can manage own workout plans" on public.workout_plans
+  for all using (auth.uid() = user_id);
