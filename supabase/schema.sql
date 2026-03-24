@@ -337,3 +337,19 @@ create table public.mood_journal (
 
 alter table public.mood_journal enable row level security;
 create policy "Users can manage own mood journal" on public.mood_journal for all using (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════
+-- 16. WEIGHT LOGS
+-- ═══════════════════════════════════════════════
+create table public.weight_logs (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  weight_kg numeric(5,2) not null check (weight_kg > 0),
+  logged_at date not null default current_date,
+  unique(user_id, logged_at),
+  created_at timestamptz default now()
+);
+
+alter table public.weight_logs enable row level security;
+create policy "Users can manage own weight logs" on public.weight_logs
+  for all using (auth.uid() = user_id);
