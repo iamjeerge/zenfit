@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   View,
   Text,
@@ -29,7 +30,7 @@ export default function AuthScreen() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const { signInWithEmail, signUpWithEmail, session } = useAuthStore();
+  const { signInWithEmail, signUpWithEmail, session, updateProfile } = useAuthStore();
 
   // Navigate to main app when authenticated
   useEffect(() => {
@@ -99,6 +100,20 @@ export default function AuthScreen() {
     setLoading(true);
     try {
       await signUpWithEmail(email, password, fullName);
+      // Apply any pending onboarding personalisation data
+      const pendingRaw = await AsyncStorage.getItem('zenfit:pending_profile');
+      if (pendingRaw) {
+        try {
+          const pending = JSON.parse(pendingRaw);
+          // full_name from signup takes precedence if onboarding field was left blank
+          if (!pending.full_name) pending.full_name = fullName;
+          await updateProfile(pending);
+        } catch {
+          // Non-critical — profile data can be set later in Profile screen
+        } finally {
+          await AsyncStorage.removeItem('zenfit:pending_profile');
+        }
+      }
       router.replace('/(tabs)');
     } catch (err) {
       setError(
