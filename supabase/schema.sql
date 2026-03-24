@@ -339,7 +339,23 @@ alter table public.mood_journal enable row level security;
 create policy "Users can manage own mood journal" on public.mood_journal for all using (auth.uid() = user_id);
 
 -- ═══════════════════════════════════════════════
--- 16. FRIENDSHIPS (Issue #5)
+-- 16. PROGRESS PHOTOS (Issue #7)
+-- ═══════════════════════════════════════════════
+create table public.progress_photos (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  photo_url text not null,
+  category text check (category in ('front', 'side', 'back', 'other')) default 'other',
+  weight_kg numeric(5,2),
+  taken_at date not null default current_date,
+  created_at timestamptz default now()
+);
+
+alter table public.progress_photos enable row level security;
+create policy "Users manage own progress photos" on public.progress_photos for all using (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════
+-- 17. FRIENDSHIPS (Issue #5)
 -- ═══════════════════════════════════════════════
 create table public.friendships (
   id uuid default uuid_generate_v4() primary key,
@@ -355,7 +371,7 @@ create policy "Users can manage own friendships" on public.friendships for all
   using (auth.uid() = requester_id or auth.uid() = addressee_id);
 
 -- ═══════════════════════════════════════════════
--- 17. ACTIVITY FEED (Issue #5)
+-- 18. ACTIVITY FEED (Issue #5)
 -- ═══════════════════════════════════════════════
 create table public.activity_feed (
   id uuid default uuid_generate_v4() primary key,
