@@ -384,3 +384,22 @@ create table public.activity_feed (
 alter table public.activity_feed enable row level security;
 create policy "Users can see own activity" on public.activity_feed for select using (auth.uid() = user_id);
 create policy "Users can insert own activity" on public.activity_feed for insert with check (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════
+-- 19. WORKOUT PLANS (Issue #8)
+-- ═══════════════════════════════════════════════
+create table public.workout_plans (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  name text not null,
+  description text,
+  days_per_week integer not null check (days_per_week between 1 and 7),
+  plan_days jsonb not null default '[]',
+  is_active boolean not null default false,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+alter table public.workout_plans enable row level security;
+create policy "Users can manage own workout plans" on public.workout_plans
+  for all using (auth.uid() = user_id);

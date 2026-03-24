@@ -92,6 +92,13 @@ export default function ProfileScreen() {
       onPress: () => router.push('/workout'),
     },
     {
+      id: 'workout-plan',
+      icon: '📋',
+      title: 'Workout Plans',
+      subtitle: 'Build & manage your programmes',
+      onPress: () => router.push('/workout-plan'),
+    },
+    {
       id: 'sleep',
       icon: '🌙',
       title: 'Sleep Tracker',
