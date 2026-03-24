@@ -142,3 +142,87 @@ export const LineHeights = {
 };
 
 export const HIT_SLOP = { top: 10, bottom: 10, left: 10, right: 10 };
+
+// ─── Light Theme ────────────────────────────────────────────────────────────
+
+export const LightColors = {
+  background: '#F8F9FF',
+  backgroundLight: '#EEF0FA',
+  card: '#FFFFFF',
+  cardHover: '#F0F2FF',
+
+  violet: '#7C3AED',
+  violetLight: '#A78BFA',
+  lavender: '#7C3AED',
+  rosePetal: '#E8498A',
+  rosePetalLight: '#F9A8D4',
+
+  sacredGold: '#D97706',
+  sageLeaf: '#059669',
+  moonlight: '#1A1730',
+  cosmicBlue: '#2563EB',
+  sunriseOrange: '#EA580C',
+
+  textPrimary: '#1A1730',
+  textSecondary: '#64748B',
+  textMuted: '#94A3B8',
+  textAccent: '#7C3AED',
+
+  success: '#059669',
+  warning: '#D97706',
+  error: '#DC2626',
+  info: '#2563EB',
+
+  heartRest: '#059669',
+  heartFatBurn: '#2563EB',
+  heartCardio: '#D97706',
+  heartPeak: '#DC2626',
+  heartExtreme: '#991B1B',
+
+  glassBorder: 'rgba(124, 58, 237, 0.15)',
+  glassBackground: 'rgba(255, 255, 255, 0.8)',
+  glassBackgroundLight: 'rgba(255, 255, 255, 0.5)',
+
+  overlay: 'rgba(248, 249, 255, 0.7)',
+  overlayLight: 'rgba(248, 249, 255, 0.4)',
+} satisfies typeof Colors;
+
+export const LightGradients = {
+  aurora: ['#7C3AED', '#C4B5FD', '#F472B6'] as const,
+  auroraSubtle: ['#7C3AED', '#A78BFA'] as const,
+  cosmic: ['#EEF0FA', '#F8F9FF', '#FFFFFF'] as const,
+  sunrise: ['#F472B6', '#FBBF24', '#FB923C'] as const,
+  ocean: ['#60A5FA', '#7C3AED'] as const,
+  forest: ['#34D399', '#059669'] as const,
+  lotus: ['#F472B6', '#C4B5FD', '#7C3AED'] as const,
+  cardPrimary: ['rgba(124, 58, 237, 0.08)', 'rgba(244, 114, 182, 0.04)'] as const,
+  cardSecondary: ['rgba(196, 181, 253, 0.1)', 'rgba(124, 58, 237, 0.03)'] as const,
+  cardGold: ['rgba(251, 191, 36, 0.15)', 'rgba(251, 191, 36, 0.03)'] as const,
+  tabGlow: ['rgba(124, 58, 237, 0.8)', 'rgba(124, 58, 237, 0)'] as const,
+  card: ['rgba(255, 255, 255, 0.9)', 'rgba(238, 240, 250, 0.6)'] as const,
+} satisfies Omit<typeof Gradients, 'card'> & { card: readonly [string, string] };
+
+export const LightShadows = {
+  glow: {
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  card: {
+    shadowColor: '#94A3B8',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  subtle: {
+    shadowColor: '#7C3AED',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+} satisfies typeof Shadows;
+
