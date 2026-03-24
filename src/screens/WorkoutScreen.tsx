@@ -10,6 +10,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -23,6 +24,18 @@ import {
 } from '../theme/colors';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
+
+const CLAUDE_API_KEY = process.env.EXPO_PUBLIC_CLAUDE_API_KEY ?? '';
+const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
+
+interface AIExercise {
+  name: string;
+  sets: number;
+  reps: number;
+  rest_seconds: number;
+  muscle_group: string;
+  tips: string;
+}
 
 interface Exercise {
   id: string;
@@ -104,6 +117,7 @@ const numberInputStyles = StyleSheet.create({
 });
 
 export default function WorkoutScreen() {
+  const profile = useAuthStore((s) => s.profile);
   const user = useAuthStore((s) => s.user);
   const [modalVisible, setModalVisible] = useState(false);
   const [exerciseName, setExerciseName] = useState('');
@@ -112,6 +126,9 @@ export default function WorkoutScreen() {
   const [weight, setWeight] = useState('0');
   const [todayExercises, setTodayExercises] = useState<Exercise[]>([]);
   const [isWorkoutActive, setIsWorkoutActive] = useState(false);
+  const [aiExercises, setAiExercises] = useState<AIExercise[]>([]);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
   const [recentSessions, setRecentSessions] = useState<WorkoutSession[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -217,6 +234,59 @@ export default function WorkoutScreen() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const generateAIWorkout = async () => {
+    if (!CLAUDE_API_KEY) {
+      Alert.alert('API key not configured', 'Set EXPO_PUBLIC_CLAUDE_API_KEY in your .env file.');
+      return;
+    }
+    setIsGeneratingAI(true);
+    setAiError(null);
+    try {
+      const goal = profile?.fitness_goal ?? 'stay_fit';
+      const level = profile?.level ?? 1;
+      const prompt = `You are a professional fitness coach. Create a workout for someone with goal: ${goal}, level: ${level}.
+Return ONLY a JSON array with exactly 4-5 exercises. Format: [{"name":"string","sets":number,"reps":number,"rest_seconds":number,"muscle_group":"string","tips":"string"}]
+No explanation, no markdown, just the JSON array.`;
+
+      const response = await fetch(CLAUDE_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': CLAUDE_API_KEY,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 1024,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      });
+
+      if (!response.ok) throw new Error(`API error: ${response.status}`);
+      const data = await response.json();
+      const text: string = data.content?.[0]?.text ?? '[]';
+      const exercises: AIExercise[] = JSON.parse(text);
+      setAiExercises(exercises);
+    } catch {
+      setAiError('Failed to generate workout. Please try again.');
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  };
+
+  const applyAIWorkout = () => {
+    const mapped: Exercise[] = aiExercises.map((ex, i) => ({
+      id: `ai-${i}-${Date.now()}`,
+      name: ex.name,
+      sets: ex.sets,
+      reps: ex.reps,
+      weightKg: 0,
+    }));
+    setTodayExercises(mapped);
+    setAiExercises([]);
+    if (!isWorkoutActive) setIsWorkoutActive(true);
   };
 
   const handleAddExercise = () => {
@@ -379,6 +449,77 @@ export default function WorkoutScreen() {
               {todayExercises.reduce((s, e) => s + e.sets, 0)}
             </Text>
             <Text style={styles.summaryLabel}>Total Sets</Text>
+          </LinearGradient>
+        </View>
+
+        {/* AI Recommendation */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.sectionTitle}>🤖 AI Recommendation</Text>
+          </View>
+          <LinearGradient
+            colors={['rgba(124,58,237,0.2)', 'rgba(196,181,253,0.08)']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[styles.aiCard, { borderColor: Colors.violetLight + '40' }]}
+          >
+            {aiExercises.length > 0 ? (
+              <>
+                <Text style={styles.aiTitle}>✨ Your personalised workout is ready!</Text>
+                {aiExercises.map((ex, i) => (
+                  <View key={i} style={styles.aiExerciseRow}>
+                    <Text style={styles.aiExerciseName}>{ex.name}</Text>
+                    <Text style={styles.aiExerciseMeta}>
+                      {ex.sets}×{ex.reps} · {ex.muscle_group}
+                    </Text>
+                    {ex.tips ? <Text style={styles.aiExerciseTip}>💡 {ex.tips}</Text> : null}
+                  </View>
+                ))}
+                <TouchableOpacity
+                  style={styles.aiApplyBtn}
+                  onPress={applyAIWorkout}
+                  accessibilityLabel="Start AI workout"
+                >
+                  <LinearGradient
+                    colors={Gradients.aurora as unknown as [string, string, ...string[]]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.aiApplyGradient}
+                  >
+                    <Text style={styles.aiApplyText}>🏋️ Start This Workout</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <Text style={styles.aiDescription}>
+                  Get a personalised workout plan based on your fitness goal and level.
+                </Text>
+                {aiError ? <Text style={styles.aiError}>{aiError}</Text> : null}
+                <TouchableOpacity
+                  style={styles.aiGenerateBtn}
+                  onPress={generateAIWorkout}
+                  disabled={isGeneratingAI}
+                  accessibilityLabel="Generate AI workout"
+                >
+                  <LinearGradient
+                    colors={Gradients.auroraSubtle as unknown as [string, string]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.aiGenerateGradient}
+                  >
+                    {isGeneratingAI ? (
+                      <>
+                        <ActivityIndicator color={Colors.textPrimary} size="small" />
+                        <Text style={styles.aiGenerateText}>Generating…</Text>
+                      </>
+                    ) : (
+                      <Text style={styles.aiGenerateText}>✨ Generate Workout</Text>
+                    )}
+                  </LinearGradient>
+                </TouchableOpacity>
+              </>
+            )}
           </LinearGradient>
         </View>
 
@@ -854,5 +995,80 @@ const styles = StyleSheet.create({
     color: Colors.error,
     textAlign: 'center',
     marginVertical: Spacing.md,
+  },
+  aiCard: {
+    borderWidth: 1,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    marginBottom: Spacing.sm,
+  },
+  aiTitle: {
+    fontSize: FontSizes.md,
+    fontWeight: '700',
+    color: Colors.lavender,
+    marginBottom: Spacing.md,
+  },
+  aiDescription: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.md,
+  },
+  aiError: {
+    fontSize: FontSizes.xs,
+    color: Colors.error,
+    marginBottom: Spacing.sm,
+  },
+  aiExerciseRow: {
+    marginBottom: Spacing.sm,
+    paddingBottom: Spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.glassBorder,
+  },
+  aiExerciseName: {
+    fontSize: FontSizes.md,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  aiExerciseMeta: {
+    fontSize: FontSizes.xs,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  aiExerciseTip: {
+    fontSize: FontSizes.xs,
+    color: Colors.lavender,
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
+  aiGenerateBtn: {
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+  },
+  aiGenerateGradient: {
+    flexDirection: 'row',
+    paddingVertical: Spacing.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  aiGenerateText: {
+    fontSize: FontSizes.md,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+  },
+  aiApplyBtn: {
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    marginTop: Spacing.md,
+  },
+  aiApplyGradient: {
+    paddingVertical: Spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  aiApplyText: {
+    fontSize: FontSizes.md,
+    fontWeight: '700',
+    color: Colors.textPrimary,
   },
 });
