@@ -337,3 +337,34 @@ create table public.mood_journal (
 
 alter table public.mood_journal enable row level security;
 create policy "Users can manage own mood journal" on public.mood_journal for all using (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════
+-- 16. FRIENDSHIPS (Issue #5)
+-- ═══════════════════════════════════════════════
+create table public.friendships (
+  id uuid default uuid_generate_v4() primary key,
+  requester_id uuid references public.profiles(id) on delete cascade not null,
+  addressee_id uuid references public.profiles(id) on delete cascade not null,
+  status text check (status in ('pending', 'accepted', 'blocked')) default 'pending',
+  created_at timestamptz default now(),
+  unique(requester_id, addressee_id)
+);
+
+alter table public.friendships enable row level security;
+create policy "Users can manage own friendships" on public.friendships for all
+  using (auth.uid() = requester_id or auth.uid() = addressee_id);
+
+-- ═══════════════════════════════════════════════
+-- 17. ACTIVITY FEED (Issue #5)
+-- ═══════════════════════════════════════════════
+create table public.activity_feed (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  type text not null, -- 'workout_completed', 'badge_earned', 'step_goal_hit'
+  metadata jsonb default '{}'::jsonb,
+  created_at timestamptz default now()
+);
+
+alter table public.activity_feed enable row level security;
+create policy "Users can see own activity" on public.activity_feed for select using (auth.uid() = user_id);
+create policy "Users can insert own activity" on public.activity_feed for insert with check (auth.uid() = user_id);
