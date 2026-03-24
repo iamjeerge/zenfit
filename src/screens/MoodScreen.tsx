@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   ScrollView,
@@ -9,6 +9,7 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -20,6 +21,8 @@ import {
   FontSizes,
   Shadows,
 } from '../theme/colors';
+import { supabase } from '../lib/supabase';
+import { useAuthStore } from '../store/authStore';
 
 type MoodLevel = 1 | 2 | 3 | 4 | 5;
 
@@ -75,48 +78,109 @@ const MOOD_PROMPTS: string[] = [
   'How did you take care of yourself today?',
 ];
 
-const RECENT_ENTRIES: MoodEntry[] = [
-  { id: '1', date: 'Today', level: 4, notes: 'Had a great yoga session!', timestamp: '9:30 AM' },
-  { id: '2', date: 'Yesterday', level: 3, notes: 'Bit stressed with work.', timestamp: '8:15 PM' },
-  { id: '3', date: '2 days ago', level: 5, notes: 'Best day ever! Hit my step goal.', timestamp: '7:00 PM' },
-  { id: '4', date: '3 days ago', level: 2, notes: "Didn't sleep well.", timestamp: '9:00 PM' },
-  { id: '5', date: '4 days ago', level: 4, notes: 'Good meditation session.', timestamp: '6:45 PM' },
-  { id: '6', date: '5 days ago', level: 5, notes: 'Went for a long hike!', timestamp: '8:00 PM' },
-  { id: '7', date: '6 days ago', level: 3, notes: '', timestamp: '10:00 PM' },
-];
-
 export default function MoodScreen() {
+  const user = useAuthStore((s) => s.user);
   const [logModalVisible, setLogModalVisible] = useState(false);
   const [selectedMood, setSelectedMood] = useState<MoodLevel>(4);
   const [notes, setNotes] = useState('');
-  const [entries, setEntries] = useState<MoodEntry[]>(RECENT_ENTRIES);
+  const [entries, setEntries] = useState<MoodEntry[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [randomPromptIndex] = useState(
     Math.floor(Math.random() * MOOD_PROMPTS.length)
   );
 
+  useEffect(() => {
+    if (user) fetchEntries();
+  }, [user]);
+
+  const fetchEntries = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const since = new Date();
+      since.setDate(since.getDate() - 30);
+      const { data, error: fetchError } = await supabase
+        .from('mood_journal')
+        .select('*')
+        .eq('user_id', user!.id)
+        .gte('date', since.toISOString().split('T')[0])
+        .order('logged_at', { ascending: false });
+
+      if (fetchError) throw fetchError;
+      const todayStr = new Date().toISOString().split('T')[0];
+      const yesterdayStr = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+
+      const mapped: MoodEntry[] = (data || []).map((row: any) => ({
+        id: row.id,
+        date: row.date === todayStr ? 'Today'
+          : row.date === yesterdayStr ? 'Yesterday'
+          : new Date(row.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        level: (row.mood_level ?? 3) as MoodLevel,
+        notes: row.notes ?? '',
+        timestamp: new Date(row.logged_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+      }));
+      setEntries(mapped);
+    } catch {
+      setError('Failed to load mood entries.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const todayEntry = entries.find((e) => e.date === 'Today');
-  const avgMood =
-    entries.reduce((sum, e) => sum + e.level, 0) / entries.length;
+  const avgMood = entries.length > 0
+    ? entries.reduce((sum, e) => sum + e.level, 0) / entries.length
+    : 0;
+  const streak = (() => {
+    if (entries.length === 0) return 0;
+    let count = 0;
+    const today = new Date();
+    for (let i = 0; i < entries.length; i++) {
+      const expected = new Date(today);
+      expected.setDate(today.getDate() - i);
+      const exp = expected.toISOString().split('T')[0];
+      const entryDate = entries[i]?.date === 'Today'
+        ? today.toISOString().split('T')[0]
+        : entries[i]?.date === 'Yesterday'
+        ? new Date(Date.now() - 86400000).toISOString().split('T')[0]
+        : exp;
+      if (entryDate === exp) count++; else break;
+    }
+    return count;
+  })();
 
   const weekTrend = entries
     .slice(0, 7)
-    .map((e) => ({ label: e.date.replace(' days ago', 'd').replace('Yesterday', 'Y').replace('Today', 'T'), level: e.level }))
+    .map((e) => ({
+      label: e.date.replace(' days ago', 'd').replace('Yesterday', 'Y').replace('Today', 'T'),
+      level: e.level,
+    }))
     .reverse();
 
-  const handleSaveEntry = () => {
-    const newEntry: MoodEntry = {
-      id: Date.now().toString(),
-      date: 'Today',
-      level: selectedMood,
-      notes: notes.trim(),
-      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-    };
-    setEntries((prev) => {
-      const withoutToday = prev.filter((e) => e.date !== 'Today');
-      return [newEntry, ...withoutToday];
-    });
-    setNotes('');
-    setLogModalVisible(false);
+  const handleSaveEntry = async () => {
+    if (!user) return;
+    setIsSaving(true);
+    try {
+      const now = new Date();
+      const todayStr = now.toISOString().split('T')[0];
+      const { error: saveError } = await supabase.from('mood_journal').insert({
+        user_id: user.id,
+        mood_level: selectedMood,
+        notes: notes.trim() || null,
+        logged_at: now.toISOString(),
+        date: todayStr,
+      });
+      if (saveError) throw saveError;
+      setNotes('');
+      setLogModalVisible(false);
+      await fetchEntries();
+    } catch {
+      setError('Failed to save mood entry. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const MoodSelector = () => (
@@ -265,7 +329,7 @@ export default function MoodScreen() {
             style={[styles.statCard, { borderColor: Colors.glassBorder }]}
           >
             <Text style={styles.statIcon}>📈</Text>
-            <Text style={styles.statValue}>{avgMood.toFixed(1)}</Text>
+            <Text style={styles.statValue}>{entries.length > 0 ? avgMood.toFixed(1) : '—'}</Text>
             <Text style={styles.statLabel}>Avg Mood</Text>
           </LinearGradient>
           <LinearGradient
@@ -275,8 +339,8 @@ export default function MoodScreen() {
             style={[styles.statCard, { borderColor: Colors.glassBorder }]}
           >
             <Text style={styles.statIcon}>🔥</Text>
-            <Text style={styles.statValue}>{entries.length}</Text>
-            <Text style={styles.statLabel}>Days Logged</Text>
+            <Text style={styles.statValue}>{streak}</Text>
+            <Text style={styles.statLabel}>Day Streak</Text>
           </LinearGradient>
           <LinearGradient
             colors={Gradients.cardPrimary}
@@ -284,13 +348,9 @@ export default function MoodScreen() {
             end={{ x: 1, y: 1 }}
             style={[styles.statCard, { borderColor: Colors.glassBorder }]}
           >
-            <Text style={styles.statIcon}>
-              {MOOD_CONFIG[Math.max(1, Math.min(5, Math.round(avgMood))) as MoodLevel]?.emoji ?? '😐'}
-            </Text>
-            <Text style={styles.statValue}>
-              {MOOD_CONFIG[Math.max(1, Math.min(5, Math.round(avgMood))) as MoodLevel]?.label ?? 'Okay'}
-            </Text>
-            <Text style={styles.statLabel}>Overall</Text>
+            <Text style={styles.statIcon}>📅</Text>
+            <Text style={styles.statValue}>{entries.length}</Text>
+            <Text style={styles.statLabel}>Days Logged</Text>
           </LinearGradient>
         </View>
 
@@ -329,9 +389,17 @@ export default function MoodScreen() {
         {/* Mood History */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Mood History</Text>
-          {entries.map((entry) => (
-            <MoodEntryCard key={entry.id} entry={entry} />
-          ))}
+          {error ? (
+            <TouchableOpacity onPress={fetchEntries}>
+              <Text style={styles.errorText}>{error} Tap to retry.</Text>
+            </TouchableOpacity>
+          ) : isLoading ? (
+            <ActivityIndicator color={Colors.violet} style={{ marginVertical: Spacing.lg }} />
+          ) : entries.length === 0 ? (
+            <Text style={styles.emptyText}>No mood entries yet. Log your first mood above!</Text>
+          ) : (
+            entries.map((entry) => <MoodEntryCard key={entry.id} entry={entry} />)
+          )}
         </View>
       </ScrollView>
 
@@ -380,6 +448,7 @@ export default function MoodScreen() {
               <TouchableOpacity
                 style={styles.modalSaveButton}
                 onPress={handleSaveEntry}
+                disabled={isSaving}
                 accessibilityLabel="Save mood entry"
               >
                 <LinearGradient
@@ -388,7 +457,11 @@ export default function MoodScreen() {
                   end={{ x: 1, y: 1 }}
                   style={styles.modalSaveGradient}
                 >
-                  <Text style={styles.modalSaveText}>Save</Text>
+                  {isSaving ? (
+                    <ActivityIndicator color={Colors.textPrimary} />
+                  ) : (
+                    <Text style={styles.modalSaveText}>Save</Text>
+                  )}
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -700,5 +773,17 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.md,
     fontWeight: '700',
     color: Colors.textPrimary,
+  },
+  errorText: {
+    fontSize: FontSizes.sm,
+    color: Colors.error,
+    textAlign: 'center',
+    marginVertical: Spacing.md,
+  },
+  emptyText: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginVertical: Spacing.md,
   },
 });

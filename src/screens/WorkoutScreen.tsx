@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   ScrollView,
@@ -9,6 +9,8 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -20,6 +22,20 @@ import {
   FontSizes,
   Shadows,
 } from '../theme/colors';
+import { supabase } from '../lib/supabase';
+import { useAuthStore } from '../store/authStore';
+
+const CLAUDE_API_KEY = process.env.EXPO_PUBLIC_CLAUDE_API_KEY ?? '';
+const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
+
+interface AIExercise {
+  name: string;
+  sets: number;
+  reps: number;
+  rest_seconds: number;
+  muscle_group: string;
+  tips: string;
+}
 
 interface Exercise {
   id: string;
@@ -101,6 +117,8 @@ const numberInputStyles = StyleSheet.create({
 });
 
 export default function WorkoutScreen() {
+  const profile = useAuthStore((s) => s.profile);
+  const user = useAuthStore((s) => s.user);
   const [modalVisible, setModalVisible] = useState(false);
   const [exerciseName, setExerciseName] = useState('');
   const [sets, setSets] = useState('3');
@@ -108,29 +126,168 @@ export default function WorkoutScreen() {
   const [weight, setWeight] = useState('0');
   const [todayExercises, setTodayExercises] = useState<Exercise[]>([]);
   const [isWorkoutActive, setIsWorkoutActive] = useState(false);
+  const [aiExercises, setAiExercises] = useState<AIExercise[]>([]);
+  const [isGeneratingAI, setIsGeneratingAI] = useState(false);
+  const [aiError, setAiError] = useState<string | null>(null);
+  const [recentSessions, setRecentSessions] = useState<WorkoutSession[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const workoutStartTime = useRef<Date | null>(null);
 
-  const recentSessions: WorkoutSession[] = [
-    {
-      id: '1',
-      date: 'Yesterday',
-      exercises: [
-        { id: 'a', name: 'Push-ups', sets: 3, reps: 15, weightKg: 0 },
-        { id: 'b', name: 'Squats', sets: 4, reps: 12, weightKg: 60 },
-      ],
-      durationMinutes: 45,
-      notes: 'Great session!',
-    },
-    {
-      id: '2',
-      date: '2 days ago',
-      exercises: [
-        { id: 'c', name: 'Deadlift', sets: 3, reps: 8, weightKg: 80 },
-        { id: 'd', name: 'Pull-ups', sets: 3, reps: 10, weightKg: 0 },
-      ],
-      durationMinutes: 60,
+  useEffect(() => {
+    if (user) fetchRecentSessions();
+  }, [user]);
+
+  const fetchRecentSessions = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const { data, error: fetchError } = await supabase
+        .from('workout_sessions')
+        .select('*')
+        .eq('user_id', user!.id)
+        .order('started_at', { ascending: false })
+        .limit(10);
+
+      if (fetchError) throw fetchError;
+      const sessions: WorkoutSession[] = (data || []).map((row: any) => ({
+        id: row.id,
+        date: new Date(row.started_at).toLocaleDateString('en-US', {
+          weekday: 'short',
+          month: 'short',
+          day: 'numeric',
+        }),
+        exercises: Array.isArray(row.exercises) ? row.exercises : [],
+        durationMinutes: row.duration_minutes ?? 0,
+        notes: row.notes ?? '',
+      }));
+      setRecentSessions(sessions);
+    } catch (err: any) {
+      setError('Failed to load sessions. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleWorkoutToggle = async () => {
+    if (!isWorkoutActive) {
+      workoutStartTime.current = new Date();
+      setIsWorkoutActive(true);
+      return;
+    }
+
+    // End workout — save to Supabase
+    if (!user) { setIsWorkoutActive(false); return; }
+    setIsSaving(true);
+    const startedAt = workoutStartTime.current ?? new Date();
+    const durationMinutes = Math.round((Date.now() - startedAt.getTime()) / 60000);
+    const newSession: Omit<WorkoutSession, 'id' | 'date'> & { user_id: string; started_at: string; completed_at: string; duration_minutes: number } = {
+      user_id: user.id,
+      exercises: todayExercises,
+      durationMinutes,
+      duration_minutes: durationMinutes,
       notes: '',
-    },
-  ];
+      started_at: startedAt.toISOString(),
+      completed_at: new Date().toISOString(),
+    };
+
+    // Optimistic update
+    const optimistic: WorkoutSession = {
+      id: `temp-${Date.now()}`,
+      date: 'Just now',
+      exercises: todayExercises,
+      durationMinutes,
+      notes: '',
+    };
+    setRecentSessions((prev) => [optimistic, ...prev]);
+    setTodayExercises([]);
+    setIsWorkoutActive(false);
+
+    try {
+      const { data, error: saveError } = await supabase
+        .from('workout_sessions')
+        .insert({
+          user_id: newSession.user_id,
+          exercises: newSession.exercises,
+          duration_minutes: newSession.duration_minutes,
+          notes: newSession.notes,
+          started_at: newSession.started_at,
+          completed_at: newSession.completed_at,
+        })
+        .select()
+        .single();
+
+      if (saveError) throw saveError;
+      // Replace optimistic entry with real one
+      setRecentSessions((prev) =>
+        prev.map((s) =>
+          s.id === optimistic.id
+            ? { ...optimistic, id: data.id }
+            : s
+        )
+      );
+    } catch {
+      setError('Failed to save workout. Check your connection.');
+      // Remove optimistic entry on failure
+      setRecentSessions((prev) => prev.filter((s) => s.id !== optimistic.id));
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const generateAIWorkout = async () => {
+    if (!CLAUDE_API_KEY) {
+      Alert.alert('API key not configured', 'Set EXPO_PUBLIC_CLAUDE_API_KEY in your .env file.');
+      return;
+    }
+    setIsGeneratingAI(true);
+    setAiError(null);
+    try {
+      const goal = profile?.fitness_goal ?? 'stay_fit';
+      const level = profile?.level ?? 1;
+      const prompt = `You are a professional fitness coach. Create a workout for someone with goal: ${goal}, level: ${level}.
+Return ONLY a JSON array with exactly 4-5 exercises. Format: [{"name":"string","sets":number,"reps":number,"rest_seconds":number,"muscle_group":"string","tips":"string"}]
+No explanation, no markdown, just the JSON array.`;
+
+      const response = await fetch(CLAUDE_API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': CLAUDE_API_KEY,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 1024,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      });
+
+      if (!response.ok) throw new Error(`API error: ${response.status}`);
+      const data = await response.json();
+      const text: string = data.content?.[0]?.text ?? '[]';
+      const exercises: AIExercise[] = JSON.parse(text);
+      setAiExercises(exercises);
+    } catch {
+      setAiError('Failed to generate workout. Please try again.');
+    } finally {
+      setIsGeneratingAI(false);
+    }
+  };
+
+  const applyAIWorkout = () => {
+    const mapped: Exercise[] = aiExercises.map((ex, i) => ({
+      id: `ai-${i}-${Date.now()}`,
+      name: ex.name,
+      sets: ex.sets,
+      reps: ex.reps,
+      weightKg: 0,
+    }));
+    setTodayExercises(mapped);
+    setAiExercises([]);
+    if (!isWorkoutActive) setIsWorkoutActive(true);
+  };
 
   const handleAddExercise = () => {
     if (!exerciseName.trim()) return;
@@ -236,7 +393,8 @@ export default function WorkoutScreen() {
         {/* Start / Stop Workout Button */}
         <TouchableOpacity
           style={styles.workoutToggle}
-          onPress={() => setIsWorkoutActive((v) => !v)}
+          onPress={handleWorkoutToggle}
+          disabled={isSaving}
           accessibilityLabel={isWorkoutActive ? 'End workout' : 'Start workout'}
         >
           <LinearGradient
@@ -245,10 +403,16 @@ export default function WorkoutScreen() {
             end={{ x: 1, y: 1 }}
             style={styles.workoutToggleGradient}
           >
-            <Text style={styles.workoutToggleIcon}>{isWorkoutActive ? '🛑' : '🏋️'}</Text>
-            <Text style={styles.workoutToggleText}>
-              {isWorkoutActive ? 'End Workout' : 'Start Workout'}
-            </Text>
+            {isSaving ? (
+              <ActivityIndicator color={Colors.textPrimary} />
+            ) : (
+              <>
+                <Text style={styles.workoutToggleIcon}>{isWorkoutActive ? '🛑' : '🏋️'}</Text>
+                <Text style={styles.workoutToggleText}>
+                  {isWorkoutActive ? 'End Workout' : 'Start Workout'}
+                </Text>
+              </>
+            )}
           </LinearGradient>
         </TouchableOpacity>
 
@@ -285,6 +449,77 @@ export default function WorkoutScreen() {
               {todayExercises.reduce((s, e) => s + e.sets, 0)}
             </Text>
             <Text style={styles.summaryLabel}>Total Sets</Text>
+          </LinearGradient>
+        </View>
+
+        {/* AI Recommendation */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeaderRow}>
+            <Text style={styles.sectionTitle}>🤖 AI Recommendation</Text>
+          </View>
+          <LinearGradient
+            colors={['rgba(124,58,237,0.2)', 'rgba(196,181,253,0.08)']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[styles.aiCard, { borderColor: Colors.violetLight + '40' }]}
+          >
+            {aiExercises.length > 0 ? (
+              <>
+                <Text style={styles.aiTitle}>✨ Your personalised workout is ready!</Text>
+                {aiExercises.map((ex, i) => (
+                  <View key={i} style={styles.aiExerciseRow}>
+                    <Text style={styles.aiExerciseName}>{ex.name}</Text>
+                    <Text style={styles.aiExerciseMeta}>
+                      {ex.sets}×{ex.reps} · {ex.muscle_group}
+                    </Text>
+                    {ex.tips ? <Text style={styles.aiExerciseTip}>💡 {ex.tips}</Text> : null}
+                  </View>
+                ))}
+                <TouchableOpacity
+                  style={styles.aiApplyBtn}
+                  onPress={applyAIWorkout}
+                  accessibilityLabel="Start AI workout"
+                >
+                  <LinearGradient
+                    colors={Gradients.aurora as unknown as [string, string, ...string[]]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.aiApplyGradient}
+                  >
+                    <Text style={styles.aiApplyText}>🏋️ Start This Workout</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <Text style={styles.aiDescription}>
+                  Get a personalised workout plan based on your fitness goal and level.
+                </Text>
+                {aiError ? <Text style={styles.aiError}>{aiError}</Text> : null}
+                <TouchableOpacity
+                  style={styles.aiGenerateBtn}
+                  onPress={generateAIWorkout}
+                  disabled={isGeneratingAI}
+                  accessibilityLabel="Generate AI workout"
+                >
+                  <LinearGradient
+                    colors={Gradients.auroraSubtle as unknown as [string, string]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 1 }}
+                    style={styles.aiGenerateGradient}
+                  >
+                    {isGeneratingAI ? (
+                      <>
+                        <ActivityIndicator color={Colors.textPrimary} size="small" />
+                        <Text style={styles.aiGenerateText}>Generating…</Text>
+                      </>
+                    ) : (
+                      <Text style={styles.aiGenerateText}>✨ Generate Workout</Text>
+                    )}
+                  </LinearGradient>
+                </TouchableOpacity>
+              </>
+            )}
           </LinearGradient>
         </View>
 
@@ -352,9 +587,19 @@ export default function WorkoutScreen() {
         {/* Recent Sessions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Recent Sessions</Text>
-          {recentSessions.map((session) => (
-            <SessionCard key={session.id} session={session} />
-          ))}
+          {error ? (
+            <TouchableOpacity onPress={fetchRecentSessions}>
+              <Text style={styles.errorText}>{error} Tap to retry.</Text>
+            </TouchableOpacity>
+          ) : isLoading ? (
+            <ActivityIndicator color={Colors.violet} style={{ marginVertical: Spacing.lg }} />
+          ) : recentSessions.length === 0 ? (
+            <Text style={styles.emptyStateHint}>No sessions logged yet. Start your first workout!</Text>
+          ) : (
+            recentSessions.map((session) => (
+              <SessionCard key={session.id} session={session} />
+            ))
+          )}
         </View>
       </ScrollView>
 
@@ -741,6 +986,87 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   modalSaveText: {
+    fontSize: FontSizes.md,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+  },
+  errorText: {
+    fontSize: FontSizes.sm,
+    color: Colors.error,
+    textAlign: 'center',
+    marginVertical: Spacing.md,
+  },
+  aiCard: {
+    borderWidth: 1,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    marginBottom: Spacing.sm,
+  },
+  aiTitle: {
+    fontSize: FontSizes.md,
+    fontWeight: '700',
+    color: Colors.lavender,
+    marginBottom: Spacing.md,
+  },
+  aiDescription: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.md,
+  },
+  aiError: {
+    fontSize: FontSizes.xs,
+    color: Colors.error,
+    marginBottom: Spacing.sm,
+  },
+  aiExerciseRow: {
+    marginBottom: Spacing.sm,
+    paddingBottom: Spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.glassBorder,
+  },
+  aiExerciseName: {
+    fontSize: FontSizes.md,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+  },
+  aiExerciseMeta: {
+    fontSize: FontSizes.xs,
+    color: Colors.textSecondary,
+    marginTop: 2,
+  },
+  aiExerciseTip: {
+    fontSize: FontSizes.xs,
+    color: Colors.lavender,
+    marginTop: 4,
+    fontStyle: 'italic',
+  },
+  aiGenerateBtn: {
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+  },
+  aiGenerateGradient: {
+    flexDirection: 'row',
+    paddingVertical: Spacing.md,
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  aiGenerateText: {
+    fontSize: FontSizes.md,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+  },
+  aiApplyBtn: {
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    marginTop: Spacing.md,
+  },
+  aiApplyGradient: {
+    paddingVertical: Spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  aiApplyText: {
     fontSize: FontSizes.md,
     fontWeight: '700',
     color: Colors.textPrimary,

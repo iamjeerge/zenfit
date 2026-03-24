@@ -337,3 +337,117 @@ create table public.mood_journal (
 
 alter table public.mood_journal enable row level security;
 create policy "Users can manage own mood journal" on public.mood_journal for all using (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════
+-- 16. PROGRESS PHOTOS (Issue #7)
+-- ═══════════════════════════════════════════════
+create table public.progress_photos (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  photo_url text not null,
+  category text check (category in ('front', 'side', 'back', 'other')) default 'other',
+  weight_kg numeric(5,2),
+  taken_at date not null default current_date,
+  created_at timestamptz default now()
+);
+
+alter table public.progress_photos enable row level security;
+create policy "Users manage own progress photos" on public.progress_photos for all using (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════
+-- 17. FRIENDSHIPS (Issue #5)
+-- ═══════════════════════════════════════════════
+create table public.friendships (
+  id uuid default uuid_generate_v4() primary key,
+  requester_id uuid references public.profiles(id) on delete cascade not null,
+  addressee_id uuid references public.profiles(id) on delete cascade not null,
+  status text check (status in ('pending', 'accepted', 'blocked')) default 'pending',
+  created_at timestamptz default now(),
+  unique(requester_id, addressee_id)
+);
+
+alter table public.friendships enable row level security;
+create policy "Users can manage own friendships" on public.friendships for all
+  using (auth.uid() = requester_id or auth.uid() = addressee_id);
+
+-- ═══════════════════════════════════════════════
+-- 18. ACTIVITY FEED (Issue #5)
+-- ═══════════════════════════════════════════════
+create table public.activity_feed (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  type text not null, -- 'workout_completed', 'badge_earned', 'step_goal_hit'
+  metadata jsonb default '{}'::jsonb,
+  created_at timestamptz default now()
+);
+
+alter table public.activity_feed enable row level security;
+create policy "Users can see own activity" on public.activity_feed for select using (auth.uid() = user_id);
+create policy "Users can insert own activity" on public.activity_feed for insert with check (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════
+-- 19. WORKOUT PLANS (Issue #8)
+-- ═══════════════════════════════════════════════
+create table public.workout_plans (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  name text not null,
+  description text,
+  days_per_week integer not null check (days_per_week between 1 and 7),
+  plan_days jsonb not null default '[]',
+  is_active boolean not null default false,
+  created_at timestamptz default now(),
+  updated_at timestamptz default now()
+);
+
+alter table public.workout_plans enable row level security;
+create policy "Users can manage own workout plans" on public.workout_plans
+  for all using (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════
+-- 20. WEIGHT LOGS (Issue #9)
+-- ═══════════════════════════════════════════════
+create table public.weight_logs (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  weight_kg numeric(5,2) not null check (weight_kg > 0),
+  logged_at date not null default current_date,
+  unique(user_id, logged_at),
+  created_at timestamptz default now()
+);
+
+alter table public.weight_logs enable row level security;
+create policy "Users can manage own weight logs" on public.weight_logs
+  for all using (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════
+-- 21. WEARABLE INTEGRATION MIGRATIONS (Issue #12)
+-- ═══════════════════════════════════════════════
+
+-- Add source column to sleep_logs for wearable-synced entries
+alter table public.sleep_logs
+  add column if not exists source text default 'manual'
+    check (source in ('manual', 'apple_watch', 'android_watch', 'health_connect'));
+
+-- Expand heart_rate_logs source check to include health_connect
+alter table public.heart_rate_logs
+  drop constraint if exists heart_rate_logs_source_check;
+alter table public.heart_rate_logs
+  add constraint heart_rate_logs_source_check
+    check (source in ('apple_watch', 'android_watch', 'manual', 'health_connect'));
+
+-- ═══════════════════════════════════════════════
+-- 22. REMINDERS COLUMN MIGRATIONS (Issue #11)
+-- ═══════════════════════════════════════════════
+alter table public.reminders
+  add column if not exists time_hh integer check (time_hh between 0 and 23),
+  add column if not exists time_mm integer check (time_mm between 0 and 59),
+  add column if not exists notification_id text;
+
+-- ═══════════════════════════════════════════════
+-- 23. STRIPE SUBSCRIPTION MIGRATIONS (Issue #13)
+-- ═══════════════════════════════════════════════
+alter table public.profiles
+  add column if not exists stripe_customer_id text unique,
+  add column if not exists activity_level text
+    check (activity_level in ('sedentary', 'lightly_active', 'moderately_active', 'very_active', 'extra_active'));
