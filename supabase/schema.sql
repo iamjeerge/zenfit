@@ -443,3 +443,11 @@ alter table public.reminders
   add column if not exists time_hh integer check (time_hh between 0 and 23),
   add column if not exists time_mm integer check (time_mm between 0 and 59),
   add column if not exists notification_id text;
+
+-- ═══════════════════════════════════════════════
+-- 23. STRIPE SUBSCRIPTION MIGRATIONS (Issue #13)
+-- ═══════════════════════════════════════════════
+alter table public.profiles
+  add column if not exists stripe_customer_id text unique,
+  add column if not exists activity_level text
+    check (activity_level in ('sedentary', 'lightly_active', 'moderately_active', 'very_active', 'extra_active'));

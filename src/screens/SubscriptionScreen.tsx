@@ -5,10 +5,13 @@ import {
   StyleSheet,
   TouchableOpacity,
   Text,
+  Alert,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
+import * as WebBrowser from 'expo-web-browser';
 import {
   Colors,
   Gradients,
@@ -19,11 +22,16 @@ import {
 } from '../theme/colors';
 import AnimatedEntry from '../components/AnimatedEntry';
 import { GradientButton } from '../components';
+import { supabase } from '../lib/supabase';
+import { useAuthStore } from '../store/authStore';
 
 type BillingPeriod = 'monthly' | 'annual';
 
 export default function SubscriptionScreen() {
   const [billingPeriod, setBillingPeriod] = useState<BillingPeriod>('monthly');
+  const [isLoading, setIsLoading] = useState(false);
+  const profile = useAuthStore((s) => s.profile);
+  const isPremium = profile?.subscription_status === 'premium';
 
   const features = [
     'All yoga classes',
@@ -39,6 +47,40 @@ export default function SubscriptionScreen() {
   const annualSavings = Math.round(((monthlyPrice * 12 - annualPrice) / (monthlyPrice * 12)) * 100);
   const currentPrice = billingPeriod === 'monthly' ? monthlyPrice : annualPrice;
   const billingText = billingPeriod === 'monthly' ? '/month' : '/year';
+
+  const handleSubscribe = async () => {
+    setIsLoading(true);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-checkout-session', {
+        body: { billing_period: billingPeriod },
+      });
+      if (error || !data?.url) throw new Error(error?.message ?? 'No checkout URL returned');
+      const result = await WebBrowser.openAuthSessionAsync(data.url, 'zenfit://subscription-success');
+      if (result.type === 'success') {
+        Alert.alert('Success!', 'Your subscription is now active. Enjoy ZenFit Premium!');
+      } else if (result.type === 'cancel') {
+        // User cancelled — no action needed
+      }
+    } catch (err: any) {
+      Alert.alert('Checkout Failed', err?.message ?? 'Unable to start checkout. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleManageSubscription = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('create-customer-portal-session', {});
+      if (error || !data?.url) throw new Error(error?.message ?? 'No portal URL');
+      await WebBrowser.openBrowserAsync(data.url);
+    } catch (err: any) {
+      Alert.alert('Error', err?.message ?? 'Unable to open subscription portal.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -152,13 +194,35 @@ export default function SubscriptionScreen() {
             </View>
 
             {/* CTA Button */}
-            <GradientButton
-              title="Start Free Trial"
-              onPress={() => {
-                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-              }}
-              style={{ marginTop: Spacing.md }}
-            />
+            {isPremium ? (
+              <View>
+                <View style={styles.premiumBadge}>
+                  <Text style={styles.premiumBadgeText}>✅ You're Premium!</Text>
+                </View>
+                <GradientButton
+                  title="Manage Subscription"
+                  onPress={handleManageSubscription}
+                  style={{ marginTop: Spacing.md }}
+                />
+              </View>
+            ) : (
+              <TouchableOpacity
+                style={[styles.ctaBtn, isLoading && styles.ctaBtnDisabled]}
+                onPress={handleSubscribe}
+                disabled={isLoading}
+              >
+                <LinearGradient
+                  colors={Gradients.sunrise as unknown as [string, string, ...string[]]}
+                  style={styles.ctaBtnGradient}
+                >
+                  {isLoading ? (
+                    <ActivityIndicator color={Colors.textPrimary} />
+                  ) : (
+                    <Text style={styles.ctaBtnText}>Start Free Trial</Text>
+                  )}
+                </LinearGradient>
+              </TouchableOpacity>
+            )}
           </LinearGradient>
         </LinearGradient>
 
@@ -166,7 +230,7 @@ export default function SubscriptionScreen() {
 
         {/* Restore Purchase Link */}
         <AnimatedEntry delay={300}>
-        <TouchableOpacity style={styles.restoreButton}>
+        <TouchableOpacity style={styles.restoreButton} onPress={handleManageSubscription}>
           <Text style={styles.restoreButtonText}>Restore Purchase</Text>
         </TouchableOpacity>
         </AnimatedEntry>
@@ -314,4 +378,14 @@ const styles = StyleSheet.create({
     color: Colors.lavender,
     fontWeight: '500',
   },
+  premiumBadge: {
+    alignItems: 'center', paddingVertical: Spacing.sm,
+    backgroundColor: Colors.sageLeaf + '22', borderRadius: BorderRadius.md,
+    borderWidth: 1, borderColor: Colors.sageLeaf + '44', marginBottom: Spacing.sm,
+  },
+  premiumBadgeText: { fontSize: FontSizes.md, color: Colors.sageLeaf, fontWeight: '700' },
+  ctaBtn: { width: '100%', borderRadius: BorderRadius.lg, overflow: 'hidden', marginTop: Spacing.md },
+  ctaBtnDisabled: { opacity: 0.6 },
+  ctaBtnGradient: { paddingVertical: Spacing.md, alignItems: 'center', justifyContent: 'center' },
+  ctaBtnText: { fontSize: FontSizes.lg, fontWeight: '700', color: Colors.textPrimary },
 });
