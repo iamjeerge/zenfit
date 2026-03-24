@@ -419,3 +419,27 @@ create table public.weight_logs (
 alter table public.weight_logs enable row level security;
 create policy "Users can manage own weight logs" on public.weight_logs
   for all using (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════
+-- 21. WEARABLE INTEGRATION MIGRATIONS (Issue #12)
+-- ═══════════════════════════════════════════════
+
+-- Add source column to sleep_logs for wearable-synced entries
+alter table public.sleep_logs
+  add column if not exists source text default 'manual'
+    check (source in ('manual', 'apple_watch', 'android_watch', 'health_connect'));
+
+-- Expand heart_rate_logs source check to include health_connect
+alter table public.heart_rate_logs
+  drop constraint if exists heart_rate_logs_source_check;
+alter table public.heart_rate_logs
+  add constraint heart_rate_logs_source_check
+    check (source in ('apple_watch', 'android_watch', 'manual', 'health_connect'));
+
+-- ═══════════════════════════════════════════════
+-- 22. REMINDERS COLUMN MIGRATIONS (Issue #11)
+-- ═══════════════════════════════════════════════
+alter table public.reminders
+  add column if not exists time_hh integer check (time_hh between 0 and 23),
+  add column if not exists time_mm integer check (time_mm between 0 and 59),
+  add column if not exists notification_id text;
