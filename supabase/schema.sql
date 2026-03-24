@@ -337,3 +337,11 @@ create table public.mood_journal (
 
 alter table public.mood_journal enable row level security;
 create policy "Users can manage own mood journal" on public.mood_journal for all using (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════
+-- Migrations for Stripe subscription (Issue #13)
+-- ═══════════════════════════════════════════════
+alter table public.profiles
+  add column if not exists stripe_customer_id text unique,
+  add column if not exists activity_level text
+    check (activity_level in ('sedentary', 'lightly_active', 'moderately_active', 'very_active', 'extra_active'));
