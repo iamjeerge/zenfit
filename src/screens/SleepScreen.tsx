@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   ScrollView,
@@ -8,6 +8,7 @@ import {
   Modal,
   KeyboardAvoidingView,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -19,6 +20,8 @@ import {
   FontSizes,
   Shadows,
 } from '../theme/colors';
+import { supabase } from '../lib/supabase';
+import { useAuthStore } from '../store/authStore';
 
 type QualityRating = 1 | 2 | 3 | 4 | 5;
 
@@ -90,66 +93,106 @@ const SLEEP_TIPS: SleepTip[] = [
   },
 ];
 
-const RECENT_LOGS: SleepLog[] = [
-  {
-    id: '1',
-    date: 'Last night',
-    bedtime: '10:30 PM',
-    wakeTime: '6:30 AM',
-    durationHours: 8,
-    quality: 4,
-  },
-  {
-    id: '2',
-    date: '2 nights ago',
-    bedtime: '11:45 PM',
-    wakeTime: '6:00 AM',
-    durationHours: 6.25,
-    quality: 3,
-  },
-  {
-    id: '3',
-    date: '3 nights ago',
-    bedtime: '10:00 PM',
-    wakeTime: '6:30 AM',
-    durationHours: 8.5,
-    quality: 5,
-  },
-];
-
-const WEEK_DATA = [
-  { day: 'Mon', hours: 7.5 },
-  { day: 'Tue', hours: 6.0 },
-  { day: 'Wed', hours: 8.0 },
-  { day: 'Thu', hours: 6.5 },
-  { day: 'Fri', hours: 7.0 },
-  { day: 'Sat', hours: 9.0 },
-  { day: 'Sun', hours: 8.0 },
-];
-
+const DAYS_OF_WEEK = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 const MAX_HOURS = 10;
 
 export default function SleepScreen() {
+  const user = useAuthStore((s) => s.user);
   const [logModalVisible, setLogModalVisible] = useState(false);
   const [selectedBedtime, setSelectedBedtime] = useState('10:30 PM');
   const [selectedWakeTime, setSelectedWakeTime] = useState('6:30 AM');
   const [selectedQuality, setSelectedQuality] = useState<QualityRating>(4);
   const [todayLog, setTodayLog] = useState<SleepLog | null>(null);
+  const [recentLogs, setRecentLogs] = useState<SleepLog[]>([]);
+  const [weekData, setWeekData] = useState<{ day: string; hours: number }[]>(
+    DAYS_OF_WEEK.map((d) => ({ day: d, hours: 0 }))
+  );
+  const [isLoading, setIsLoading] = useState(true);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const avgHours =
-    WEEK_DATA.reduce((sum, d) => sum + d.hours, 0) / WEEK_DATA.length;
+  useEffect(() => {
+    if (user) fetchSleepLogs();
+  }, [user]);
 
-  const handleSaveLog = () => {
-    const log: SleepLog = {
-      id: Date.now().toString(),
-      date: 'Tonight',
-      bedtime: selectedBedtime,
-      wakeTime: selectedWakeTime,
-      durationHours: 8,
-      quality: selectedQuality,
-    };
-    setTodayLog(log);
-    setLogModalVisible(false);
+  const fetchSleepLogs = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const since = new Date();
+      since.setDate(since.getDate() - 14);
+      const { data, error: fetchError } = await supabase
+        .from('sleep_logs')
+        .select('*')
+        .eq('user_id', user!.id)
+        .gte('date', since.toISOString().split('T')[0])
+        .order('date', { ascending: false });
+
+      if (fetchError) throw fetchError;
+      const logs: SleepLog[] = (data || []).map((row: any) => ({
+        id: row.id,
+        date: new Date(row.date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }),
+        bedtime: row.bedtime ? new Date(row.bedtime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '--',
+        wakeTime: row.wake_time ? new Date(row.wake_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '--',
+        durationHours: parseFloat(row.duration_hours ?? 0),
+        quality: (row.quality ?? 3) as QualityRating,
+        notes: row.notes ?? undefined,
+      }));
+      setRecentLogs(logs);
+
+      // Build this week's chart data
+      const today = new Date();
+      const dayMap: Record<string, number> = {};
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - i);
+        const key = d.toISOString().split('T')[0];
+        dayMap[key] = 0;
+      }
+      (data || []).forEach((row: any) => {
+        if (dayMap[row.date] !== undefined) {
+          dayMap[row.date] = parseFloat(row.duration_hours ?? 0);
+        }
+      });
+      const sorted = Object.entries(dayMap).sort(([a], [b]) => a.localeCompare(b));
+      setWeekData(sorted.map(([dateStr, hours]) => ({
+        day: new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short' }),
+        hours,
+      })));
+
+      if (logs.length > 0) setTodayLog(logs[0]);
+    } catch {
+      setError('Failed to load sleep data.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const avgHours = weekData.length > 0
+    ? weekData.reduce((sum, d) => sum + d.hours, 0) / weekData.filter((d) => d.hours > 0).length || 0
+    : 0;
+
+  const handleSaveLog = async () => {
+    if (!user) return;
+    setIsSaving(true);
+    try {
+      const now = new Date();
+      const todayStr = now.toISOString().split('T')[0];
+      const { error: saveError } = await supabase.from('sleep_logs').insert({
+        user_id: user.id,
+        bedtime: new Date(`${todayStr} ${selectedBedtime}`).toISOString(),
+        wake_time: new Date(`${todayStr} ${selectedWakeTime}`).toISOString(),
+        quality: selectedQuality,
+        date: todayStr,
+      });
+      if (saveError) throw saveError;
+      setLogModalVisible(false);
+      await fetchSleepLogs();
+    } catch {
+      setError('Failed to save sleep log. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const QualitySelector = () => (
@@ -307,7 +350,7 @@ export default function SleepScreen() {
               style={[styles.avgCard, { borderColor: Colors.glassBorder }]}
             >
               <Text style={styles.avgIcon}>📊</Text>
-              <Text style={styles.avgValue}>{avgHours.toFixed(1)}h</Text>
+              <Text style={styles.avgValue}>{isNaN(avgHours) ? '—' : `${avgHours.toFixed(1)}h`}</Text>
               <Text style={styles.avgLabel}>Weekly Avg</Text>
             </LinearGradient>
             <LinearGradient
@@ -328,7 +371,7 @@ export default function SleepScreen() {
             >
               <Text style={styles.avgIcon}>✅</Text>
               <Text style={styles.avgValue}>
-                {WEEK_DATA.filter((d) => d.hours >= 7).length}/7
+                {weekData.filter((d) => d.hours >= 7).length}/{weekData.length}
               </Text>
               <Text style={styles.avgLabel}>Goal Met</Text>
             </LinearGradient>
@@ -339,9 +382,9 @@ export default function SleepScreen() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>This Week</Text>
           <View style={styles.chart}>
-            {WEEK_DATA.map((d) => (
+            {weekData.map((d) => (
               <View key={d.day} style={styles.barWrapper}>
-                <Text style={styles.barValue}>{d.hours}h</Text>
+                <Text style={styles.barValue}>{d.hours > 0 ? `${d.hours}h` : '—'}</Text>
                 <View style={styles.barContainer}>
                   <LinearGradient
                     colors={
@@ -349,7 +392,9 @@ export default function SleepScreen() {
                         ? Gradients.ocean
                         : d.hours >= 6
                         ? Gradients.auroraSubtle
-                        : [Colors.error, Colors.sunriseOrange]
+                        : d.hours > 0
+                        ? [Colors.error, Colors.sunriseOrange]
+                        : [Colors.glassBackground, Colors.glassBackground]
                     }
                     start={{ x: 0, y: 1 }}
                     end={{ x: 0, y: 0 }}
@@ -365,9 +410,17 @@ export default function SleepScreen() {
         {/* Recent Logs */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Sleep History</Text>
-          {RECENT_LOGS.map((log) => (
-            <SleepLogCard key={log.id} log={log} />
-          ))}
+          {error ? (
+            <TouchableOpacity onPress={fetchSleepLogs}>
+              <Text style={styles.errorText}>{error} Tap to retry.</Text>
+            </TouchableOpacity>
+          ) : isLoading ? (
+            <ActivityIndicator color={Colors.violet} style={{ marginVertical: Spacing.lg }} />
+          ) : recentLogs.length === 0 ? (
+            <Text style={styles.noLogText}>No sleep logs yet. Tap "+ Log Sleep" to start!</Text>
+          ) : (
+            recentLogs.map((log) => <SleepLogCard key={log.id} log={log} />)
+          )}
         </View>
 
         {/* Sleep Tips */}
@@ -436,6 +489,7 @@ export default function SleepScreen() {
               <TouchableOpacity
                 style={styles.modalSaveButton}
                 onPress={handleSaveLog}
+                disabled={isSaving}
                 accessibilityLabel="Save sleep log"
               >
                 <LinearGradient
@@ -444,7 +498,11 @@ export default function SleepScreen() {
                   end={{ x: 1, y: 1 }}
                   style={styles.modalSaveGradient}
                 >
-                  <Text style={styles.modalSaveText}>Save</Text>
+                  {isSaving ? (
+                    <ActivityIndicator color={Colors.textPrimary} />
+                  ) : (
+                    <Text style={styles.modalSaveText}>Save</Text>
+                  )}
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -799,5 +857,11 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.md,
     fontWeight: '700',
     color: Colors.textPrimary,
+  },
+  errorText: {
+    fontSize: FontSizes.sm,
+    color: Colors.error,
+    textAlign: 'center',
+    marginVertical: Spacing.md,
   },
 });
