@@ -113,6 +113,13 @@ export default function ProfileScreen() {
       onPress: () => router.push('/mood'),
     },
     {
+      id: 'bmi',
+      icon: '⚖️',
+      title: 'Body Metrics',
+      subtitle: 'BMI, BMR, TDEE & weight trends',
+      onPress: () => router.push('/bmi'),
+    },
+    {
       id: 'settings',
       icon: '⚙️',
       title: 'Settings',
