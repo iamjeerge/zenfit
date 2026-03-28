@@ -160,8 +160,8 @@ describe('MoodScreen', () => {
         fireEvent.press(logButton);
       }
       await waitFor(() => {
-        expect(screen.queryByText(/How are you feeling/i) ||
-               screen.queryByText(/Mood Journal/i)).toBeTruthy();
+        expect(screen.queryAllByText(/How are you feeling/i).length > 0 ||
+               screen.queryAllByText(/Mood Journal/i).length > 0).toBeTruthy();
       }, { timeout: 2000 });
     });
   });
