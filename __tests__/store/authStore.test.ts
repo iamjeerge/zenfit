@@ -4,9 +4,64 @@ import { supabase } from '../../src/lib/supabase';
 
 jest.mock('../../src/lib/supabase');
 
+// Helper to build a chainable supabase from() mock
+function makeFromMock(resolvedData: any = { data: null, error: null }) {
+  const chainable = {
+    select: jest.fn().mockReturnThis(),
+    insert: jest.fn().mockReturnThis(),
+    update: jest.fn().mockReturnThis(),
+    delete: jest.fn().mockReturnThis(),
+    eq: jest.fn().mockReturnThis(),
+    gte: jest.fn().mockReturnThis(),
+    order: jest.fn().mockReturnThis(),
+    single: jest.fn(() => Promise.resolve(resolvedData)),
+  };
+  return chainable;
+}
+
 describe('useAuthStore', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    // Reset Zustand store to initial state between tests
+    useAuthStore.setState({
+      session: null,
+      user: null,
+      profile: null,
+      loading: false,
+      initialized: false,
+    });
+
+    // Default supabase mock implementations
+    (supabase.auth.signInWithPassword as jest.Mock).mockResolvedValue({
+      data: { session: null },
+      error: null,
+    });
+    (supabase.auth.signUp as jest.Mock).mockResolvedValue({
+      data: { session: null },
+      error: null,
+    });
+    (supabase.auth.signOut as jest.Mock).mockResolvedValue({ error: null });
+    (supabase.auth.getSession as jest.Mock).mockResolvedValue({
+      data: { session: null },
+      error: null,
+    });
+    (supabase.auth.onAuthStateChange as jest.Mock).mockReturnValue({
+      data: { subscription: { unsubscribe: jest.fn() } },
+    });
+
+    const mockFromChain = makeFromMock({
+      data: {
+        id: 'test-profile-id',
+        full_name: 'Test User',
+        email: 'test@example.com',
+        streak_days: 5,
+        xp: 100,
+        level: 1,
+        subscription_status: 'free',
+      },
+      error: null,
+    });
+    (supabase.from as jest.Mock).mockReturnValue(mockFromChain);
   });
 
   describe('Initial State', () => {
@@ -110,21 +165,31 @@ describe('useAuthStore', () => {
     });
 
     it('should set loading state during sign in', async () => {
-      const { result } = renderHook(() => useAuthStore());
+      const { result, unmount } = renderHook(() => useAuthStore());
 
       (supabase.auth.signInWithPassword as jest.Mock).mockImplementationOnce(
-        () => new Promise((resolve) => setTimeout(() => resolve({ data: { session: null }, error: null }), 100))
+        () =>
+          new Promise((resolve) =>
+            setTimeout(() => resolve({ data: { session: null }, error: null }), 100),
+          ),
       );
 
-      const promise = act(async () => {
-        await result.current.signInWithEmail('test@example.com', 'password123');
+      // Start the operation but don't await it yet
+      let operationPromise: Promise<void>;
+      act(() => {
+        operationPromise = result.current.signInWithEmail('test@example.com', 'password123');
       });
 
+      // loading should be true immediately after triggering
       expect(result.current.loading).toBe(true);
 
-      await promise;
+      // Wait for it to complete
+      await act(async () => {
+        await operationPromise!;
+      });
 
       expect(result.current.loading).toBe(false);
+      unmount();
     });
 
     it('should fetch profile after successful sign in', async () => {
@@ -161,7 +226,7 @@ describe('useAuthStore', () => {
       await expect(
         act(async () => {
           await result.current.signInWithEmail('test@example.com', 'wrong-password');
-        })
+        }),
       ).rejects.toBeDefined();
     });
 
@@ -207,21 +272,32 @@ describe('useAuthStore', () => {
     });
 
     it('should set loading state during sign up', async () => {
-      const { result } = renderHook(() => useAuthStore());
+      const { result, unmount } = renderHook(() => useAuthStore());
 
       (supabase.auth.signUp as jest.Mock).mockImplementationOnce(
-        () => new Promise((resolve) => setTimeout(() => resolve({ data: { session: null }, error: null }), 100))
+        () =>
+          new Promise((resolve) =>
+            setTimeout(() => resolve({ data: { session: null }, error: null }), 100),
+          ),
       );
 
-      const promise = act(async () => {
-        await result.current.signUpWithEmail('test@example.com', 'password123', 'Test User');
+      let operationPromise: Promise<void>;
+      act(() => {
+        operationPromise = result.current.signUpWithEmail(
+          'test@example.com',
+          'password123',
+          'Test User',
+        );
       });
 
       expect(result.current.loading).toBe(true);
 
-      await promise;
+      await act(async () => {
+        await operationPromise!;
+      });
 
       expect(result.current.loading).toBe(false);
+      unmount();
     });
 
     it('should pass full name in user metadata', async () => {
@@ -255,7 +331,7 @@ describe('useAuthStore', () => {
       await expect(
         act(async () => {
           await result.current.signUpWithEmail('existing@example.com', 'password123', 'Test User');
-        })
+        }),
       ).rejects.toBeDefined();
     });
   });
@@ -503,10 +579,8 @@ describe('useAuthStore', () => {
     it('should allow subscribing to state changes', () => {
       const listener = jest.fn();
 
-      const unsubscribe = useAuthStore.subscribe(
-        (state) => state.session,
-        listener
-      );
+      // Plain Zustand subscribe (no subscribeWithSelector middleware) takes a full-state listener
+      const unsubscribe = useAuthStore.subscribe(listener);
 
       const mockSession = {
         access_token: 'test-token',
@@ -514,7 +588,7 @@ describe('useAuthStore', () => {
       };
 
       act(() => {
-        useAuthStore.setState({ session: mockSession });
+        useAuthStore.setState({ session: mockSession as any });
       });
 
       expect(listener).toHaveBeenCalled();

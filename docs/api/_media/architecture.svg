@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 500" width="1000" height="500">
+  <defs>
+    <!-- Gradient for boxes -->
+    <linearGradient id="boxGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#7C3AED;stop-opacity:0.3" />
+      <stop offset="100%" style="stop-color:#7C3AED;stop-opacity:0.1" />
+    </linearGradient>
+
+    <!-- Arrow marker -->
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <polygon points="0 0, 10 3, 0 6" style="fill:#7C3AED;opacity:0.6" />
+    </marker>
+  </defs>
+
+  <!-- Dark background -->
+  <rect width="1000" height="500" style="fill:#0D0B1A" />
+
+  <!-- Title -->
+  <text x="500" y="35" style="font-family:Arial,sans-serif;font-size:28px;font-weight:bold;fill:#FFFFFF;text-anchor:middle">ZenFit Architecture</text>
+
+  <!-- TOP LAYER: React Native (Expo) -->
+  <rect x="350" y="60" width="300" height="60" rx="8" style="fill:url(#boxGradient);stroke:#7C3AED;stroke-width:2" />
+  <text x="500" y="95" style="font-family:Arial,sans-serif;font-size:16px;font-weight:bold;fill:#FFFFFF;text-anchor:middle">React Native (Expo)</text>
+
+  <!-- MIDDLE LAYER -->
+  <!-- Expo Router box -->
+  <rect x="80" y="170" width="140" height="60" rx="8" style="fill:url(#boxGradient);stroke:#F472B6;stroke-width:2" />
+  <text x="150" y="195" style="font-family:Arial,sans-serif;font-size:13px;font-weight:bold;fill:#F472B6;text-anchor:middle">Expo Router</text>
+  <text x="150" y="212" style="font-family:Arial,sans-serif;font-size:11px;fill:#C4B5FD;text-anchor:middle;opacity:0.8">Navigation</text>
+
+  <!-- Zustand box -->
+  <rect x="280" y="170" width="140" height="60" rx="8" style="fill:url(#boxGradient);stroke:#F472B6;stroke-width:2" />
+  <text x="350" y="195" style="font-family:Arial,sans-serif;font-size:13px;font-weight:bold;fill:#F472B6;text-anchor:middle">Zustand</text>
+  <text x="350" y="212" style="font-family:Arial,sans-serif;font-size:11px;fill:#C4B5FD;text-anchor:middle;opacity:0.8">State Mgmt</text>
+
+  <!-- Reanimated box -->
+  <rect x="480" y="170" width="140" height="60" rx="8" style="fill:url(#boxGradient);stroke:#F472B6;stroke-width:2" />
+  <text x="550" y="195" style="font-family:Arial,sans-serif;font-size:13px;font-weight:bold;fill:#F472B6;text-anchor:middle">Reanimated</text>
+  <text x="550" y="212" style="font-family:Arial,sans-serif;font-size:11px;fill:#C4B5FD;text-anchor:middle;opacity:0.8">Animations</text>
+
+  <!-- BOTTOM LAYER: Supabase -->
+  <rect x="220" y="300" width="560" height="80" rx="8" style="fill:url(#boxGradient);stroke:#34D399;stroke-width:2" />
+  <text x="500" y="330" style="font-family:Arial,sans-serif;font-size:15px;font-weight:bold;fill:#34D399;text-anchor:middle">Supabase</text>
+
+  <!-- Supabase sub-components -->
+  <!-- Auth -->
+  <rect x="250" y="345" width="80" height="25" rx="4" style="fill:#34D399;opacity:0.2;stroke:#34D399;stroke-width:1" />
+  <text x="290" y="362" style="font-family:Arial,sans-serif;font-size:11px;font-weight:bold;fill:#34D399;text-anchor:middle">Auth</text>
+
+  <!-- Database -->
+  <rect x="380" y="345" width="80" height="25" rx="4" style="fill:#34D399;opacity:0.2;stroke:#34D399;stroke-width:1" />
+  <text x="420" y="362" style="font-family:Arial,sans-serif;font-size:11px;font-weight:bold;fill:#34D399;text-anchor:middle">Database</text>
+
+  <!-- Storage -->
+  <rect x="510" y="345" width="80" height="25" rx="4" style="fill:#34D399;opacity:0.2;stroke:#34D399;stroke-width:1" />
+  <text x="550" y="362" style="font-family:Arial,sans-serif;font-size:11px;font-weight:bold;fill:#34D399;text-anchor:middle">Storage</text>
+
+  <!-- SIDE: Apple HealthKit -->
+  <rect x="50" y="300" width="130" height="60" rx="8" style="fill:url(#boxGradient);stroke:#FBBF24;stroke-width:2" />
+  <text x="115" y="325" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;fill:#FBBF24;text-anchor:middle">Apple</text>
+  <text x="115" y="342" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;fill:#FBBF24;text-anchor:middle">HealthKit</text>
+
+  <!-- SIDE: Google Health Connect -->
+  <rect x="820" y="300" width="130" height="60" rx="8" style="fill:url(#boxGradient);stroke:#FBBF24;stroke-width:2" />
+  <text x="885" y="325" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;fill:#FBBF24;text-anchor:middle">Google</text>
+  <text x="885" y="342" style="font-family:Arial,sans-serif;font-size:12px;font-weight:bold;fill:#FBBF24;text-anchor:middle">Health Connect</text>
+
+  <!-- SIDE: Claude AI -->
+  <rect x="350" y="420" width="300" height="60" rx="8" style="fill:url(#boxGradient);stroke:#7C3AED;stroke-width:2" />
+  <text x="500" y="445" style="font-family:Arial,sans-serif;font-size:14px;font-weight:bold;fill:#7C3AED;text-anchor:middle">Claude AI</text>
+  <text x="500" y="462" style="font-family:Arial,sans-serif;font-size:11px;fill:#C4B5FD;text-anchor:middle;opacity:0.8">Food Recommendations</text>
+
+  <!-- CONNECTIONS/ARROWS -->
+
+  <!-- React Native to Expo Router -->
+  <line x1="420" y1="120" x2="200" y2="170" style="stroke:#7C3AED;stroke-width:2;opacity:0.5;marker-end:url(#arrowhead)" />
+
+  <!-- React Native to Zustand -->
+  <line x1="480" y1="120" x2="380" y2="170" style="stroke:#7C3AED;stroke-width:2;opacity:0.5;marker-end:url(#arrowhead)" />
+
+  <!-- React Native to Reanimated -->
+  <line x1="560" y1="120" x2="580" y2="170" style="stroke:#7C3AED;stroke-width:2;opacity:0.5;marker-end:url(#arrowhead)" />
+
+  <!-- Expo Router to Supabase -->
+  <line x1="150" y1="230" x2="350" y2="300" style="stroke:#34D399;stroke-width:2;opacity:0.4;marker-end:url(#arrowhead)" />
+
+  <!-- Zustand to Supabase -->
+  <line x1="350" y1="230" x2="420" y2="300" style="stroke:#34D399;stroke-width:2;opacity:0.4;marker-end:url(#arrowhead)" />
+
+  <!-- Reanimated to Supabase -->
+  <line x1="550" y1="230" x2="550" y2="300" style="stroke:#34D399;stroke-width:2;opacity:0.4;marker-end:url(#arrowhead)" />
+
+  <!-- Apple HealthKit to React Native -->
+  <line x1="115" y1="300" x2="380" y2="120" style="stroke:#FBBF24;stroke-width:2;opacity:0.4;marker-end:url(#arrowhead)" />
+
+  <!-- Google Health Connect to React Native -->
+  <line x1="885" y1="300" x2="620" y2="120" style="stroke:#FBBF24;stroke-width:2;opacity:0.4;marker-end:url(#arrowhead)" />
+
+  <!-- Claude AI to Supabase -->
+  <line x1="500" y1="420" x2="500" y2="380" style="stroke:#7C3AED;stroke-width:2;opacity:0.4;marker-end:url(#arrowhead)" />
+
+  <!-- React Native to Claude AI -->
+  <line x1="500" y1="120" x2="500" y2="420" style="stroke:#7C3AED;stroke-width:2;opacity:0.3;stroke-dasharray:5,5;marker-end:url(#arrowhead)" />
+
+  <!-- Legend -->
+  <text x="50" y="490" style="font-family:Arial,sans-serif;font-size:9px;fill:#C4B5FD;opacity:0.6">Solid arrows: direct dependencies | Dashed arrows: optional integrations</text>
+</svg>

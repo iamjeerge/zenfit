@@ -1,0 +1,525 @@
+/**
+ * @file ProfileScreen.tsx
+ * @module screens/tabs/ProfileScreen
+ * @description Profile tab — displays user stats (XP, level, streak) and provides
+ * navigation to settings, subscription management, and account actions.
+ */
+
+import React from 'react';
+import {
+  StyleSheet,
+  View,
+  Text,
+  ScrollView,
+  TouchableOpacity,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import LinearGradient from 'react-native-linear-gradient';
+import { useRouter } from '../../utils/router';
+import * as Haptics from '../../utils/haptics';
+import { useAuthStore } from '../../store/authStore';
+import {
+  Colors,
+  Gradients,
+  Spacing,
+  BorderRadius,
+  FontSizes,
+  Shadows,
+  HIT_SLOP,
+} from '../../theme/colors';
+import { AnimatedEntry, GlassCard, SectionHeader, GradientButton, StatCard } from '../../components';
+
+interface MenuItem {
+  id: string;
+  icon: string;
+  title: string;
+  subtitle?: string;
+  onPress: () => void;
+}
+
+export default function ProfileScreen() {
+  const router = useRouter();
+  const profile = useAuthStore((s) => s.profile);
+  const signOut = useAuthStore((s) => s.signOut);
+
+  const getInitial = () => {
+    if (profile?.full_name) {
+      return profile.full_name.charAt(0).toUpperCase();
+    }
+    return 'U';
+  };
+
+  const handleSignOut = async () => {
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+    await signOut();
+    router.replace('/auth');
+  };
+
+  const menuItems: MenuItem[] = [
+    {
+      id: 'reminders',
+      icon: '🔔',
+      title: 'Reminders',
+      subtitle: 'Manage notifications',
+      onPress: () => router.push('/reminders'),
+    },
+    {
+      id: 'subscription',
+      icon: '⭐',
+      title: 'Subscription',
+      subtitle: profile?.subscription_status === 'premium' ? 'Premium Active' : 'Free Plan',
+      onPress: () => router.push('/subscription'),
+    },
+    {
+      id: 'beauty',
+      icon: '💄',
+      title: 'Beauty Tips',
+      subtitle: 'Daily beauty advice',
+      onPress: () => router.push('/beauty-tips'),
+    },
+    {
+      id: 'progress',
+      icon: '📊',
+      title: 'Progress',
+      subtitle: 'View your achievements',
+      onPress: () => router.push('/progress'),
+    },
+    {
+      id: 'achievements',
+      icon: '🏆',
+      title: 'Achievements',
+      subtitle: `${Math.floor((profile?.xp || 0) / 100)} badges earned`,
+      onPress: () => router.push('/progress'),
+    },
+    {
+      id: 'workout',
+      icon: '🏋️',
+      title: 'Workout Tracker',
+      subtitle: 'Log exercises & track progress',
+      onPress: () => router.push('/workout'),
+    },
+    {
+      id: 'workout-plan',
+      icon: '📋',
+      title: 'Workout Plans',
+      subtitle: 'Build & manage your programmes',
+      onPress: () => router.push('/workout-plan'),
+    },
+    {
+      id: 'sleep',
+      icon: '🌙',
+      title: 'Sleep Tracker',
+      subtitle: 'Monitor your rest & recovery',
+      onPress: () => router.push('/sleep'),
+    },
+    {
+      id: 'mood',
+      icon: '😊',
+      title: 'Mood Journal',
+      subtitle: 'Daily emotional check-in',
+      onPress: () => router.push('/mood'),
+    },
+    {
+      id: 'bmi',
+      icon: '⚖️',
+      title: 'Body Metrics',
+      subtitle: 'BMI, BMR, TDEE & weight trends',
+      onPress: () => router.push('/bmi'),
+    },
+    {
+      id: 'settings',
+      icon: '⚙️',
+      title: 'Settings',
+      subtitle: 'Customize your experience',
+      onPress: () => router.push('/settings'),
+    },
+  ];
+
+  return (
+    <SafeAreaView style={styles.container} edges={['top']}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Header with Aurora Gradient */}
+        <AnimatedEntry delay={0} duration={600}>
+        <LinearGradient
+          colors={Gradients.aurora as unknown as [string, string, ...string[]]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={styles.headerGradient}
+        >
+          <View style={styles.profileHeader}>
+            {/* Avatar */}
+            <View style={styles.avatarContainer}>
+              <View style={styles.avatar}>
+                <Text style={styles.avatarInitial}>{getInitial()}</Text>
+              </View>
+            </View>
+
+            {/* User Info */}
+            <View style={styles.userInfo}>
+              <Text style={styles.userName}>
+                {profile?.full_name || 'Welcome to ZenFit'}
+              </Text>
+              <Text style={styles.userEmail}>
+                {profile?.subscription_status === 'premium'
+                  ? '✨ Premium Member'
+                  : '📱 Free Member'}
+              </Text>
+            </View>
+          </View>
+        </LinearGradient>
+        </AnimatedEntry>
+
+        {/* Stats Row */}
+        <AnimatedEntry delay={100} duration={600}>
+        <View style={styles.statsRow}>
+          <View style={styles.statCard}>
+            <LinearGradient
+              colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
+              style={styles.statGradient}
+            >
+              <Text style={styles.statLabel}>Level</Text>
+              <Text style={styles.statValue}>{profile?.level || 1}</Text>
+              <View style={styles.levelBar}>
+                <View
+                  style={[
+                    styles.levelProgress,
+                    {
+                      width: `${((profile?.xp || 0) % 1000) / 10}%`,
+                      backgroundColor: Colors.violet,
+                    },
+                  ]}
+                />
+              </View>
+            </LinearGradient>
+          </View>
+
+          <View style={styles.statCard}>
+            <LinearGradient
+              colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
+              style={styles.statGradient}
+            >
+              <Text style={styles.statLabel}>XP</Text>
+              <Text style={styles.statValue}>{profile?.xp || 0}</Text>
+              <Text style={styles.xpSubtext}>XP earned</Text>
+            </LinearGradient>
+          </View>
+
+          <View style={styles.statCard}>
+            <LinearGradient
+              colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
+              style={styles.statGradient}
+            >
+              <Text style={styles.statLabel}>🔥 Streak</Text>
+              <Text style={styles.statValue}>{profile?.streak_days || 0}</Text>
+              <Text style={styles.streakSubtext}>days</Text>
+            </LinearGradient>
+          </View>
+        </View>
+
+        </AnimatedEntry>
+
+        {/* Menu Items */}
+        <AnimatedEntry delay={200} duration={600}>
+        <View style={styles.menuSection}>
+          <SectionHeader title="Account" />
+          <View style={styles.menuList}>
+            {menuItems.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.menuItem}
+                onPress={item.onPress}
+                activeOpacity={0.8}
+              >
+                <LinearGradient
+                  colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
+                  style={styles.menuItemGradient}
+                >
+                  <View style={styles.menuItemContent}>
+                    <View style={styles.menuItemLeft}>
+                      <Text style={styles.menuItemIcon}>{item.icon}</Text>
+                      <View style={styles.menuItemText}>
+                        <Text style={styles.menuItemTitle}>{item.title}</Text>
+                        {item.subtitle && (
+                          <Text style={styles.menuItemSubtitle}>
+                            {item.subtitle}
+                          </Text>
+                        )}
+                      </View>
+                    </View>
+                    <Text style={styles.chevron}>›</Text>
+                  </View>
+                </LinearGradient>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        </AnimatedEntry>
+
+        {/* About Section */}
+        <AnimatedEntry delay={300} duration={600}>
+        <View style={styles.aboutSection}>
+          <SectionHeader title="About" />
+          <View style={styles.aboutCard}>
+            <LinearGradient
+              colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
+              style={styles.aboutGradient}
+            >
+              <Text style={styles.aboutTitle}>ZenFit v1.0</Text>
+              <Text style={styles.aboutText}>
+                Your personal wellness companion for yoga, meditation, and
+                holistic health.
+              </Text>
+              <View style={styles.aboutLinks}>
+                <TouchableOpacity activeOpacity={0.7}>
+                  <Text style={styles.aboutLink}>Privacy Policy</Text>
+                </TouchableOpacity>
+                <Text style={styles.aboutDot}>•</Text>
+                <TouchableOpacity activeOpacity={0.7}>
+                  <Text style={styles.aboutLink}>Terms of Service</Text>
+                </TouchableOpacity>
+              </View>
+            </LinearGradient>
+          </View>
+        </View>
+
+        </AnimatedEntry>
+
+        {/* Sign Out Button */}
+        <AnimatedEntry delay={400} duration={600}>
+          <GradientButton
+            title="Sign Out"
+            onPress={handleSignOut}
+            variant="danger"
+            style={{ marginBottom: Spacing.lg }}
+            accessibilityLabel="Sign out of your account"
+          />
+        </AnimatedEntry>
+
+        {/* Footer spacing */}
+        <View style={{ height: 100 }} />
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: Colors.background,
+  },
+  scrollContent: {
+    paddingHorizontal: Spacing.md,
+    paddingTop: Spacing.md,
+  },
+  headerGradient: {
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    marginBottom: Spacing.lg,
+  },
+  profileHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.lg,
+  },
+  avatarContainer: {
+    position: 'relative',
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: Colors.violet,
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: Colors.violet,
+    shadowOpacity: 0.5,
+    shadowRadius: 15,
+    elevation: 8,
+  },
+  avatarInitial: {
+    fontSize: FontSizes.xxxl,
+    fontWeight: '800',
+    color: Colors.textPrimary,
+  },
+  userInfo: {
+    flex: 1,
+  },
+  userName: {
+    fontSize: FontSizes.lg,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: Spacing.xs,
+  },
+  userEmail: {
+    fontSize: FontSizes.md,
+    color: Colors.textSecondary,
+  },
+  statsRow: {
+    flexDirection: 'row',
+    gap: Spacing.md,
+    marginBottom: Spacing.lg,
+  },
+  statCard: {
+    flex: 1,
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    ...Shadows.subtle,
+  },
+  statGradient: {
+    padding: Spacing.md,
+    alignItems: 'center',
+  },
+  statLabel: {
+    fontSize: FontSizes.xs,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.xs,
+    textTransform: 'uppercase',
+    letterSpacing: 1,
+    textAlign: 'center',
+  },
+  statValue: {
+    fontSize: FontSizes.xxl,
+    fontWeight: '800',
+    color: Colors.textPrimary,
+    marginBottom: Spacing.xs,
+  },
+  levelBar: {
+    width: '100%',
+    height: 4,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    borderRadius: BorderRadius.sm,
+    overflow: 'hidden',
+    marginTop: Spacing.sm,
+  },
+  levelProgress: {
+    height: '100%',
+    borderRadius: BorderRadius.sm,
+  },
+  xpSubtext: {
+    fontSize: FontSizes.xs,
+    color: Colors.textSecondary,
+    marginTop: Spacing.xs,
+  },
+  streakSubtext: {
+    fontSize: FontSizes.xs,
+    color: Colors.textSecondary,
+    marginTop: Spacing.xs,
+  },
+  sectionTitle: {
+    fontSize: FontSizes.lg,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: Spacing.md,
+  },
+  menuSection: {
+    marginBottom: Spacing.xl,
+  },
+  menuList: {
+    gap: Spacing.md,
+  },
+  menuItem: {
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    ...Shadows.subtle,
+  },
+  menuItemGradient: {
+    padding: Spacing.md,
+  },
+  menuItemContent: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  menuItemLeft: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  menuItemIcon: {
+    fontSize: 28,
+  },
+  menuItemText: {
+    flex: 1,
+  },
+  menuItemTitle: {
+    fontSize: FontSizes.md,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginBottom: Spacing.xs,
+  },
+  menuItemSubtitle: {
+    fontSize: FontSizes.xs,
+    color: Colors.textSecondary,
+  },
+  chevron: {
+    fontSize: FontSizes.lg,
+    color: Colors.textSecondary,
+    fontWeight: '300',
+  },
+  aboutSection: {
+    marginBottom: Spacing.xl,
+  },
+  aboutCard: {
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    ...Shadows.subtle,
+  },
+  aboutGradient: {
+    padding: Spacing.lg,
+  },
+  aboutTitle: {
+    fontSize: FontSizes.md,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: Spacing.sm,
+  },
+  aboutText: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
+    lineHeight: 20,
+    marginBottom: Spacing.md,
+  },
+  aboutLinks: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+  },
+  aboutLink: {
+    fontSize: FontSizes.xs,
+    color: Colors.violet,
+    fontWeight: '600',
+  },
+  aboutDot: {
+    color: Colors.textSecondary,
+  },
+  signOutButton: {
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    marginBottom: Spacing.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(248, 113, 113, 0.3)',
+    ...Shadows.subtle,
+  },
+  signOutGradient: {
+    paddingVertical: Spacing.lg,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  signOutText: {
+    fontSize: FontSizes.md,
+    fontWeight: '700',
+    color: Colors.error,
+  },
+});

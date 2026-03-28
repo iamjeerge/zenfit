@@ -1,3 +1,10 @@
+/**
+ * @file SectionHeader.tsx
+ * @module components/SectionHeader
+ * @description Reusable section heading with optional right-side action link.
+ * Provides consistent typographic treatment for all section headers in the app.
+ */
+
 import React from 'react';
 import { StyleSheet, View, Text, ViewStyle } from 'react-native';
 import { Colors, FontSizes, Spacing } from '../theme/colors';

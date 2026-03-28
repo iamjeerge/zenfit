@@ -1,3 +1,10 @@
+/**
+ * @file WorkoutScreen.tsx
+ * @module screens/WorkoutScreen
+ * @description Workout logging screen — lets users add exercises with sets, reps,
+ * and weight. Shows recent session history fetched from Supabase.
+ */
+
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
@@ -13,8 +20,8 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
+import LinearGradient from 'react-native-linear-gradient';
+import { useRouter } from '../utils/router';
 import {
   Colors,
   Gradients,
@@ -26,7 +33,6 @@ import {
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import SkeletonLoader, { SkeletonListItem } from '../components/SkeletonLoader';
-import AnimatedEmptyState from '../components/AnimatedEmptyState';
 import AnimatedEmptyState from '../components/AnimatedEmptyState';
 
 const CLAUDE_API_KEY = process.env.EXPO_PUBLIC_CLAUDE_API_KEY ?? '';

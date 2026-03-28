@@ -1,3 +1,10 @@
+/**
+ * @file RecoveryScreen.tsx
+ * @module screens/RecoveryScreen
+ * @description Recovery screen — guides users through post-workout recovery
+ * routines including stretching, foam rolling, and hydration reminders.
+ */
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -8,7 +15,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
+import LinearGradient from 'react-native-linear-gradient';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,

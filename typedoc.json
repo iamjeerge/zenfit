@@ -1,0 +1,37 @@
+{
+  "$schema": "https://typedoc.org/schema.json",
+  "entryPoints": [
+    "src/store/authStore.ts",
+    "src/lib/supabase.ts",
+    "src/utils/haptics.ts",
+    "src/utils/router.ts",
+    "src/utils/offlineQueue.ts",
+    "src/hooks/useOfflineSync.ts",
+    "src/services/wearableService.ts",
+    "src/components/index.ts",
+    "src/theme/colors.ts",
+    "src/theme/ThemeContext.tsx"
+  ],
+  "entryPointStrategy": "expand",
+  "plugin": ["typedoc-plugin-markdown"],
+  "out": "./docs/api",
+  "readme": "./README.md",
+  "name": "ZenFit API Reference",
+  "includeVersion": true,
+  "excludeExternals": true,
+  "excludePrivate": true,
+  "excludeProtected": false,
+  "excludeInternal": false,
+  "hideGenerator": true,
+  "gitRevision": "main",
+  "githubPages": false,
+  "searchInComments": true,
+  "categorizeByGroup": true,
+  "defaultCategory": "Other",
+  "skipErrorChecking": true,
+  "logLevel": "Warn",
+  "categoryOrder": ["Store", "Components", "Hooks", "Services", "Utilities", "Theme", "Other"],
+  "navigationLinks": {
+    "GitHub": "https://github.com/iamjeerge/zenfit"
+  }
+}

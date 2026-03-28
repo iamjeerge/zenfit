@@ -1,3 +1,10 @@
+/**
+ * @file StepsScreen.tsx
+ * @module screens/StepsScreen
+ * @description Step counter screen — displays daily step count, distance,
+ * and burned calories pulled from the wearable data service.
+ */
+
 import React, { useEffect } from 'react';
 import {
   View,
@@ -8,8 +15,8 @@ import {
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
+import LinearGradient from 'react-native-linear-gradient';
+import * as Haptics from '../utils/haptics';
 import {
   Colors,
   Gradients,

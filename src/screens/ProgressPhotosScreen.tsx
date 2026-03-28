@@ -1,3 +1,10 @@
+/**
+ * @file ProgressPhotosScreen.tsx
+ * @module screens/ProgressPhotosScreen
+ * @description Progress photos screen — a before/after photo timeline
+ * to visually track body composition changes.
+ */
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -12,9 +19,16 @@ import {
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as ImagePicker from 'expo-image-picker';
-import * as Haptics from 'expo-haptics';
+import LinearGradient from 'react-native-linear-gradient';
+// expo-image-picker removed – image picking disabled pending react-native-image-picker migration
+const ImagePicker = {
+  requestMediaLibraryPermissionsAsync: async () => ({ status: 'denied' as const }),
+  requestCameraPermissionsAsync: async () => ({ status: 'denied' as const }),
+  launchImageLibraryAsync: async (_: any) => ({ canceled: true, assets: [] }),
+  launchCameraAsync: async (_: any) => ({ canceled: true, assets: [] }),
+  MediaTypeOptions: { Images: 'Images' as const },
+};
+import * as Haptics from '../utils/haptics';
 import {
   Colors,
   Gradients,

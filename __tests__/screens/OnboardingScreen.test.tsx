@@ -1,9 +1,9 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
-import { useRouter } from 'expo-router';
-import OnboardingScreen from '../../app/onboarding';
+import { useRouter } from '../../src/utils/router';
+import OnboardingScreen from '../../src/screens/OnboardingScreen';
 
-jest.mock('expo-router');
+jest.mock('../../src/utils/router');
 
 describe('OnboardingScreen', () => {
   let mockRouter: any;
@@ -19,13 +19,153 @@ describe('OnboardingScreen', () => {
   });
 
   describe('Rendering', () => {
-    it('should render all onboarding pages', () => {
+    it('should render the welcome step by default', () => {
       render(<OnboardingScreen />);
-
-      // Check for title of first page
-      expect(screen.getByText('Find Your Inner Peace')).toBeTruthy();
+      expect(screen.getByText('Welcome to ZenFit')).toBeTruthy();
     });
 
+    it('should display wellness icon on first page', () => {
+      render(<OnboardingScreen />);
+      expect(screen.getByText('🧘')).toBeTruthy();
+    });
+
+    it('should display subtitle on welcome page', () => {
+      render(<OnboardingScreen />);
+      expect(screen.getByText('Your Personal Wellness Journey')).toBeTruthy();
+    });
+
+    it('should show step progress label', () => {
+      render(<OnboardingScreen />);
+      expect(screen.getByText('Step 1 of 7')).toBeTruthy();
+    });
+
+    it('should render Next button', () => {
+      render(<OnboardingScreen />);
+      expect(screen.getByText('Next →')).toBeTruthy();
+    });
+
+    it('should NOT show Skip button on step 0', () => {
+      render(<OnboardingScreen />);
+      expect(screen.queryByText('Skip')).toBeNull();
+    });
+  });
+
+  describe('Navigation', () => {
+    it('should advance to step 2 when Next is pressed', async () => {
+      render(<OnboardingScreen />);
+      fireEvent.press(screen.getByText('Next →'));
+      await waitFor(() => {
+        expect(screen.getByText('About You')).toBeTruthy();
+      });
+    });
+
+    it('should show Skip button on step 1 and beyond', async () => {
+      render(<OnboardingScreen />);
+      fireEvent.press(screen.getByText('Next →'));
+      await waitFor(() => {
+        expect(screen.getByText('Skip')).toBeTruthy();
+      });
+    });
+
+    it('should navigate to /auth when Skip is pressed', async () => {
+      render(<OnboardingScreen />);
+      // Advance to step 1 so Skip appears
+      fireEvent.press(screen.getByText('Next →'));
+      await waitFor(() => screen.getByText('Skip'));
+      fireEvent.press(screen.getByText('Skip'));
+      await waitFor(() => {
+        expect(mockRouter.replace).toHaveBeenCalledWith('/auth');
+      });
+    });
+
+    it('should show Back button after first step', async () => {
+      render(<OnboardingScreen />);
+      fireEvent.press(screen.getByText('Next →'));
+      await waitFor(() => {
+        expect(screen.getByText('← Back')).toBeTruthy();
+      });
+    });
+
+    it('should go back to previous step when Back is pressed', async () => {
+      render(<OnboardingScreen />);
+      fireEvent.press(screen.getByText('Next →'));
+      await waitFor(() => screen.getByText('← Back'));
+      fireEvent.press(screen.getByText('← Back'));
+      await waitFor(() => {
+        expect(screen.getByText('Welcome to ZenFit')).toBeTruthy();
+      });
+    });
+
+    it('should show step 3 content after two Next presses', async () => {
+      render(<OnboardingScreen />);
+      fireEvent.press(screen.getByText('Next →'));
+      await waitFor(() => screen.getByText('About You'));
+      fireEvent.press(screen.getByText('Next →'));
+      await waitFor(() => {
+        expect(screen.getByText('Body Metrics')).toBeTruthy();
+      });
+    });
+
+    it('should show Get Started button on last step', async () => {
+      render(<OnboardingScreen />);
+      // Navigate through all 7 steps
+      for (let i = 0; i < 6; i++) {
+        fireEvent.press(screen.getByText('Next →'));
+        await waitFor(() => {});
+      }
+      await waitFor(() => {
+        expect(screen.getByText('Get Started 🚀')).toBeTruthy();
+      });
+    });
+
+    it('should navigate to /auth when Get Started is pressed on last step', async () => {
+      render(<OnboardingScreen />);
+      for (let i = 0; i < 6; i++) {
+        fireEvent.press(screen.getByText('Next →'));
+        await waitFor(() => {});
+      }
+      await waitFor(() => screen.getByText('Get Started 🚀'));
+      fireEvent.press(screen.getByText('Get Started 🚀'));
+      await waitFor(() => {
+        expect(mockRouter.replace).toHaveBeenCalledWith('/auth');
+      });
+    });
+  });
+
+  describe('Step Content', () => {
+    it('should render About You step with name input', async () => {
+      render(<OnboardingScreen />);
+      fireEvent.press(screen.getByText('Next →'));
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('Your name')).toBeTruthy();
+      });
+    });
+
+    it('should render Body Metrics step with height input', async () => {
+      render(<OnboardingScreen />);
+      fireEvent.press(screen.getByText('Next →'));
+      await waitFor(() => screen.getByText('About You'));
+      fireEvent.press(screen.getByText('Next →'));
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('e.g. 175')).toBeTruthy();
+      });
+    });
+
+    it('should render Fitness Goal step', async () => {
+      render(<OnboardingScreen />);
+      for (let i = 0; i < 3; i++) {
+        fireEvent.press(screen.getByText('Next →'));
+        await waitFor(() => {});
+      }
+      await waitFor(() => {
+        expect(screen.getByText('Fitness Goal')).toBeTruthy();
+      });
+    });
+  });
+});
+
+// Orphaned blocks removed — all tests are in the describe above
+/*
     it('should render first page content by default', () => {
       render(<OnboardingScreen />);
 
@@ -183,3 +323,4 @@ describe('OnboardingScreen', () => {
     });
   });
 });
+*/

@@ -1,3 +1,10 @@
+/**
+ * @file ChallengeRoomsScreen.tsx
+ * @module screens/ChallengeRoomsScreen
+ * @description Challenge rooms screen — join or create group fitness challenges
+ * with leaderboards and real-time progress tracking.
+ */
+
 import React, { useState } from 'react';
 import {
   View,
@@ -9,8 +16,8 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
+import LinearGradient from 'react-native-linear-gradient';
+import * as Haptics from '../utils/haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Colors,

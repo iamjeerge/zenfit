@@ -1,3 +1,10 @@
+/**
+ * @file RemindersScreen.tsx
+ * @module screens/RemindersScreen
+ * @description Reminders management screen — allows the user to create, edit,
+ * and delete scheduled wellness reminders.
+ */
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -13,9 +20,17 @@ import {
   Linking,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Notifications from 'expo-notifications';
-import * as Haptics from 'expo-haptics';
+import LinearGradient from 'react-native-linear-gradient';
+// expo-notifications removed – scheduled notifications disabled pending react-native-push-notification migration
+const Notifications = {
+  setNotificationHandler: (_: any) => {},
+  requestPermissionsAsync: async () => ({ status: 'denied' as const }),
+  getPermissionsAsync: async () => ({ status: 'denied' as const }),
+  scheduleNotificationAsync: async (_: any) => 'stub-id',
+  cancelScheduledNotificationAsync: async (_: any) => {},
+  SchedulableTriggerInputTypes: { CALENDAR: 'calendar' },
+};
+import * as Haptics from '../utils/haptics';
 import {
   Colors,
   Gradients,
@@ -397,187 +412,4 @@ const styles = StyleSheet.create({
   saveBtn: { flex: 1, borderRadius: BorderRadius.lg, overflow: 'hidden' },
   saveBtnGradient: { paddingVertical: Spacing.md, alignItems: 'center', justifyContent: 'center' },
   saveText: { fontSize: FontSizes.md, fontWeight: '700', color: Colors.textPrimary },
-});
-
-interface Reminder {
-  id: string;
-  emoji: string;
-  title: string;
-  time: string;
-  enabled: boolean;
-}
-
-export default function RemindersScreen() {
-  const [reminders, setReminders] = useState<Reminder[]>([
-    { id: '1', emoji: '💧', title: 'Water', time: 'Every 2 hours', enabled: true },
-    { id: '2', emoji: '🥗', title: 'Breakfast', time: '8:00 AM', enabled: true },
-    { id: '3', emoji: '🍜', title: 'Lunch', time: '1:00 PM', enabled: true },
-    { id: '4', emoji: '🍲', title: 'Dinner', time: '7:00 PM', enabled: true },
-    { id: '5', emoji: '🥑', title: 'Snack', time: '4:00 PM', enabled: true },
-    { id: '6', emoji: '💊', title: 'Supplement', time: '9:00 AM', enabled: false },
-    { id: '7', emoji: '💪', title: 'Workout', time: '6:00 AM', enabled: true },
-    { id: '8', emoji: '🧘', title: 'Meditation', time: '10:00 PM', enabled: true },
-    { id: '9', emoji: '😴', title: 'Sleep', time: '11:00 PM', enabled: true },
-  ]);
-
-  const toggleReminder = (id: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setReminders((prev) =>
-      prev.map((reminder) =>
-        reminder.id === id
-          ? { ...reminder, enabled: !reminder.enabled }
-          : reminder
-      )
-    );
-  };
-
-  const ReminderCard = ({ reminder }: { reminder: Reminder }) => (
-    <LinearGradient
-      colors={Gradients.cardPrimary}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={[styles.reminderCard, { borderColor: Colors.glassBorder }]}
-    >
-      <View style={styles.reminderContent}>
-        <View style={styles.reminderLeft}>
-          <Text style={styles.emoji}>{reminder.emoji}</Text>
-          <View style={styles.reminderInfo}>
-            <Text style={styles.reminderTitle}>{reminder.title}</Text>
-            <Text style={styles.reminderTime}>{reminder.time}</Text>
-          </View>
-        </View>
-        <Switch
-          value={reminder.enabled}
-          onValueChange={() => toggleReminder(reminder.id)}
-          trackColor={{
-            false: Colors.textMuted,
-            true: Colors.sageLeaf,
-          }}
-          thumbColor={reminder.enabled ? Colors.sacredGold : Colors.textSecondary}
-        />
-      </View>
-    </LinearGradient>
-  );
-
-  return (
-    <SafeAreaView style={styles.container}>
-      <LinearGradient
-        colors={Gradients.cosmic}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
-
-      <AnimatedEntry delay={0}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Reminders</Text>
-        <Text style={styles.subtitle}>Stay on track with daily habits</Text>
-      </View>
-      </AnimatedEntry>
-
-      <ScrollView
-        style={styles.content}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {reminders.map((reminder, index) => (
-          <AnimatedEntry key={reminder.id} delay={100 + index * 50}>
-            <ReminderCard reminder={reminder} />
-          </AnimatedEntry>
-        ))}
-
-        <AnimatedEntry delay={600}>
-        <GradientButton
-          title="+ Add Custom Reminder"
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          }}
-          style={{ marginTop: Spacing.lg, marginBottom: Spacing.md }}
-        />
-        </AnimatedEntry>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.background,
-  },
-  header: {
-    paddingHorizontal: Spacing.lg,
-    paddingTop: Spacing.lg,
-    paddingBottom: Spacing.md,
-  },
-  title: {
-    fontSize: FontSizes.xxxl,
-    fontWeight: '700',
-    color: Colors.textPrimary,
-    marginBottom: Spacing.xs,
-  },
-  subtitle: {
-    fontSize: FontSizes.md,
-    color: Colors.textSecondary,
-  },
-  content: {
-    flex: 1,
-    paddingHorizontal: Spacing.lg,
-  },
-  scrollContent: {
-    paddingBottom: Spacing.xxl,
-  },
-  reminderCard: {
-    borderWidth: 1,
-    borderRadius: BorderRadius.lg,
-    padding: Spacing.lg,
-    marginBottom: Spacing.md,
-    backgroundColor: Colors.glassBackground,
-    ...Shadows.card,
-  },
-  reminderContent: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  reminderLeft: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    flex: 1,
-  },
-  emoji: {
-    fontSize: 32,
-    marginRight: Spacing.md,
-  },
-  reminderInfo: {
-    flex: 1,
-  },
-  reminderTitle: {
-    fontSize: FontSizes.lg,
-    fontWeight: '600',
-    color: Colors.textPrimary,
-    marginBottom: Spacing.xs,
-  },
-  reminderTime: {
-    fontSize: FontSizes.sm,
-    color: Colors.textSecondary,
-  },
-  addButton: {
-    marginTop: Spacing.lg,
-    marginBottom: Spacing.md,
-    borderRadius: BorderRadius.lg,
-    overflow: 'hidden',
-  },
-  addButtonGradient: {
-    paddingVertical: Spacing.md,
-    paddingHorizontal: Spacing.lg,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: BorderRadius.lg,
-  },
-  addButtonText: {
-    fontSize: FontSizes.lg,
-    fontWeight: '600',
-    color: Colors.textPrimary,
-  },
 });

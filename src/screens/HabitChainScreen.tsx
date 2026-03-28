@@ -1,3 +1,10 @@
+/**
+ * @file HabitChainScreen.tsx
+ * @module screens/HabitChainScreen
+ * @description Habit chain (habit stacking) screen — lets users build and
+ * track chains of daily micro-habits with streak visualisation.
+ */
+
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
@@ -10,7 +17,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
+import LinearGradient from 'react-native-linear-gradient';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -18,7 +25,7 @@ import Animated, {
   withSequence,
   withTiming,
 } from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '../utils/haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Colors,

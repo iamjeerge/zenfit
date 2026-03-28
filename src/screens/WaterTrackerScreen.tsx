@@ -1,3 +1,10 @@
+/**
+ * @file WaterTrackerScreen.tsx
+ * @module screens/WaterTrackerScreen
+ * @description Water intake tracker screen — logs glasses of water throughout
+ * the day and shows progress toward a configurable daily goal.
+ */
+
 import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
@@ -9,7 +16,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
+import LinearGradient from 'react-native-linear-gradient';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -18,7 +25,7 @@ import Animated, {
   withSequence,
   Easing,
 } from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '../utils/haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Colors,

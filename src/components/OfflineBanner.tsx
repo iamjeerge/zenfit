@@ -1,3 +1,10 @@
+/**
+ * @file OfflineBanner.tsx
+ * @module components/OfflineBanner
+ * @description Sticky banner shown when the device is offline or there are pending
+ * offline-queue mutations. Auto-dismisses when connectivity is restored.
+ */
+
 import React from 'react';
 import { View, Text, StyleSheet, Animated } from 'react-native';
 import { Colors, FontSizes, Spacing } from '../theme/colors';

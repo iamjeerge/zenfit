@@ -1,3 +1,9 @@
+/**
+ * @file VideosScreen.tsx
+ * @module screens/VideosScreen
+ * @description Videos screen — library of workout and wellness tutorial videos.
+ */
+
 import React, { useState } from 'react';
 import {
   View,
@@ -8,8 +14,8 @@ import {
   FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
+import LinearGradient from 'react-native-linear-gradient';
+import * as Haptics from '../utils/haptics';
 import {
   Colors,
   Gradients,

@@ -1,3 +1,10 @@
+/**
+ * @file colors.ts
+ * @module theme/colors
+ * @description ZenFit design-system tokens — single source of truth for all colours,
+ * typography sizes, and spacing values. Import Colors, FontSizes, or Spacing.
+ */
+
 // ─────────────────────────────────────────────
 // ZenFit Design System — Colors & Gradients
 // The single source of truth for every pixel

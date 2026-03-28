@@ -1,3 +1,10 @@
+/**
+ * @file SettingsScreen.tsx
+ * @module screens/SettingsScreen
+ * @description Settings screen — provides toggles for notifications, appearance,
+ * measurement units, and account management options.
+ */
+
 import React, { useState } from 'react';
 import {
   View,
@@ -9,9 +16,9 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import * as Haptics from 'expo-haptics';
+import LinearGradient from 'react-native-linear-gradient';
+import { useRouter } from '../utils/router';
+import * as Haptics from '../utils/haptics';
 import {
   Colors,
   Gradients,

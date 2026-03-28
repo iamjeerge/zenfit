@@ -1,3 +1,10 @@
+/**
+ * @file AnimatedEmptyState.tsx
+ * @module components/AnimatedEmptyState
+ * @description Animated empty-state placeholder rendered when a list has no items.
+ * Includes a pulsing icon and descriptive copy.
+ */
+
 import React, { useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Animated, Easing } from 'react-native';
 import { Colors, Spacing, FontSizes, BorderRadius } from '../theme/colors';
