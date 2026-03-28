@@ -1,8 +1,9 @@
-import React from 'react';
-import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { StyleSheet, View, Text, TouchableOpacity, Animated } from 'react-native';
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { BlurView } from 'expo-blur';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
 import { Colors, Spacing, BorderRadius, FontSizes } from '../../src/theme/colors';
 
@@ -16,6 +17,21 @@ const TAB_ICONS: Record<string, { emoji: string; label: string }> = {
 
 const TabIcon = ({ name, focused }: { name: string; focused: boolean }) => {
   const tab = TAB_ICONS[name] ?? { emoji: '•', label: name };
+  const glowAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (focused) {
+      Animated.loop(
+        Animated.sequence([
+          Animated.timing(glowAnim, { toValue: 1, duration: 1200, useNativeDriver: true }),
+          Animated.timing(glowAnim, { toValue: 0.4, duration: 1200, useNativeDriver: true }),
+        ])
+      ).start();
+    } else {
+      glowAnim.stopAnimation();
+      Animated.timing(glowAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start();
+    }
+  }, [focused]);
 
   return (
     <View style={styles.iconContainer}>
@@ -38,7 +54,14 @@ const TabIcon = ({ name, focused }: { name: string; focused: boolean }) => {
       >
         {tab.label}
       </Text>
-      {focused && <View style={styles.glowIndicator} />}
+      {focused && (
+        <Animated.View
+          style={[
+            styles.glowIndicator,
+            { opacity: glowAnim },
+          ]}
+        />
+      )}
     </View>
   );
 };
@@ -73,14 +96,22 @@ const CustomTabBar = ({ state, descriptors, navigation }: any) => {
                 onPress={onPress}
                 style={[
                   styles.tabButton,
-                  isFocused && styles.tabButtonActive,
                 ]}
                 activeOpacity={0.7}
                 accessibilityRole="tab"
                 accessibilityState={{ selected: isFocused }}
                 accessibilityLabel={TAB_ICONS[tabName]?.label ?? tabName}
               >
-                <TabIcon name={tabName} focused={isFocused} />
+                {isFocused ? (
+                  <LinearGradient
+                    colors={['rgba(124,58,237,0.22)', 'rgba(196,181,253,0.08)']}
+                    style={styles.activeTabGradient}
+                  >
+                    <TabIcon name={tabName} focused={isFocused} />
+                  </LinearGradient>
+                ) : (
+                  <TabIcon name={tabName} focused={isFocused} />
+                )}
               </TouchableOpacity>
             );
           })}
@@ -160,12 +191,18 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: Spacing.xs,
     borderRadius: BorderRadius.lg,
     minHeight: 52,
+    overflow: 'hidden',
   },
-  tabButtonActive: {
-    backgroundColor: 'rgba(124, 58, 237, 0.12)',
+  activeTabGradient: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(124,58,237,0.3)',
   },
   iconContainer: {
     justifyContent: 'center',
