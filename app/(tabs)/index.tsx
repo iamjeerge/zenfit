@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Dimensions,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -63,6 +64,26 @@ export default function HomeScreen() {
   const [briefing, setBriefing] = useState<string | null>(null);
   const [briefingLoading, setBriefingLoading] = useState(false);
   const hasFetched = useRef(false);
+
+  // Aurora background animation
+  const aurora1 = useRef(new Animated.Value(0)).current;
+  const aurora2 = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(aurora1, { toValue: 1, duration: 6000, useNativeDriver: true }),
+        Animated.timing(aurora1, { toValue: 0, duration: 6000, useNativeDriver: true }),
+      ])
+    ).start();
+    Animated.loop(
+      Animated.sequence([
+        Animated.delay(3000),
+        Animated.timing(aurora2, { toValue: 1, duration: 6000, useNativeDriver: true }),
+        Animated.timing(aurora2, { toValue: 0, duration: 6000, useNativeDriver: true }),
+      ])
+    ).start();
+  }, []);
 
   const todayMantra = MANTRAS[new Date().getDay() % MANTRAS.length];
 
@@ -164,6 +185,21 @@ export default function HomeScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
+      {/* Aurora background blobs */}
+      <Animated.View
+        style={[
+          styles.auroraBlob1,
+          { opacity: aurora1 },
+        ]}
+        pointerEvents="none"
+      />
+      <Animated.View
+        style={[
+          styles.auroraBlob2,
+          { opacity: aurora2 },
+        ]}
+        pointerEvents="none"
+      />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
@@ -346,6 +382,24 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background,
+  },
+  auroraBlob1: {
+    position: 'absolute',
+    width: width * 0.8,
+    height: width * 0.8,
+    borderRadius: width * 0.4,
+    backgroundColor: 'rgba(124,58,237,0.18)',
+    top: -width * 0.3,
+    left: -width * 0.2,
+  },
+  auroraBlob2: {
+    position: 'absolute',
+    width: width * 0.7,
+    height: width * 0.7,
+    borderRadius: width * 0.35,
+    backgroundColor: 'rgba(244,114,182,0.12)',
+    top: width * 0.2,
+    right: -width * 0.25,
   },
   scrollContent: {
     paddingHorizontal: Spacing.md,
