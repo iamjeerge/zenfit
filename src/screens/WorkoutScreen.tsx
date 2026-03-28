@@ -26,6 +26,8 @@ import {
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import SkeletonLoader, { SkeletonListItem } from '../components/SkeletonLoader';
+import AnimatedEmptyState from '../components/AnimatedEmptyState';
+import AnimatedEmptyState from '../components/AnimatedEmptyState';
 
 const CLAUDE_API_KEY = process.env.EXPO_PUBLIC_CLAUDE_API_KEY ?? '';
 const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
@@ -596,16 +598,11 @@ No explanation, no markdown, just the JSON array.`;
           </View>
 
           {todayExercises.length === 0 ? (
-            <LinearGradient
-              colors={Gradients.cardSecondary}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={[styles.emptyState, { borderColor: Colors.glassBorder }]}
-            >
-              <Text style={styles.emptyStateEmoji}>🏋️‍♀️</Text>
-              <Text style={styles.emptyStateText}>No exercises logged yet.</Text>
-              <Text style={styles.emptyStateHint}>Tap "+ Add" or use Quick Add above.</Text>
-            </LinearGradient>
+            <AnimatedEmptyState
+              emoji="🏋️‍♀️"
+              title="No exercises yet"
+              subtitle={'Tap "+ Add" or use Quick Add above to log your first exercise.'}
+            />
           ) : (
             todayExercises.map((ex) => <ExerciseCard key={ex.id} exercise={ex} />)
           )}
