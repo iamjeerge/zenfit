@@ -25,6 +25,7 @@ import {
 } from '../theme/colors';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
+import SkeletonLoader, { SkeletonListItem } from '../components/SkeletonLoader';
 
 const CLAUDE_API_KEY = process.env.EXPO_PUBLIC_CLAUDE_API_KEY ?? '';
 const CLAUDE_API_URL = 'https://api.anthropic.com/v1/messages';
@@ -618,7 +619,11 @@ No explanation, no markdown, just the JSON array.`;
               <Text style={styles.errorText}>{error} Tap to retry.</Text>
             </TouchableOpacity>
           ) : isLoading ? (
-            <ActivityIndicator color={Colors.violet} style={{ marginVertical: Spacing.lg }} />
+            <>
+              <SkeletonListItem style={{ marginBottom: Spacing.sm }} />
+              <SkeletonListItem style={{ marginBottom: Spacing.sm }} />
+              <SkeletonListItem />
+            </>
           ) : recentSessions.length === 0 ? (
             <Text style={styles.emptyStateHint}>No sessions logged yet. Start your first workout!</Text>
           ) : (

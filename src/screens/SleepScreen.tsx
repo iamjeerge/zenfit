@@ -22,6 +22,7 @@ import {
 } from '../theme/colors';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
+import SkeletonLoader, { SkeletonListItem } from '../components/SkeletonLoader';
 
 type QualityRating = 1 | 2 | 3 | 4 | 5;
 
@@ -415,7 +416,11 @@ export default function SleepScreen() {
               <Text style={styles.errorText}>{error} Tap to retry.</Text>
             </TouchableOpacity>
           ) : isLoading ? (
-            <ActivityIndicator color={Colors.violet} style={{ marginVertical: Spacing.lg }} />
+            <>
+              <SkeletonListItem style={{ marginBottom: Spacing.sm }} />
+              <SkeletonListItem style={{ marginBottom: Spacing.sm }} />
+              <SkeletonListItem />
+            </>
           ) : recentLogs.length === 0 ? (
             <Text style={styles.noLogText}>No sleep logs yet. Tap "+ Log Sleep" to start!</Text>
           ) : (
