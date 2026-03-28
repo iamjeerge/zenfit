@@ -33,6 +33,7 @@ import {
 } from '../theme/colors';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
+import { useCelebration } from '../components/CelebrationOverlay';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const TIMER_SIZE = SCREEN_WIDTH * 0.55;
@@ -54,6 +55,7 @@ export default function ActiveWorkoutScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ exercises: string }>();
   const user = useAuthStore((s) => s.user);
+  const { celebrate, overlay: celebrationOverlay } = useCelebration();
 
   const exercises: Exercise[] = React.useMemo(() => {
     try {
@@ -197,6 +199,7 @@ export default function ActiveWorkoutScreen() {
     }
 
     setPhase('done');
+    celebrate('🏆', 'Workout Complete!', `${exercises.length} exercises crushed!`);
   };
 
   const handleFinishEarly = () => {
@@ -259,6 +262,7 @@ export default function ActiveWorkoutScreen() {
             </LinearGradient>
           </TouchableOpacity>
         </View>
+        {celebrationOverlay}
       </SafeAreaView>
     );
   }

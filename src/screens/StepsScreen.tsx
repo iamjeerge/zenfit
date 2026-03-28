@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   ScrollView,
@@ -21,6 +21,7 @@ import {
 import AnimatedEntry from '../components/AnimatedEntry';
 import SectionHeader from '../components/SectionHeader';
 import { GradientButton } from '../components';
+import { useCelebration } from '../components/CelebrationOverlay';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -42,6 +43,14 @@ export default function StepsScreen() {
   const currentSteps = 8542;
   const stepGoal = 10000;
   const progress = currentSteps / stepGoal;
+  const { celebrate, overlay: celebrationOverlay } = useCelebration();
+
+  useEffect(() => {
+    if (currentSteps >= stepGoal) {
+      const timer = setTimeout(() => celebrate('👟', 'Goal Reached!', `${currentSteps.toLocaleString()} steps today!`), 600);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const stats: Stat[] = [
     { icon: '📏', label: 'Distance', value: '6.2 km' },
@@ -294,6 +303,7 @@ export default function StepsScreen() {
         </View>
         </AnimatedEntry>
       </ScrollView>
+      {celebrationOverlay}
     </SafeAreaView>
   );
 }
