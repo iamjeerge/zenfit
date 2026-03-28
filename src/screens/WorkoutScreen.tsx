@@ -14,6 +14,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import {
   Colors,
   Gradients,
@@ -117,6 +118,7 @@ const numberInputStyles = StyleSheet.create({
 });
 
 export default function WorkoutScreen() {
+  const router = useRouter();
   const profile = useAuthStore((s) => s.profile);
   const user = useAuthStore((s) => s.user);
   const [modalVisible, setModalVisible] = useState(false);
@@ -415,6 +417,30 @@ No explanation, no markdown, just the JSON array.`;
             )}
           </LinearGradient>
         </TouchableOpacity>
+
+        {/* Begin Live Session Button — shown when exercises are ready */}
+        {isWorkoutActive && todayExercises.length > 0 && (
+          <TouchableOpacity
+            style={styles.liveSessionBtn}
+            onPress={() =>
+              router.push({
+                pathname: '/active-workout',
+                params: { exercises: JSON.stringify(todayExercises) },
+              })
+            }
+            accessibilityLabel="Begin live workout session"
+          >
+            <LinearGradient
+              colors={['#34D399', '#059669']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.liveSessionGradient}
+            >
+              <Text style={styles.liveSessionIcon}>▶️</Text>
+              <Text style={styles.liveSessionText}>Begin Live Session</Text>
+            </LinearGradient>
+          </TouchableOpacity>
+        )}
 
         {/* Today's Summary */}
         <View style={styles.summaryRow}>
@@ -717,7 +743,7 @@ const styles = StyleSheet.create({
   workoutToggle: {
     borderRadius: BorderRadius.lg,
     overflow: 'hidden',
-    marginBottom: Spacing.lg,
+    marginBottom: Spacing.sm,
   },
   workoutToggleGradient: {
     paddingVertical: Spacing.md,
@@ -732,6 +758,25 @@ const styles = StyleSheet.create({
   workoutToggleText: {
     fontSize: FontSizes.lg,
     fontWeight: '700',
+    color: Colors.textPrimary,
+  },
+  liveSessionBtn: {
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    marginBottom: Spacing.lg,
+    ...Shadows.glow,
+  },
+  liveSessionGradient: {
+    paddingVertical: Spacing.md,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+  },
+  liveSessionIcon: { fontSize: 20 },
+  liveSessionText: {
+    fontSize: FontSizes.lg,
+    fontWeight: '800',
     color: Colors.textPrimary,
   },
   summaryRow: {
