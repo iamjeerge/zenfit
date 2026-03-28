@@ -1,3 +1,10 @@
+/**
+ * @file AppearanceScreen.tsx
+ * @module screens/AppearanceScreen
+ * @description Appearance settings screen — lets the user customise theme
+ * preferences (if applicable) and visual options.
+ */
+
 import React from 'react';
 import {
   View,
@@ -6,9 +13,9 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import * as Haptics from 'expo-haptics';
+import LinearGradient from 'react-native-linear-gradient';
+import { useRouter } from '../utils/router';
+import * as Haptics from '../utils/haptics';
 import { Colors, Gradients, Spacing, BorderRadius, FontSizes } from '../theme/colors';
 import { useTheme, ThemeMode } from '../theme/ThemeContext';
 

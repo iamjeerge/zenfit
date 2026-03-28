@@ -1,3 +1,10 @@
+/**
+ * @file BeautyTipsScreen.tsx
+ * @module screens/BeautyTipsScreen
+ * @description Beauty tips screen — curated skincare and wellness tips that
+ * complement the user's fitness journey.
+ */
+
 import React, { useState } from 'react';
 import {
   View,
@@ -8,8 +15,8 @@ import {
   Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
+import LinearGradient from 'react-native-linear-gradient';
+import * as Haptics from '../utils/haptics';
 import {
   Colors,
   Gradients,

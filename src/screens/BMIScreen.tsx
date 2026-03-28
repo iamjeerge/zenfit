@@ -1,3 +1,10 @@
+/**
+ * @file BMIScreen.tsx
+ * @module screens/BMIScreen
+ * @description BMI calculator screen — computes Body Mass Index from the user's
+ * height and weight and places the result on a categorised scale.
+ */
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -9,7 +16,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
+import LinearGradient from 'react-native-linear-gradient';
 import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';

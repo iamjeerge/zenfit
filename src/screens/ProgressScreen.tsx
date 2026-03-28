@@ -1,3 +1,10 @@
+/**
+ * @file ProgressScreen.tsx
+ * @module screens/ProgressScreen
+ * @description Progress overview screen — aggregates workout, nutrition, and wellbeing
+ * data into charts and trend lines over configurable time windows.
+ */
+
 import React from 'react';
 import {
   View,
@@ -8,8 +15,8 @@ import {
   Dimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
+import LinearGradient from 'react-native-linear-gradient';
+import * as Haptics from '../utils/haptics';
 import {
   Colors,
   Gradients,
@@ -382,8 +389,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.glassBorder,
     overflow: 'hidden',
-  },
-    justifyContent: 'flex-end',
   },
   barLabel: {
     marginBottom: Spacing.sm,

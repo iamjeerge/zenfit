@@ -1,3 +1,10 @@
+/**
+ * @file GradientButton.tsx
+ * @module components/GradientButton
+ * @description Primary action button with a linear gradient fill.
+ * Supports disabled / loading states and triggers haptic feedback on press.
+ */
+
 import React from 'react';
 import {
   StyleSheet,
@@ -6,8 +13,8 @@ import {
   ViewStyle,
   ActivityIndicator,
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
+import LinearGradient from 'react-native-linear-gradient';
+import * as Haptics from '../utils/haptics';
 import {
   Colors,
   Gradients,

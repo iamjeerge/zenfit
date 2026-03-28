@@ -1,6 +1,13 @@
+/**
+ * @file StatCard.tsx
+ * @module components/StatCard
+ * @description Compact stat-display card — shows a labelled numeric value with an
+ * optional icon and gradient accent. Used in dashboard stat strips.
+ */
+
 import React from 'react';
 import { StyleSheet, View, Text, ViewStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import LinearGradient from 'react-native-linear-gradient';
 import {
   Colors,
   Spacing,

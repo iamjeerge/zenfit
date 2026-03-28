@@ -24,9 +24,9 @@ import Animated, {
   Easing,
   runOnJS,
 } from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
+import * as Haptics from '../utils/haptics';
 import { Colors, FontSizes, BorderRadius, Shadows } from '../theme/colors';
-import { LinearGradient } from 'expo-linear-gradient';
+import LinearGradient from 'react-native-linear-gradient';
 
 const { width: W, height: H } = Dimensions.get('window');
 const PARTICLE_COUNT = 28;

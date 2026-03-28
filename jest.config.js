@@ -1,34 +1,29 @@
 module.exports = {
-  preset: 'jest-expo',
-  setupFilesAfterSetup: ['./jest.setup.js'],
-  testEnvironment: 'node',
+  preset: 'react-native',
+  setupFiles: ['./jest.setup.js'],
+  setupFilesAfterEnv: ['./jest.setup.after.js'],
+  transform: {
+    '^.+\\.(js|jsx|ts|tsx)$': 'babel-jest',
+  },
   transformIgnorePatterns: [
-    'node_modules/(?!((jest-)?react-native|@react-native(-community)?)|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|@unimodules/.*|unimodules|sentry-expo|native-base|react-native-svg|zustand)'
+    'node_modules/(?!(react-native|@react-native(-community)?|@react-navigation|react-native-linear-gradient|react-native-safe-area-context|react-native-screens|react-native-gesture-handler|react-native-reanimated|react-native-worklets|react-native-haptic-feedback|react-native-svg|react-native-url-polyfill|zustand)/)',
   ],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
+  testPathIgnorePatterns: [
+    '/node_modules/',
+    '/e2e/',
+  ],
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
-    'app/**/*.{ts,tsx}',
     '!**/*.d.ts',
     '!**/node_modules/**',
     '!**/__tests__/**',
-  ],
-  coveragePathIgnorePatterns: [
-    '/node_modules/',
-    '/__tests__/',
   ],
   testMatch: [
     '**/__tests__/**/*.test.ts?(x)',
     '**/?(*.)+(spec|test).ts?(x)',
   ],
-  globals: {
-    'ts-jest': {
-      tsconfig: {
-        jsx: 'react',
-      },
-    },
-  },
 };

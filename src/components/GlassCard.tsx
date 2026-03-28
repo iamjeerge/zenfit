@@ -1,6 +1,13 @@
+/**
+ * @file GlassCard.tsx
+ * @module components/GlassCard
+ * @description Glassmorphism card container with a subtle gradient border and
+ * frosted-glass background. Used as the primary card surface throughout the ZenFit UI.
+ */
+
 import React from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
+import LinearGradient from 'react-native-linear-gradient';
 import { Colors, BorderRadius, Shadows, Spacing } from '../theme/colors';
 
 interface GlassCardProps {

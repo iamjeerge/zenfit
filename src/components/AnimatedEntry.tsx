@@ -1,3 +1,10 @@
+/**
+ * @file AnimatedEntry.tsx
+ * @module components/AnimatedEntry
+ * @description Wraps children in a fade-in + slide-up entrance animation powered by
+ * react-native-reanimated. Delays can be staggered for list items.
+ */
+
 import React, { useEffect } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import Animated, {

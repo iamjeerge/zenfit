@@ -1,3 +1,10 @@
+/**
+ * @file SubscriptionScreen.tsx
+ * @module screens/SubscriptionScreen
+ * @description Subscription / paywall screen — presents ZenFit Premium features
+ * and handles in-app purchase or subscription flows.
+ */
+
 import React, { useState } from 'react';
 import {
   View,
@@ -9,9 +16,17 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
-import * as WebBrowser from 'expo-web-browser';
+import LinearGradient from 'react-native-linear-gradient';
+import * as Haptics from '../utils/haptics';
+import { Linking } from 'react-native';
+// expo-web-browser replaced with Linking
+const WebBrowser = {
+  openAuthSessionAsync: async (url: string, _redirectUrl: string) => {
+    await Linking.openURL(url);
+    return { type: 'cancel' as const };
+  },
+  openBrowserAsync: async (url: string) => Linking.openURL(url),
+};
 import {
   Colors,
   Gradients,

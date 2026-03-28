@@ -1,10 +1,10 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react-native';
-import { useRouter } from 'expo-router';
+import { useRouter } from '../../src/utils/router';
 import { useAuthStore } from '../../src/store/authStore';
-import SplashScreen from '../../app/index';
+import SplashScreen from '../../src/screens/SplashScreen';
 
-jest.mock('expo-router');
+jest.mock('../../src/utils/router');
 jest.mock('../../src/store/authStore');
 
 describe('SplashScreen', () => {
@@ -27,7 +27,7 @@ describe('SplashScreen', () => {
         session: null,
         initialized: true,
       };
-      return selector(state);
+      return typeof selector === 'function' ? selector(state) : state;
     });
     (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
   });
@@ -71,7 +71,7 @@ describe('SplashScreen', () => {
           session: null,
           initialized: true,
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
 
       render(<SplashScreen />);
@@ -89,7 +89,7 @@ describe('SplashScreen', () => {
           session: { access_token: 'test-token', user: { id: 'user-id' } },
           initialized: true,
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
 
       render(<SplashScreen />);
@@ -107,7 +107,7 @@ describe('SplashScreen', () => {
           session: null,
           initialized: false,
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
 
       render(<SplashScreen />);

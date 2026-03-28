@@ -1,3 +1,10 @@
+/**
+ * @file ThemeContext.tsx
+ * @module theme/ThemeContext
+ * @description Theme context provider — exposes the current colour scheme (light / dark)
+ * and a toggle function to all descendant components.
+ */
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';

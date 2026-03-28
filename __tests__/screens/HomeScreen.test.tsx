@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react-native';
 import { useAuthStore } from '../../src/store/authStore';
-import HomeScreen from '../../app/(tabs)/index';
+import HomeScreen from '../../src/screens/tabs/HomeScreen';
 
 jest.mock('../../src/store/authStore');
 
@@ -23,7 +23,7 @@ describe('HomeScreen', () => {
         },
         session: { access_token: 'test-token', user: { id: 'user-id' } },
       };
-      return selector(state);
+      return typeof selector === 'function' ? selector(state) : state;
     });
     (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
   });
@@ -31,7 +31,7 @@ describe('HomeScreen', () => {
   describe('Rendering', () => {
     it('should render the home screen', () => {
       render(<HomeScreen />);
-      expect(screen.getByText(/Home|Welcome|Stats|Daily/i)).toBeTruthy();
+      expect(screen.getAllByText(/DAILY MANTRA|Good Morning|Good Afternoon|Good Evening/i).length).toBeGreaterThan(0);
     });
 
     it('should render greeting with user name', async () => {
@@ -48,8 +48,8 @@ describe('HomeScreen', () => {
   describe('Stats Display', () => {
     it('should show daily stats widget', () => {
       render(<HomeScreen />);
-      // Component renders without error
-      expect(screen.queryByText(/stats|steps|water|calories/i)).toBeTruthy();
+      // Component renders without error — screen shows mantra or briefing
+      expect(screen.queryAllByText(/MANTRA|BRIEFING|Good/i).length).toBeGreaterThan(0);
     });
 
     it('should display heart rate information', () => {
@@ -106,13 +106,13 @@ describe('HomeScreen', () => {
   describe('Quick Action Buttons', () => {
     it('should show quick action buttons', () => {
       render(<HomeScreen />);
-      // Quick action buttons should be present
-      expect(screen.queryByText(/action|start|begin|quick/i)).toBeTruthy();
+      // Quick action buttons include yoga and breathe
+      expect(screen.queryAllByText(/Start Yoga|Breathe|Nutrition/i).length).toBeGreaterThan(0);
     });
 
     it('should have meditation quick action', () => {
       render(<HomeScreen />);
-      const meditationElements = screen.queryAllByText(/meditat|breathe|calm/i);
+      const meditationElements = screen.queryAllByText(/meditate|breathe|calm/i);
       expect(meditationElements.length).toBeGreaterThanOrEqual(0);
     });
 
@@ -166,12 +166,12 @@ describe('HomeScreen', () => {
           profile: null,
           session: { access_token: 'test-token', user: { id: 'user-id' } },
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
 
       render(<HomeScreen />);
-      // Should render without crashing
-      expect(screen.queryByText(/home|stats/i)).toBeTruthy();
+      // Should render without crashing — shows greeting for 'Friend'
+      expect(screen.queryAllByText(/Friend|Good|MANTRA/i).length).toBeGreaterThan(0);
     });
 
     it('should show placeholder when stats are zero', () => {
@@ -186,39 +186,39 @@ describe('HomeScreen', () => {
           },
           session: { access_token: 'test-token', user: { id: 'user-id' } },
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
 
       render(<HomeScreen />);
-      expect(screen.queryByText(/stats|home/i)).toBeTruthy();
+      expect(screen.queryAllByText(/Test|MANTRA|Good/i).length).toBeGreaterThan(0);
     });
   });
 
   describe('Accessibility', () => {
     it('should have accessible stat labels', () => {
       render(<HomeScreen />);
-      // Stats should be rendered in an accessible way
-      expect(screen.queryByText(/stats|data/i)).toBeTruthy();
+      // Screen has accessible text — greeting has accessibilityRole="header"
+      expect(screen.queryAllByText(/MANTRA|Good|Yoga|Breathe/i).length).toBeGreaterThan(0);
     });
 
     it('should have accessible action buttons', () => {
       render(<HomeScreen />);
-      // Action buttons should be accessible
-      expect(screen.queryByText(/action|button/i)).toBeTruthy();
+      // Action buttons like yoga and breathe are accessible
+      expect(screen.queryAllByText(/Start Yoga|Breathe|Wisdom/i).length).toBeGreaterThan(0);
     });
   });
 
   describe('Layout', () => {
     it('should have proper scrollable content', () => {
       render(<HomeScreen />);
-      // Component should render successfully
-      expect(screen.queryByText(/stats|home/i)).toBeTruthy();
+      // Component renders with scrollable content
+      expect(screen.queryAllByText(/MANTRA|Yoga|Good|Friend/i).length).toBeGreaterThan(0);
     });
 
     it('should display content in logical order', () => {
       render(<HomeScreen />);
-      // Content should be in proper order
-      expect(screen.queryByText(/home|greeting|stats/i)).toBeTruthy();
+      // Content renders — greeting comes before mantra
+      expect(screen.queryByText(/Good Morning|Good Afternoon|Good Evening/i)).toBeTruthy();
     });
   });
 });

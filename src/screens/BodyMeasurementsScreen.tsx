@@ -1,3 +1,10 @@
+/**
+ * @file BodyMeasurementsScreen.tsx
+ * @module screens/BodyMeasurementsScreen
+ * @description Body measurements screen — logs and charts key body measurements
+ * (waist, chest, arms, etc.) over time.
+ */
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -13,8 +20,8 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import * as Haptics from 'expo-haptics';
+import LinearGradient from 'react-native-linear-gradient';
+import * as Haptics from '../utils/haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   Colors,

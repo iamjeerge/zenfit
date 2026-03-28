@@ -13,7 +13,7 @@ import Animated, {
   withSequence,
   Easing,
 } from 'react-native-reanimated';
-import { LinearGradient } from 'expo-linear-gradient';
+import LinearGradient from 'react-native-linear-gradient';
 import { Colors, BorderRadius, Spacing } from '../theme/colors';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');

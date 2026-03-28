@@ -1,12 +1,12 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
-import { useRouter } from 'expo-router';
+import { useRouter } from '../../src/utils/router';
 import { useAuthStore } from '../../src/store/authStore';
-import SplashScreen from '../../app/index';
-import OnboardingScreen from '../../app/onboarding';
-import AuthScreen from '../../app/auth';
+import SplashScreen from '../../src/screens/SplashScreen';
+import OnboardingScreen from '../../src/screens/OnboardingScreen';
+import AuthScreen from '../../src/screens/AuthScreen';
 
-jest.mock('expo-router');
+jest.mock('../../src/utils/router');
 jest.mock('../../src/store/authStore');
 
 describe('E2E: App Flow Integration Tests', () => {
@@ -39,7 +39,7 @@ describe('E2E: App Flow Integration Tests', () => {
           signInWithEmail: jest.fn(() => Promise.resolve()),
           signUpWithEmail: jest.fn(() => Promise.resolve()),
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
       (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
     });
@@ -89,7 +89,7 @@ describe('E2E: App Flow Integration Tests', () => {
           signUpWithEmail: mockSignUpWithEmail,
           signInWithEmail: jest.fn(),
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
       (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
 
@@ -137,7 +137,7 @@ describe('E2E: App Flow Integration Tests', () => {
             level: 1,
           },
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
       (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
     });
@@ -175,7 +175,7 @@ describe('E2E: App Flow Integration Tests', () => {
           signInWithEmail: mockSignInWithEmail,
           signUpWithEmail: jest.fn(),
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
       (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
 
@@ -208,7 +208,7 @@ describe('E2E: App Flow Integration Tests', () => {
           signUpWithEmail: mockSignUpWithEmail,
           signInWithEmail: jest.fn(),
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
       (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
 
@@ -239,7 +239,7 @@ describe('E2E: App Flow Integration Tests', () => {
           signUpWithEmail: jest.fn(() => Promise.resolve()),
           signInWithEmail: jest.fn(),
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
       (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
 
@@ -264,7 +264,7 @@ describe('E2E: App Flow Integration Tests', () => {
           signInWithEmail: jest.fn(),
           signUpWithEmail: jest.fn(),
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
       (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
 
@@ -287,7 +287,7 @@ describe('E2E: App Flow Integration Tests', () => {
           session: null,
           initialized: true,
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
       (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
 
@@ -307,7 +307,7 @@ describe('E2E: App Flow Integration Tests', () => {
           session: { access_token: 'token', user: { id: 'id' } },
           initialized: true,
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
       (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
 
@@ -328,7 +328,7 @@ describe('E2E: App Flow Integration Tests', () => {
           session: null,
           initialized: true,
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
       (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
 
@@ -352,7 +352,7 @@ describe('E2E: App Flow Integration Tests', () => {
           signUpWithEmail: mockSignUpWithEmail,
           signInWithEmail: jest.fn(),
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
       (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
 
@@ -390,7 +390,7 @@ describe('E2E: App Flow Integration Tests', () => {
           signInWithEmail: mockSignInWithEmail,
           signUpWithEmail: jest.fn(),
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
       (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
 
@@ -426,7 +426,7 @@ describe('E2E: App Flow Integration Tests', () => {
           signInWithEmail: jest.fn(() => authPromise),
           signUpWithEmail: jest.fn(),
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
       (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
 
@@ -459,7 +459,7 @@ describe('E2E: App Flow Integration Tests', () => {
           session: null,
           initialized: true,
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
       (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
 
@@ -495,7 +495,7 @@ describe('E2E: App Flow Integration Tests', () => {
           signSignUpWithEmail: jest.fn(() => Promise.resolve()),
           signInWithEmail: jest.fn(),
         };
-        return selector(state);
+        return typeof selector === 'function' ? selector(state) : state;
       });
       (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
 

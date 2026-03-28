@@ -1,3 +1,10 @@
+/**
+ * @file useOfflineSync.ts
+ * @module hooks/useOfflineSync
+ * @description React hook that monitors network connectivity and automatically flushes
+ * the offline mutation queue when the device comes back online.
+ */
+
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { AppState, AppStateStatus } from 'react-native';
 import { isOnline, flushQueue, readQueue, QueuedMutation } from '../utils/offlineQueue';

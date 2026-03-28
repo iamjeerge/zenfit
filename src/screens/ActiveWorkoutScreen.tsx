@@ -1,3 +1,10 @@
+/**
+ * @file ActiveWorkoutScreen.tsx
+ * @module screens/ActiveWorkoutScreen
+ * @description Active workout session screen — provides a real-time timer,
+ * set-by-set logging, and rest-period countdowns during an in-progress workout.
+ */
+
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
@@ -10,7 +17,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
+import LinearGradient from 'react-native-linear-gradient';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
@@ -21,8 +28,8 @@ import Animated, {
   interpolateColor,
   useAnimatedProps,
 } from 'react-native-reanimated';
-import * as Haptics from 'expo-haptics';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import * as Haptics from '../utils/haptics';
+import { useRouter, useLocalSearchParams } from '../utils/router';
 import {
   Colors,
   Gradients,
