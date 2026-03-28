@@ -48,6 +48,7 @@ function AppNavigator() {
         <Stack.Screen name="habits" />
         <Stack.Screen name="journal" />
         <Stack.Screen name="challenges" />
+        <Stack.Screen name="barcode-scanner" options={{ animation: 'slide_from_bottom' }} />
       </Stack>
     </View>
   );
