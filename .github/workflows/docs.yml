@@ -1,4 +1,4 @@
-name: Publish Docs to Wiki
+name: Publish Docs to GitHub Pages
 
 on:
   push:
@@ -10,13 +10,15 @@ on:
 
 jobs:
   docs:
-    name: Generate & Publish API Docs
+    name: Generate & Commit API Docs
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # required to push to the wiki
+      contents: write  # required to commit docs back to main
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - uses: actions/setup-node@v4
         with:
@@ -29,9 +31,10 @@ jobs:
       - name: Generate TypeDoc markdown
         run: npm run docs
 
-      - name: Publish to GitHub Wiki
-        uses: Andrew-Chen-Wang/github-wiki-action@v4
-        with:
-          path: docs/api
-          token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: "docs: auto-update API reference [skip ci]"
+      - name: Commit updated docs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add docs/api/
+          git diff --staged --quiet || git commit -m "docs: auto-update API reference [skip ci]"
+          git push

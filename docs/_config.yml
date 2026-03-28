@@ -1,0 +1,19 @@
+title: ZenFit Documentation
+description: API reference, architecture, and developer guides for the ZenFit React Native app.
+theme: just-the-docs
+
+url: https://iamjeerge.github.io
+baseurl: /zenfit
+
+# Navigation
+nav_sort: case_insensitive
+
+# Markdown extensions
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+# Exclude generated helper files
+exclude:
+  - _media/
