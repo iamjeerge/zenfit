@@ -6,11 +6,17 @@ on:
   pull_request:
     branches: [main]
 
+# Least-privilege: deny all permissions by default; grant only what each job needs
+permissions:
+  contents: read
+
 jobs:
   # ── Type-check ───────────────────────────────────────────────────────────────
   typecheck:
     name: TypeScript
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -24,6 +30,8 @@ jobs:
   lint:
     name: ESLint + Prettier
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -40,6 +48,8 @@ jobs:
   test:
     name: Jest
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
