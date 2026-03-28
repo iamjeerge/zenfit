@@ -21,6 +21,7 @@ import {
 import AnimatedEntry from '../components/AnimatedEntry';
 import SectionHeader from '../components/SectionHeader';
 import { GradientButton } from '../components';
+import { BarChart, LineChart } from '../components/InteractiveChart';
 
 const CALENDAR_DAYS = 21;
 const screenWidth = Dimensions.get('window').width;
@@ -116,33 +117,7 @@ export default function ProgressScreen() {
     </LinearGradient>
   );
 
-  const WeeklyChart = () => (
-    <View style={styles.chartContainer}>
-      <View style={styles.chartBars}>
-        {weeklyData.map((data) => (
-          <View key={data.day} style={styles.barWrapper}>
-            <View style={styles.barLabel}>
-              <Text style={styles.barLabelText}>{data.day}</Text>
-            </View>
-            <View style={styles.barContainer}>
-              <LinearGradient
-                colors={Gradients.aurora}
-                start={{ x: 0, y: 1 }}
-                end={{ x: 0, y: 0 }}
-                style={[
-                  styles.bar,
-                  {
-                    height: `${(data.steps / maxSteps) * 100}%`,
-                  },
-                ]}
-              />
-            </View>
-            <Text style={styles.barValue}>{data.steps}</Text>
-          </View>
-        ))}
-      </View>
-    </View>
-  );
+  const weeklyBarData = weeklyData.map((d) => ({ label: d.day, value: d.steps }));
 
   const BadgeCard = ({ badge }: { badge: Badge }) => (
     <LinearGradient
@@ -230,9 +205,20 @@ export default function ProgressScreen() {
         <AnimatedEntry delay={400}>
         <View style={styles.chartSection}>
           <SectionHeader title="Weekly Steps" />
-          <WeeklyChart />
+          <LinearGradient
+            colors={Gradients.cardSecondary}
+            style={styles.chartCard}
+          >
+            <BarChart
+              data={weeklyBarData}
+              height={150}
+              unit=""
+              goalLine={10000}
+              barColor={Colors.violet}
+              activeColor={Colors.lavender}
+            />
+          </LinearGradient>
         </View>
-
         </AnimatedEntry>
 
         {/* Badges Section */}
@@ -390,18 +376,13 @@ const styles = StyleSheet.create({
   chartSection: {
     marginBottom: Spacing.xl,
   },
-  chartContainer: {
-    marginTop: Spacing.md,
+  chartCard: {
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    overflow: 'hidden',
   },
-  chartBars: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    height: 200,
-    gap: Spacing.sm,
-  },
-  barWrapper: {
-    flex: 1,
-    alignItems: 'center',
     justifyContent: 'flex-end',
   },
   barLabel: {
