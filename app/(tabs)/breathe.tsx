@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Animated,
   Easing,
+  ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -20,24 +21,100 @@ import {
 } from '../../src/theme/colors';
 import { GlassCard, GradientButton, AnimatedEntry } from '../../src/components';
 
-type BreathingPhase = 'idle' | 'inhale' | 'hold' | 'exhale';
+type BreathingPhase = 'idle' | 'inhale' | 'hold' | 'exhale' | 'exhale2';
 
-const INHALE_DURATION = 4000;
-const HOLD_DURATION = 7000;
-const EXHALE_DURATION = 8000;
+interface Technique {
+  id: string;
+  name: string;
+  emoji: string;
+  description: string;
+  benefit: string;
+  gradient: readonly [string, string, ...string[]];
+  inhale: number; // ms
+  hold: number;   // ms (0 = skip)
+  exhale: number; // ms
+  hold2: number;  // ms (post-exhale hold, for box)
+  steps: { text: string; color: string }[];
+}
 
-const PHASE_SECONDS: Record<BreathingPhase, number> = {
-  idle: 0,
-  inhale: INHALE_DURATION / 1000,
-  hold: HOLD_DURATION / 1000,
-  exhale: EXHALE_DURATION / 1000,
-};
+const TECHNIQUES: Technique[] = [
+  {
+    id: '478',
+    name: '4-7-8',
+    emoji: '🫁',
+    description: 'Dr. Weil\'s classic relaxation breath',
+    benefit: 'Reduces anxiety, lowers heart rate, and promotes deep sleep.',
+    gradient: Gradients.lotus,
+    inhale: 4000,
+    hold: 7000,
+    exhale: 8000,
+    hold2: 0,
+    steps: [
+      { text: 'Inhale 4s', color: Colors.cosmicBlue },
+      { text: 'Hold 7s', color: Colors.sacredGold },
+      { text: 'Exhale 8s', color: Colors.rosePetal },
+    ],
+  },
+  {
+    id: 'box',
+    name: 'Box Breathing',
+    emoji: '⬜',
+    description: 'Used by Navy SEALs for stress control',
+    benefit: 'Sharpens focus, reduces cortisol, and calms the nervous system.',
+    gradient: ['#1e3a5f', '#60A5FA', '#7C3AED'] as const,
+    inhale: 4000,
+    hold: 4000,
+    exhale: 4000,
+    hold2: 4000,
+    steps: [
+      { text: 'Inhale 4s', color: Colors.cosmicBlue },
+      { text: 'Hold 4s', color: Colors.sacredGold },
+      { text: 'Exhale 4s', color: Colors.rosePetal },
+      { text: 'Hold 4s', color: Colors.sageLeaf },
+    ],
+  },
+  {
+    id: 'wimhof',
+    name: 'Wim Hof',
+    emoji: '❄️',
+    description: 'Iceman\'s energizing power breath',
+    benefit: 'Boosts energy, strengthens immune response, and increases vitality.',
+    gradient: ['#0f2944', '#164e63', '#0891b2'] as const,
+    inhale: 2000,
+    hold: 0,
+    exhale: 2000,
+    hold2: 0,
+    steps: [
+      { text: 'Inhale 2s (deep)', color: Colors.cosmicBlue },
+      { text: 'Exhale 2s (passive)', color: Colors.violet },
+      { text: '30 reps per round', color: Colors.sageLeaf },
+    ],
+  },
+  {
+    id: 'coherence',
+    name: 'Coherence',
+    emoji: '💜',
+    description: 'Heart rate variability optimisation',
+    benefit: 'Improves emotional balance, lowers blood pressure, enhances HRV.',
+    gradient: ['#2d1b69', '#7C3AED', '#C4B5FD'] as const,
+    inhale: 5000,
+    hold: 0,
+    exhale: 5000,
+    hold2: 0,
+    steps: [
+      { text: 'Inhale 5s', color: Colors.violet },
+      { text: 'Exhale 5s', color: Colors.rosePetal },
+      { text: '6 breaths/minute', color: Colors.sageLeaf },
+    ],
+  },
+];
 
 const PHASE_COLORS: Record<BreathingPhase, string> = {
   idle: Colors.violet,
   inhale: Colors.cosmicBlue,
   hold: Colors.sacredGold,
   exhale: Colors.rosePetal,
+  exhale2: Colors.sageLeaf,
 };
 
 export default function BreatheScreen() {
@@ -48,6 +125,37 @@ export default function BreatheScreen() {
   const [countdown, setCountdown] = useState(0);
   const [scaleAnim] = useState(new Animated.Value(0.3));
   const phaseStartRef = useRef(0);
+  const [selectedTech, setSelectedTech] = useState<Technique>(TECHNIQUES[0]);
+
+  const tech = selectedTech;
+
+  const getPhaseSeconds = (p: BreathingPhase): number => {
+    switch (p) {
+      case 'inhale': return tech.inhale / 1000;
+      case 'hold': return tech.hold / 1000;
+      case 'exhale': return tech.exhale / 1000;
+      case 'exhale2': return tech.hold2 / 1000;
+      default: return 0;
+    }
+  };
+
+  const getNextPhase = (p: BreathingPhase): BreathingPhase => {
+    if (p === 'inhale') return tech.hold > 0 ? 'hold' : 'exhale';
+    if (p === 'hold') return 'exhale';
+    if (p === 'exhale') return tech.hold2 > 0 ? 'exhale2' : 'inhale';
+    if (p === 'exhale2') return 'inhale';
+    return 'inhale';
+  };
+
+  const getPhaseDuration = (p: BreathingPhase): number => {
+    switch (p) {
+      case 'inhale': return tech.inhale;
+      case 'hold': return tech.hold;
+      case 'exhale': return tech.exhale;
+      case 'exhale2': return tech.hold2;
+      default: return 0;
+    }
+  };
 
   useEffect(() => {
     let timer: ReturnType<typeof setTimeout>;
@@ -61,8 +169,7 @@ export default function BreatheScreen() {
     }
 
     if (isActive && phase !== 'idle') {
-      // Start countdown for current phase
-      const phaseSecs = PHASE_SECONDS[phase];
+      const phaseSecs = getPhaseSeconds(phase);
       setCountdown(phaseSecs);
       phaseStartRef.current = Date.now();
 
@@ -74,7 +181,6 @@ export default function BreatheScreen() {
     }
 
     if (isActive) {
-      // Haptic on phase change
       if (phase !== 'idle') {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       }
@@ -82,7 +188,7 @@ export default function BreatheScreen() {
       const schedulePhase = (currentPhase: BreathingPhase, duration: number, nextPhase: BreathingPhase) => {
         timer = setTimeout(() => {
           setPhase(nextPhase);
-          if (nextPhase === 'inhale' && currentPhase === 'exhale') {
+          if (nextPhase === 'inhale' && (currentPhase === 'exhale' || currentPhase === 'exhale2')) {
             setCycles((c) => c + 1);
           }
         }, duration);
@@ -90,12 +196,11 @@ export default function BreatheScreen() {
 
       if (phase === 'idle') {
         setPhase('inhale');
-      } else if (phase === 'inhale') {
-        schedulePhase('inhale', INHALE_DURATION, 'hold');
-      } else if (phase === 'hold') {
-        schedulePhase('hold', HOLD_DURATION, 'exhale');
-      } else if (phase === 'exhale') {
-        schedulePhase('exhale', EXHALE_DURATION, 'inhale');
+      } else {
+        const next = getNextPhase(phase);
+        const dur = getPhaseDuration(phase);
+        if (dur > 0) schedulePhase(phase, dur, next);
+        else setPhase(next); // skip zero-duration phases
       }
     }
 
@@ -104,51 +209,29 @@ export default function BreatheScreen() {
       clearInterval(cycleTimer);
       clearInterval(countdownTimer);
     };
-  }, [isActive, phase]);
+  }, [isActive, phase, selectedTech]);
 
   // Animate circle based on breathing phase
   useEffect(() => {
+    const dur = getPhaseDuration(phase);
     if (phase === 'idle') {
-      Animated.timing(scaleAnim, {
-        toValue: 0.3,
-        duration: 500,
-        easing: Easing.ease,
-        useNativeDriver: false,
-      }).start();
+      Animated.timing(scaleAnim, { toValue: 0.3, duration: 500, easing: Easing.ease, useNativeDriver: false }).start();
     } else if (phase === 'inhale') {
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: INHALE_DURATION,
-        easing: Easing.inOut(Easing.ease),
-        useNativeDriver: false,
-      }).start();
-    } else if (phase === 'hold') {
-      Animated.timing(scaleAnim, {
-        toValue: 1,
-        duration: HOLD_DURATION,
-        easing: Easing.ease,
-        useNativeDriver: false,
-      }).start();
+      Animated.timing(scaleAnim, { toValue: 1, duration: tech.inhale, easing: Easing.inOut(Easing.ease), useNativeDriver: false }).start();
+    } else if (phase === 'hold' || phase === 'exhale2') {
+      Animated.timing(scaleAnim, { toValue: 1, duration: dur, easing: Easing.ease, useNativeDriver: false }).start();
     } else if (phase === 'exhale') {
-      Animated.timing(scaleAnim, {
-        toValue: 0.3,
-        duration: EXHALE_DURATION,
-        easing: Easing.inOut(Easing.ease),
-        useNativeDriver: false,
-      }).start();
+      Animated.timing(scaleAnim, { toValue: 0.3, duration: tech.exhale, easing: Easing.inOut(Easing.ease), useNativeDriver: false }).start();
     }
   }, [phase]);
 
   const getPhaseLabel = () => {
     switch (phase) {
-      case 'inhale':
-        return 'Inhale';
-      case 'hold':
-        return 'Hold';
-      case 'exhale':
-        return 'Exhale';
-      default:
-        return 'Ready?';
+      case 'inhale': return 'Inhale';
+      case 'hold': return 'Hold';
+      case 'exhale': return 'Exhale';
+      case 'exhale2': return 'Hold';
+      default: return 'Ready?';
     }
   };
 
@@ -167,6 +250,12 @@ export default function BreatheScreen() {
     setCountdown(0);
   };
 
+  const handleSelectTech = (t: Technique) => {
+    if (isActive) handleReset();
+    setSelectedTech(t);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
   const handleToggle = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     setIsActive(!isActive);
@@ -177,21 +266,47 @@ export default function BreatheScreen() {
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <LinearGradient
-        colors={Gradients.lotus as unknown as [string, string, ...string[]]}
+        colors={tech.gradient as unknown as [string, string, ...string[]]}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={styles.gradient}
       >
-        <View style={styles.content}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+        >
+          {/* Technique Picker */}
+          {!isActive && (
+            <AnimatedEntry delay={0} duration={400}>
+              <Text style={styles.sectionLabel}>CHOOSE TECHNIQUE</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.techScroll}>
+                {TECHNIQUES.map((t) => (
+                  <TouchableOpacity
+                    key={t.id}
+                    style={[
+                      styles.techCard,
+                      selectedTech.id === t.id && styles.techCardActive,
+                    ]}
+                    onPress={() => handleSelectTech(t)}
+                    accessibilityRole="radio"
+                    accessibilityState={{ selected: selectedTech.id === t.id }}
+                  >
+                    <Text style={styles.techEmoji}>{t.emoji}</Text>
+                    <Text style={styles.techName}>{t.name}</Text>
+                    <Text style={styles.techDesc} numberOfLines={2}>{t.description}</Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </AnimatedEntry>
+          )}
+
           {/* Header */}
           <AnimatedEntry delay={0} duration={600}>
             <View style={styles.header}>
               <Text style={styles.title} accessibilityRole="header">
-                4-7-8 Breathing
+                {tech.emoji} {tech.name}
               </Text>
-              <Text style={styles.subtitle}>
-                Calm your mind, ease your soul
-              </Text>
+              <Text style={styles.subtitle}>{tech.description}</Text>
             </View>
           </AnimatedEntry>
 
@@ -240,24 +355,18 @@ export default function BreatheScreen() {
           {/* Technique Info */}
           <AnimatedEntry delay={400} duration={600}>
             <GlassCard style={styles.infoCard}>
-              <Text style={styles.techniqueTitle}>4-7-8 Technique</Text>
+              <Text style={styles.techniqueTitle}>{tech.name} Technique</Text>
               <View style={styles.techniqueSteps}>
-                {[
-                  { num: '1', text: 'Inhale for 4 seconds', color: Colors.cosmicBlue },
-                  { num: '2', text: 'Hold for 7 seconds', color: Colors.sacredGold },
-                  { num: '3', text: 'Exhale for 8 seconds', color: Colors.rosePetal },
-                ].map((step) => (
-                  <View key={step.num} style={styles.techniqueStep}>
+                {tech.steps.map((step, i) => (
+                  <View key={i} style={styles.techniqueStep}>
                     <View style={[styles.stepBadge, { backgroundColor: step.color }]}>
-                      <Text style={styles.stepNumber}>{step.num}</Text>
+                      <Text style={styles.stepNumber}>{i + 1}</Text>
                     </View>
                     <Text style={styles.stepText}>{step.text}</Text>
                   </View>
                 ))}
               </View>
-              <Text style={styles.benefitText}>
-                Reduces anxiety, improves focus, and enhances sleep quality.
-              </Text>
+              <Text style={styles.benefitText}>{tech.benefit}</Text>
             </GlassCard>
           </AnimatedEntry>
 
@@ -280,7 +389,7 @@ export default function BreatheScreen() {
               />
             </View>
           </AnimatedEntry>
-        </View>
+        </ScrollView>
       </LinearGradient>
     </SafeAreaView>
   );
@@ -294,12 +403,49 @@ const styles = StyleSheet.create({
   gradient: {
     flex: 1,
   },
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.lg,
+    gap: 0,
+  },
+  sectionLabel: {
+    fontSize: FontSizes.xs,
+    fontWeight: '800',
+    color: 'rgba(255,255,255,0.5)',
+    letterSpacing: 1.5,
+    marginBottom: Spacing.sm,
+  },
+  techScroll: { marginBottom: Spacing.lg },
+  techCard: {
+    width: 130,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.sm,
+    marginRight: Spacing.sm,
+    backgroundColor: 'rgba(255,255,255,0.08)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.12)',
+  },
+  techCardActive: {
+    backgroundColor: 'rgba(124,58,237,0.35)',
+    borderColor: Colors.violet,
+  },
+  techEmoji: { fontSize: 24, marginBottom: 4 },
+  techName: {
+    fontSize: FontSizes.sm,
+    fontWeight: '800',
+    color: Colors.textPrimary,
+    marginBottom: 2,
+  },
+  techDesc: {
+    fontSize: 10,
+    color: 'rgba(255,255,255,0.5)',
+    lineHeight: 14,
+  },
   content: {
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.lg,
   },
   header: {
     alignItems: 'center',
