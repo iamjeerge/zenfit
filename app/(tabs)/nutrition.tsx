@@ -10,6 +10,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
 import {
   Colors,
   Gradients,
@@ -35,6 +36,7 @@ interface Macro {
 export default function NutritionScreen() {
   const [waterGlasses, setWaterGlasses] = useState(6);
   const maxWaterGlasses = 10;
+  const router = useRouter();
 
   const macros: Macro[] = [
     {
@@ -138,8 +140,23 @@ export default function NutritionScreen() {
             style={styles.headerGradient}
           >
             <View style={styles.headerContent}>
-              <Text style={styles.title} accessibilityRole="header">Nutrition</Text>
-              <Text style={styles.subtitle}>Track your daily intake</Text>
+              <View style={styles.headerRow}>
+                <View>
+                  <Text style={styles.title} accessibilityRole="header">Nutrition</Text>
+                  <Text style={styles.subtitle}>Track your daily intake</Text>
+                </View>
+                <TouchableOpacity
+                  style={styles.scanButton}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    router.push('/barcode-scanner');
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.scanButtonEmoji}>📷</Text>
+                  <Text style={styles.scanButtonLabel}>Scan</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </LinearGradient>
         </AnimatedEntry>
@@ -354,6 +371,22 @@ const styles = StyleSheet.create({
   headerContent: {
     gap: Spacing.xs,
   },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  scanButton: {
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    borderRadius: BorderRadius.lg,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+  },
+  scanButtonEmoji: { fontSize: 22 },
+  scanButtonLabel: { fontSize: FontSizes.xs, color: '#fff', fontWeight: '600', marginTop: 2 },
   title: {
     fontSize: FontSizes.xxxl,
     fontWeight: '800',
