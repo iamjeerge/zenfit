@@ -4,6 +4,8 @@ export { default as StatCard } from "./StatCard";
 export { default as SectionHeader } from "./SectionHeader";
 export { default as AnimatedEntry } from "./AnimatedEntry";
 export { default as AnimatedEmptyState } from "./AnimatedEmptyState";
+export { default as BottomSheet, useBottomSheet } from "./BottomSheet";
+export type { BottomSheetHandle } from "./BottomSheet";
 export {
   default as SkeletonLoader,
   Skeleton,

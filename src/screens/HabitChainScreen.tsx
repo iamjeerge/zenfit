@@ -30,6 +30,7 @@ import {
 import AnimatedEntry from '../components/AnimatedEntry';
 import SectionHeader from '../components/SectionHeader';
 import { useCelebration } from '../components/CelebrationOverlay';
+import BottomSheet, { useBottomSheet } from '../components/BottomSheet';
 
 const STORAGE_KEY = 'zenfit:habits';
 
@@ -144,10 +145,10 @@ function HabitRow({ habit, onToggle }: { habit: Habit; onToggle: (id: string) =>
 export default function HabitChainScreen() {
   const [habits, setHabits] = useState<Habit[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [showModal, setShowModal] = useState(false);
   const [newName, setNewName] = useState('');
   const [newEmoji, setNewEmoji] = useState('⭐');
   const { celebrate, overlay } = useCelebration();
+  const sheet = useBottomSheet();
 
   useEffect(() => { loadHabits(); }, []);
 
@@ -217,7 +218,7 @@ export default function HabitChainScreen() {
       createdAt: todayKey(),
     };
     await saveHabits([...habits, habit]);
-    setShowModal(false);
+    sheet.close();
     setNewName('');
     setNewEmoji('⭐');
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
@@ -290,7 +291,7 @@ export default function HabitChainScreen() {
             <SectionHeader title="Your Habits" style={{ flex: 1 }} />
             <TouchableOpacity
               style={styles.addBtn}
-              onPress={() => setShowModal(true)}
+              onPress={sheet.open}
             >
               <LinearGradient colors={Gradients.aurora} style={styles.addBtnGradient}>
                 <Text style={styles.addBtnText}>+ Add</Text>
@@ -308,48 +309,44 @@ export default function HabitChainScreen() {
         </AnimatedEntry>
       </ScrollView>
 
-      {/* Add Habit Modal */}
-      <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
-        <View style={styles.modalOverlay}>
-          <LinearGradient colors={['#1A1730', '#2D2554']} style={styles.modal}>
-            <Text style={styles.modalTitle}>New Habit</Text>
+      {/* Add Habit Bottom Sheet */}
+      <BottomSheet ref={sheet.ref} snapHeight={420} onClose={() => { setNewName(''); setNewEmoji('⭐'); }}>
+        <Text style={styles.modalTitle}>New Habit</Text>
 
-            <Text style={styles.inputLabel}>Choose Emoji</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.emojiScroll}>
-              {EMOJI_OPTIONS.map((e) => (
-                <TouchableOpacity
-                  key={e}
-                  style={[styles.emojiOption, newEmoji === e && styles.emojiOptionActive]}
-                  onPress={() => setNewEmoji(e)}
-                >
-                  <Text style={styles.emojiOptionText}>{e}</Text>
-                </TouchableOpacity>
-              ))}
-            </ScrollView>
+        <Text style={styles.inputLabel}>Choose Emoji</Text>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.emojiScroll}>
+          {EMOJI_OPTIONS.map((e) => (
+            <TouchableOpacity
+              key={e}
+              style={[styles.emojiOption, newEmoji === e && styles.emojiOptionActive]}
+              onPress={() => setNewEmoji(e)}
+            >
+              <Text style={styles.emojiOptionText}>{e}</Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
 
-            <Text style={styles.inputLabel}>Habit Name</Text>
-            <TextInput
-              style={styles.input}
-              value={newName}
-              onChangeText={setNewName}
-              placeholder="e.g. Read 20 pages"
-              placeholderTextColor={Colors.textMuted}
-              maxLength={40}
-            />
+        <Text style={styles.inputLabel}>Habit Name</Text>
+        <TextInput
+          style={styles.input}
+          value={newName}
+          onChangeText={setNewName}
+          placeholder="e.g. Read 20 pages"
+          placeholderTextColor={Colors.textMuted}
+          maxLength={40}
+        />
 
-            <View style={styles.modalBtns}>
-              <TouchableOpacity style={styles.cancelBtn} onPress={() => setShowModal(false)}>
-                <Text style={styles.cancelText}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.saveBtn} onPress={addHabit}>
-                <LinearGradient colors={Gradients.aurora} style={styles.saveBtnGradient}>
-                  <Text style={styles.saveBtnText}>Add Habit</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            </View>
-          </LinearGradient>
+        <View style={styles.modalBtns}>
+          <TouchableOpacity style={styles.cancelBtn} onPress={sheet.close}>
+            <Text style={styles.cancelText}>Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.saveBtn} onPress={addHabit}>
+            <LinearGradient colors={Gradients.aurora} style={styles.saveBtnGradient}>
+              <Text style={styles.saveBtnText}>Add Habit</Text>
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
-      </Modal>
+      </BottomSheet>
     </SafeAreaView>
   );
 }
