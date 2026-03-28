@@ -48,8 +48,7 @@ const MANTRAS = [
 const QUICK_ACTIONS = [
   { icon: '🧘', label: 'Start Yoga', route: '/yoga' as const },
   { icon: '🌬️', label: 'Breathe', route: '/breathe' as const },
-  { icon: '🍽️', label: 'Log Meal', route: '/nutrition' as const },
-  { icon: '�', label: 'Habits', route: '/habits' as const },
+  { icon: '🍽️', label: 'Log Meal', route: '/nutrition' as const },  { icon: '📝', label: 'Journal', route: '/journal' as const },  { icon: '�', label: 'Habits', route: '/habits' as const },
   { icon: '�💧', label: 'Water', route: '/water' as const },
   { icon: '🩺', label: 'Recovery', route: '/recovery' as const },
   { icon: '📏', label: 'Measure', route: '/body-measurements' as const },
