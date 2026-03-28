@@ -43,6 +43,7 @@ function AppNavigator() {
         <Stack.Screen name="settings" />
         <Stack.Screen name="active-workout" options={{ animation: 'slide_from_bottom' }} />
         <Stack.Screen name="water" />
+        <Stack.Screen name="recovery" />
       </Stack>
     </View>
   );
