@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   StyleSheet,
   View,
@@ -6,7 +6,9 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as Haptics from 'expo-haptics';
@@ -27,6 +29,10 @@ import {
   SectionHeader,
   AnimatedEntry,
 } from '../../src/components';
+
+const CLAUDE_API_KEY = process.env.EXPO_PUBLIC_CLAUDE_API_KEY ?? '';
+const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
+const BRIEFING_CACHE_KEY = 'zenfit:ai_briefing';
 
 const { width } = Dimensions.get('window');
 
@@ -53,8 +59,77 @@ export default function HomeScreen() {
   const profile = useAuthStore((s) => s.profile);
   const [heartRate] = useState(72);
   const [heartZone] = useState<'rest' | 'fatburn' | 'cardio' | 'peak' | 'extreme'>('fatburn');
+  const [briefing, setBriefing] = useState<string | null>(null);
+  const [briefingLoading, setBriefingLoading] = useState(false);
+  const hasFetched = useRef(false);
 
   const todayMantra = MANTRAS[new Date().getDay() % MANTRAS.length];
+
+  useEffect(() => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
+    fetchDailyBriefing();
+  }, []);
+
+  const fetchDailyBriefing = async () => {
+    const today = new Date().toISOString().slice(0, 10);
+    try {
+      const cached = await AsyncStorage.getItem(BRIEFING_CACHE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (parsed.date === today && parsed.text) {
+          setBriefing(parsed.text);
+          return;
+        }
+      }
+    } catch {}
+
+    if (!CLAUDE_API_KEY || CLAUDE_API_KEY === 'your-claude-api-key') {
+      setBriefing(getOfflineBriefing());
+      return;
+    }
+
+    setBriefingLoading(true);
+    const hour = new Date().getHours();
+    const timeOfDay = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+    const name = profile?.full_name?.split(' ')[0] || 'friend';
+
+    try {
+      const waterRaw = await AsyncStorage.getItem(`zenfit:water_intake:${today}`);
+      const waterMl = waterRaw ? JSON.parse(waterRaw).totalMl ?? 0 : 0;
+      const prompt = `You are a friendly wellness coach for the ZenFit app. Write a short, motivational daily ${timeOfDay} briefing for ${name}. Keep it to 2-3 sentences. Include one specific tip based on: water intake today ${waterMl}ml (goal 2000ml), streak ${profile?.streak_days ?? 0} days, current heart zone fatburn. Be warm, personal, and energising. No markdown, plain text only.`;
+      const res = await fetch(CLAUDE_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': CLAUDE_API_KEY,
+          'anthropic-version': '2023-06-01',
+        },
+        body: JSON.stringify({
+          model: 'claude-3-5-sonnet-20241022',
+          max_tokens: 150,
+          messages: [{ role: 'user', content: prompt }],
+        }),
+      });
+      const data = await res.json();
+      const text: string = data?.content?.[0]?.text ?? getOfflineBriefing();
+      setBriefing(text);
+      await AsyncStorage.setItem(BRIEFING_CACHE_KEY, JSON.stringify({ date: today, text }));
+    } catch {
+      setBriefing(getOfflineBriefing());
+    } finally {
+      setBriefingLoading(false);
+    }
+  };
+
+  const getOfflineBriefing = () => {
+    const briefings = [
+      'Start your day with intention. Move your body, nourish your mind, and embrace the journey ahead.',
+      'Every small step counts. Stay hydrated, breathe deeply, and celebrate today\'s progress.',
+      'Your consistency is building something beautiful. Keep showing up — your future self will thank you.',
+    ];
+    return briefings[new Date().getDay() % briefings.length];
+  };
 
   const getHeartZoneColor = () => {
     const map = {
@@ -116,6 +191,34 @@ export default function HomeScreen() {
             <Text style={styles.mantraText}>{todayMantra}</Text>
             <Text style={styles.mantraAuthor}>— Daily Wisdom</Text>
           </GlassCard>
+        </AnimatedEntry>
+
+        {/* AI Daily Briefing Card */}
+        <AnimatedEntry delay={80} duration={600}>
+          <LinearGradient
+            colors={['rgba(124,58,237,0.18)', 'rgba(244,114,182,0.10)']}
+            style={styles.briefingCard}
+          >
+            <View style={styles.briefingHeader}>
+              <Text style={styles.briefingIcon}>🤖</Text>
+              <Text style={styles.briefingLabel}>AI DAILY BRIEFING</Text>
+              <TouchableOpacity
+                onPress={() => { hasFetched.current = false; setBriefing(null); fetchDailyBriefing(); }}
+                accessibilityLabel="Refresh briefing"
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              >
+                <Text style={styles.briefingRefresh}>↻</Text>
+              </TouchableOpacity>
+            </View>
+            {briefingLoading ? (
+              <View style={styles.briefingLoading}>
+                <ActivityIndicator size="small" color={Colors.violet} />
+                <Text style={styles.briefingLoadingText}>Crafting your briefing…</Text>
+              </View>
+            ) : (
+              <Text style={styles.briefingText}>{briefing ?? 'Loading your personalized briefing…'}</Text>
+            )}
+          </LinearGradient>
         </AnimatedEntry>
 
         {/* Daily Stats Row */}
@@ -287,6 +390,47 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     lineHeight: 24,
     marginBottom: Spacing.sm,
+  },
+  briefingCard: {
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.md,
+    marginBottom: Spacing.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(124,58,237,0.25)',
+  },
+  briefingHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: Spacing.xs,
+    gap: Spacing.xs,
+  },
+  briefingIcon: { fontSize: 16 },
+  briefingLabel: {
+    flex: 1,
+    fontSize: FontSizes.xs,
+    fontWeight: '800',
+    color: Colors.violet,
+    letterSpacing: 0.8,
+  },
+  briefingRefresh: {
+    fontSize: 18,
+    color: Colors.textSecondary,
+    fontWeight: '600',
+  },
+  briefingText: {
+    fontSize: FontSizes.md,
+    color: Colors.textPrimary,
+    lineHeight: 22,
+    fontStyle: 'italic',
+  },
+  briefingLoading: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+  },
+  briefingLoadingText: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
   },
   mantraAuthor: {
     fontSize: FontSizes.sm,
