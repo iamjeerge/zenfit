@@ -25,6 +25,7 @@ import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import AnimatedEntry from '../components/AnimatedEntry';
 import SectionHeader from '../components/SectionHeader';
+import SkeletonLoader, { SkeletonListItem } from '../components/SkeletonLoader';
 
 type LeaderboardTab = 'steps' | 'workouts' | 'streak';
 
@@ -286,7 +287,11 @@ export default function SocialScreen() {
                   <Text style={styles.errorText}>{error} Tap to retry.</Text>
                 </TouchableOpacity>
               ) : isLoadingFriends ? (
-                <ActivityIndicator color={Colors.violet} style={{ marginVertical: Spacing.lg }} />
+                <>
+                  <SkeletonListItem style={{ marginBottom: Spacing.sm }} />
+                  <SkeletonListItem style={{ marginBottom: Spacing.sm }} />
+                  <SkeletonListItem />
+                </>
               ) : friends.length === 0 ? (
                 <Text style={styles.emptyText}>No friends yet. Search above to connect!</Text>
               ) : (
