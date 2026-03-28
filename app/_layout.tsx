@@ -45,6 +45,7 @@ function AppNavigator() {
         <Stack.Screen name="water" />
         <Stack.Screen name="recovery" />
         <Stack.Screen name="body-measurements" />
+        <Stack.Screen name="habits" />
       </Stack>
     </View>
   );
