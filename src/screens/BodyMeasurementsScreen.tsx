@@ -26,6 +26,7 @@ import {
 } from '../theme/colors';
 import AnimatedEntry from '../components/AnimatedEntry';
 import SectionHeader from '../components/SectionHeader';
+import AnimatedEmptyState from '../components/AnimatedEmptyState';
 import { LineChart } from '../components/InteractiveChart';
 
 const STORAGE_KEY = 'zenfit:measurements';
@@ -238,15 +239,11 @@ export default function BodyMeasurementsScreen() {
         )}
 
         {entries.length === 0 && !isLoading && (
-          <AnimatedEntry delay={200}>
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyEmoji}>📏</Text>
-              <Text style={styles.emptyTitle}>Start Tracking</Text>
-              <Text style={styles.emptySubtitle}>
-                Log your first measurements and see your transformation over time.
-              </Text>
-            </View>
-          </AnimatedEntry>
+          <AnimatedEmptyState
+            emoji="📏"
+            title="Start Tracking"
+            subtitle="Log your first measurements and see your transformation over time."
+          />
         )}
       </ScrollView>
 

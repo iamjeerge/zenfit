@@ -15,6 +15,7 @@ import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import AnimatedEntry from '../components/AnimatedEntry';
 import SectionHeader from '../components/SectionHeader';
+import AnimatedEmptyState from '../components/AnimatedEmptyState';
 
 // ─── Calculation Helpers ────────────────────────────────────────────────────
 
@@ -373,7 +374,11 @@ export default function BMIScreen() {
             {isLoading ? (
               <ActivityIndicator color={Colors.violet} style={{ marginVertical: Spacing.lg }} />
             ) : weightLogs.length === 0 ? (
-              <Text style={styles.emptyText}>No entries yet. Start logging above!</Text>
+              <AnimatedEmptyState
+                emoji="⚖️"
+                title="No entries yet"
+                subtitle="Log your weight above to start tracking!"
+              />
             ) : (
               weightLogs.slice(0, 10).map((log) => (
                 <View key={log.id} style={styles.logEntry}>
