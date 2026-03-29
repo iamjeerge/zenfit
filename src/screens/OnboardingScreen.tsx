@@ -17,6 +17,7 @@ import {
   Switch,
   KeyboardAvoidingView,
   Platform,
+  InteractionManager,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useRouter } from '../utils/router';
@@ -100,7 +101,13 @@ export default function OnboardingScreen() {
 
   const handleSkip = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.replace('/auth');
+    // Defer navigation until after the current Fabric commit completes.
+    // Calling navigation.replace() synchronously while LinearGradient is the
+    // root view triggers RCTComponentViewRegistry to recycle the gradient view
+    // before its Fabric component handle is registered, causing SIGABRT.
+    InteractionManager.runAfterInteractions(() => {
+      router.replace('/auth');
+    });
   };
 
   const handleFinish = async () => {
@@ -115,7 +122,9 @@ export default function OnboardingScreen() {
       activity_level: activityLevel || null,
     };
     await AsyncStorage.setItem(PENDING_PROFILE_KEY, JSON.stringify(pending));
-    router.replace('/auth');
+    InteractionManager.runAfterInteractions(() => {
+      router.replace('/auth');
+    });
   };
 
   const toggleWorkoutType = (type: string) => {
