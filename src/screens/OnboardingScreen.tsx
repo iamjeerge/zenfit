@@ -17,7 +17,6 @@ import {
   Switch,
   KeyboardAvoidingView,
   Platform,
-  InteractionManager,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { useRouter } from '../utils/router';
@@ -101,13 +100,7 @@ export default function OnboardingScreen() {
 
   const handleSkip = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    // Defer navigation until after the current Fabric commit completes.
-    // Calling navigation.replace() synchronously while LinearGradient is the
-    // root view triggers RCTComponentViewRegistry to recycle the gradient view
-    // before its Fabric component handle is registered, causing SIGABRT.
-    InteractionManager.runAfterInteractions(() => {
-      router.replace('/auth');
-    });
+    router.replace('/auth');
   };
 
   const handleFinish = async () => {
@@ -122,9 +115,7 @@ export default function OnboardingScreen() {
       activity_level: activityLevel || null,
     };
     await AsyncStorage.setItem(PENDING_PROFILE_KEY, JSON.stringify(pending));
-    InteractionManager.runAfterInteractions(() => {
-      router.replace('/auth');
-    });
+    router.replace('/auth');
   };
 
   const toggleWorkoutType = (type: string) => {
@@ -399,12 +390,16 @@ export default function OnboardingScreen() {
   const showSkip = step >= 1;
 
   return (
-    <LinearGradient
-      colors={Gradients.cosmic}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.container}
-    >
+    <View style={styles.container}>
+      {/* Gradient background — must NOT be the root view: react-native-linear-gradient
+          v2.8.3 doesn't register its Fabric component handle for root-level recycling,
+          causing RCTComponentViewRegistry to NSAssert/SIGABRT on screen dismissal. */}
+      <LinearGradient
+        colors={Gradients.cosmic}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
       {/* Header row */}
       <View style={styles.header}>
         <TouchableOpacity
@@ -433,7 +428,7 @@ export default function OnboardingScreen() {
       <View style={styles.buttonContainer}>
         <GradientButton title={isLastStep ? 'Get Started 🚀' : 'Next →'} onPress={handleNext} />
       </View>
-    </LinearGradient>
+    </View>
   );
 }
 
