@@ -19,14 +19,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Haptics from '../../utils/haptics';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../../theme/colors';
 import { GlassCard, GradientButton, AnimatedEntry } from '../../components';
 
 type BreathingPhase = 'idle' | 'inhale' | 'hold' | 'exhale' | 'exhale2';
@@ -37,11 +30,11 @@ interface Technique {
   emoji: string;
   description: string;
   benefit: string;
-  gradient: readonly [string, string, ...string[]];
+  gradient: string[];
   inhale: number; // ms
-  hold: number;   // ms (0 = skip)
+  hold: number; // ms (0 = skip)
   exhale: number; // ms
-  hold2: number;  // ms (post-exhale hold, for box)
+  hold2: number; // ms (post-exhale hold, for box)
   steps: { text: string; color: string }[];
 }
 
@@ -50,7 +43,7 @@ const TECHNIQUES: Technique[] = [
     id: '478',
     name: '4-7-8',
     emoji: '🫁',
-    description: 'Dr. Weil\'s classic relaxation breath',
+    description: "Dr. Weil's classic relaxation breath",
     benefit: 'Reduces anxiety, lowers heart rate, and promotes deep sleep.',
     gradient: Gradients.lotus,
     inhale: 4000,
@@ -85,7 +78,7 @@ const TECHNIQUES: Technique[] = [
     id: 'wimhof',
     name: 'Wim Hof',
     emoji: '❄️',
-    description: 'Iceman\'s energizing power breath',
+    description: "Iceman's energizing power breath",
     benefit: 'Boosts energy, strengthens immune response, and increases vitality.',
     gradient: ['#0f2944', '#164e63', '#0891b2'] as const,
     inhale: 2000,
@@ -139,11 +132,16 @@ export default function BreatheScreen() {
 
   const getPhaseSeconds = (p: BreathingPhase): number => {
     switch (p) {
-      case 'inhale': return tech.inhale / 1000;
-      case 'hold': return tech.hold / 1000;
-      case 'exhale': return tech.exhale / 1000;
-      case 'exhale2': return tech.hold2 / 1000;
-      default: return 0;
+      case 'inhale':
+        return tech.inhale / 1000;
+      case 'hold':
+        return tech.hold / 1000;
+      case 'exhale':
+        return tech.exhale / 1000;
+      case 'exhale2':
+        return tech.hold2 / 1000;
+      default:
+        return 0;
     }
   };
 
@@ -157,11 +155,16 @@ export default function BreatheScreen() {
 
   const getPhaseDuration = (p: BreathingPhase): number => {
     switch (p) {
-      case 'inhale': return tech.inhale;
-      case 'hold': return tech.hold;
-      case 'exhale': return tech.exhale;
-      case 'exhale2': return tech.hold2;
-      default: return 0;
+      case 'inhale':
+        return tech.inhale;
+      case 'hold':
+        return tech.hold;
+      case 'exhale':
+        return tech.exhale;
+      case 'exhale2':
+        return tech.hold2;
+      default:
+        return 0;
     }
   };
 
@@ -193,7 +196,11 @@ export default function BreatheScreen() {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       }
 
-      const schedulePhase = (currentPhase: BreathingPhase, duration: number, nextPhase: BreathingPhase) => {
+      const schedulePhase = (
+        currentPhase: BreathingPhase,
+        duration: number,
+        nextPhase: BreathingPhase,
+      ) => {
         timer = setTimeout(() => {
           setPhase(nextPhase);
           if (nextPhase === 'inhale' && (currentPhase === 'exhale' || currentPhase === 'exhale2')) {
@@ -223,23 +230,48 @@ export default function BreatheScreen() {
   useEffect(() => {
     const dur = getPhaseDuration(phase);
     if (phase === 'idle') {
-      Animated.timing(scaleAnim, { toValue: 0.3, duration: 500, easing: Easing.ease, useNativeDriver: false }).start();
+      Animated.timing(scaleAnim, {
+        toValue: 0.3,
+        duration: 500,
+        easing: Easing.ease,
+        useNativeDriver: false,
+      }).start();
     } else if (phase === 'inhale') {
-      Animated.timing(scaleAnim, { toValue: 1, duration: tech.inhale, easing: Easing.inOut(Easing.ease), useNativeDriver: false }).start();
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: tech.inhale,
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: false,
+      }).start();
     } else if (phase === 'hold' || phase === 'exhale2') {
-      Animated.timing(scaleAnim, { toValue: 1, duration: dur, easing: Easing.ease, useNativeDriver: false }).start();
+      Animated.timing(scaleAnim, {
+        toValue: 1,
+        duration: dur,
+        easing: Easing.ease,
+        useNativeDriver: false,
+      }).start();
     } else if (phase === 'exhale') {
-      Animated.timing(scaleAnim, { toValue: 0.3, duration: tech.exhale, easing: Easing.inOut(Easing.ease), useNativeDriver: false }).start();
+      Animated.timing(scaleAnim, {
+        toValue: 0.3,
+        duration: tech.exhale,
+        easing: Easing.inOut(Easing.ease),
+        useNativeDriver: false,
+      }).start();
     }
   }, [phase]);
 
   const getPhaseLabel = () => {
     switch (phase) {
-      case 'inhale': return 'Inhale';
-      case 'hold': return 'Hold';
-      case 'exhale': return 'Exhale';
-      case 'exhale2': return 'Hold';
-      default: return 'Ready?';
+      case 'inhale':
+        return 'Inhale';
+      case 'hold':
+        return 'Hold';
+      case 'exhale':
+        return 'Exhale';
+      case 'exhale2':
+        return 'Hold';
+      default:
+        return 'Ready?';
     }
   };
 
@@ -287,21 +319,24 @@ export default function BreatheScreen() {
           {!isActive && (
             <AnimatedEntry delay={0} duration={400}>
               <Text style={styles.sectionLabel}>CHOOSE TECHNIQUE</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.techScroll}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.techScroll}
+              >
                 {TECHNIQUES.map((t) => (
                   <TouchableOpacity
                     key={t.id}
-                    style={[
-                      styles.techCard,
-                      selectedTech.id === t.id && styles.techCardActive,
-                    ]}
+                    style={[styles.techCard, selectedTech.id === t.id && styles.techCardActive]}
                     onPress={() => handleSelectTech(t)}
                     accessibilityRole="radio"
                     accessibilityState={{ selected: selectedTech.id === t.id }}
                   >
                     <Text style={styles.techEmoji}>{t.emoji}</Text>
                     <Text style={styles.techName}>{t.name}</Text>
-                    <Text style={styles.techDesc} numberOfLines={2}>{t.description}</Text>
+                    <Text style={styles.techDesc} numberOfLines={2}>
+                      {t.description}
+                    </Text>
                   </TouchableOpacity>
                 ))}
               </ScrollView>
@@ -386,7 +421,9 @@ export default function BreatheScreen() {
                 onPress={handleToggle}
                 variant="primary"
                 style={{ flex: 2 }}
-                accessibilityLabel={isActive ? 'Pause breathing exercise' : 'Start breathing exercise'}
+                accessibilityLabel={
+                  isActive ? 'Pause breathing exercise' : 'Start breathing exercise'
+                }
               />
               <GradientButton
                 title="Reset"

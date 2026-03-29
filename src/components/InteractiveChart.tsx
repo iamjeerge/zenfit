@@ -111,7 +111,8 @@ export function LineChart({
   }));
 
   const linePath = buildLinePath(points, smooth);
-  const areaPath = linePath + ` L${points[points.length - 1].x},${H - padV} L${points[0].x},${H - padV} Z`;
+  const areaPath =
+    linePath + ` L${points[points.length - 1].x},${H - padV} L${points[0].x},${H - padV} Z`;
 
   useEffect(() => {
     progress.value = 0;
@@ -154,11 +155,7 @@ export function LineChart({
         ))}
 
         {/* Area fill */}
-        <AnimatedPath
-          d={areaPath}
-          fill="url(#lineGrad)"
-          animatedProps={animatedAreaProps}
-        />
+        <AnimatedPath d={areaPath} fill="url(#lineGrad)" animatedProps={animatedAreaProps} />
 
         {/* Line */}
         <AnimatedPath
@@ -172,21 +169,22 @@ export function LineChart({
         />
 
         {/* Data dots */}
-        {showDots && points.map((p, i) => (
-          <TouchableOpacity
-            key={i}
-            onPress={() => setTooltip(tooltip?.index === i ? null : { index: i })}
-          >
-            <Circle
-              cx={p.x}
-              cy={p.y}
-              r={tooltip?.index === i ? 7 : 4}
-              fill={tooltip?.index === i ? color : Colors.background}
-              stroke={color}
-              strokeWidth={2}
-            />
-          </TouchableOpacity>
-        ))}
+        {showDots &&
+          points.map((p, i) => (
+            <TouchableOpacity
+              key={i}
+              onPress={() => setTooltip(tooltip?.index === i ? null : { index: i })}
+            >
+              <Circle
+                cx={p.x}
+                cy={p.y}
+                r={tooltip?.index === i ? 7 : 4}
+                fill={tooltip?.index === i ? color : Colors.background}
+                stroke={color}
+                strokeWidth={2}
+              />
+            </TouchableOpacity>
+          ))}
 
         {/* Tooltip vertical line */}
         {activePoint && (
@@ -203,18 +201,19 @@ export function LineChart({
         )}
 
         {/* X-axis labels */}
-        {showLabels && data.map((d, i) => (
-          <SvgText
-            key={i}
-            x={points[i].x}
-            y={H}
-            textAnchor="middle"
-            fontSize={9}
-            fill={Colors.textMuted}
-          >
-            {d.label}
-          </SvgText>
-        ))}
+        {showLabels &&
+          data.map((d, i) => (
+            <SvgText
+              key={i}
+              x={points[i].x}
+              y={H}
+              textAnchor="middle"
+              fontSize={9}
+              fill={Colors.textMuted}
+            >
+              {d.label}
+            </SvgText>
+          ))}
       </Svg>
 
       {/* Tooltip popup */}
@@ -231,7 +230,8 @@ export function LineChart({
         >
           <Text style={styles.tooltipLabel}>{activeData.label}</Text>
           <Text style={[styles.tooltipValue, { color }]}>
-            {activeData.value.toLocaleString()}{unit}
+            {activeData.value.toLocaleString()}
+            {unit}
           </Text>
         </View>
       )}
@@ -329,7 +329,8 @@ export function BarChart({
                   fill={Colors.textPrimary}
                   fontWeight="700"
                 >
-                  {d.value.toLocaleString()}{unit}
+                  {d.value.toLocaleString()}
+                  {unit}
                 </SvgText>
               )}
             </G>
@@ -345,7 +346,7 @@ export function BarChart({
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 interface DonutProps {
-  progress: number;   // 0–1
+  progress: number; // 0–1
   size?: number;
   strokeWidth?: number;
   color?: string;
@@ -369,7 +370,10 @@ export function DonutChart({
 
   useEffect(() => {
     anim.value = 0;
-    anim.value = withTiming(Math.min(progress, 1), { duration: 1000, easing: Easing.out(Easing.cubic) });
+    anim.value = withTiming(Math.min(progress, 1), {
+      duration: 1000,
+      easing: Easing.out(Easing.cubic),
+    });
   }, [progress]);
 
   const animatedProps = useAnimatedProps(() => ({
@@ -400,11 +404,7 @@ export function DonutChart({
           transform={`rotate(-90, ${cx}, ${cy})`}
         />
       </Svg>
-      {children && (
-        <View style={{ position: 'absolute', alignItems: 'center' }}>
-          {children}
-        </View>
-      )}
+      {children && <View style={{ position: 'absolute', alignItems: 'center' }}>{children}</View>}
     </View>
   );
 }

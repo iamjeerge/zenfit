@@ -27,14 +27,7 @@ const WebBrowser = {
   },
   openBrowserAsync: async (url: string) => Linking.openURL(url),
 };
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 import AnimatedEntry from '../components/AnimatedEntry';
 import { GradientButton } from '../components';
 import { supabase } from '../lib/supabase';
@@ -71,10 +64,14 @@ export default function SubscriptionScreen() {
         body: { billing_period: billingPeriod },
       });
       if (error || !data?.url) throw new Error(error?.message ?? 'No checkout URL returned');
-      const result = await WebBrowser.openAuthSessionAsync(data.url, 'zenfit://subscription-success');
-      if (result.type === 'success') {
+      const result = await WebBrowser.openAuthSessionAsync(
+        data.url,
+        'zenfit://subscription-success',
+      );
+      const webResult = result as { type: string; url?: string };
+      if (webResult.type === 'success') {
         Alert.alert('Success!', 'Your subscription is now active. Enjoy ZenFit Premium!');
-      } else if (result.type === 'cancel') {
+      } else if (webResult.type === 'cancel') {
         // User cancelled — no action needed
       }
     } catch (err: any) {
@@ -112,142 +109,140 @@ export default function SubscriptionScreen() {
         contentContainerStyle={styles.scrollContent}
       >
         <AnimatedEntry delay={0}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Premium</Text>
-          <Text style={styles.subtitle}>Unlock your full potential</Text>
-        </View>
+          <View style={styles.header}>
+            <Text style={styles.title}>Premium</Text>
+            <Text style={styles.subtitle}>Unlock your full potential</Text>
+          </View>
         </AnimatedEntry>
 
         {/* Billing Toggle */}
         <AnimatedEntry delay={100}>
-        <View style={styles.billingToggleContainer}>
-          <TouchableOpacity
-            style={[
-              styles.billingOption,
-              billingPeriod === 'monthly' && styles.billingOptionActive,
-            ]}
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setBillingPeriod('monthly');
-            }}
-          >
-            <Text
+          <View style={styles.billingToggleContainer}>
+            <TouchableOpacity
               style={[
-                styles.billingOptionText,
-                billingPeriod === 'monthly' && styles.billingOptionTextActive,
+                styles.billingOption,
+                billingPeriod === 'monthly' && styles.billingOptionActive,
               ]}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setBillingPeriod('monthly');
+              }}
             >
-              Monthly
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[
-              styles.billingOption,
-              billingPeriod === 'annual' && styles.billingOptionActive,
-            ]}
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setBillingPeriod('annual');
-            }}
-          >
-            <Text
+              <Text
+                style={[
+                  styles.billingOptionText,
+                  billingPeriod === 'monthly' && styles.billingOptionTextActive,
+                ]}
+              >
+                Monthly
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
               style={[
-                styles.billingOptionText,
-                billingPeriod === 'annual' && styles.billingOptionTextActive,
+                styles.billingOption,
+                billingPeriod === 'annual' && styles.billingOptionActive,
               ]}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                setBillingPeriod('annual');
+              }}
             >
-              Annual
-            </Text>
-            {billingPeriod === 'annual' && (
-              <Text style={styles.savingsText}>Save {annualSavings}%</Text>
-            )}
-          </TouchableOpacity>
-        </View>
-
+              <Text
+                style={[
+                  styles.billingOptionText,
+                  billingPeriod === 'annual' && styles.billingOptionTextActive,
+                ]}
+              >
+                Annual
+              </Text>
+              {billingPeriod === 'annual' && (
+                <Text style={styles.savingsText}>Save {annualSavings}%</Text>
+              )}
+            </TouchableOpacity>
+          </View>
         </AnimatedEntry>
 
         {/* Premium Plan Card */}
         <AnimatedEntry delay={200}>
-        <LinearGradient
-          colors={Gradients.aurora}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.planCardBorder}
-        >
           <LinearGradient
-            colors={Gradients.cardPrimary}
+            colors={Gradients.aurora}
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 1 }}
-            style={styles.planCard}
+            style={styles.planCardBorder}
           >
-            {/* Free Trial Badge */}
-            <View style={styles.badgeContainer}>
-              <LinearGradient
-                colors={Gradients.sunrise}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.badge}
-              >
-                <Text style={styles.badgeText}>7-Day Free Trial</Text>
-              </LinearGradient>
-            </View>
-
-            {/* Price */}
-            <View style={styles.priceContainer}>
-              <Text style={styles.price}>${currentPrice.toFixed(2)}</Text>
-              <Text style={styles.billingLabel}>{billingText}</Text>
-            </View>
-
-            {/* Features List */}
-            <View style={styles.featuresList}>
-              {features.map((feature, index) => (
-                <View key={index} style={styles.featureItem}>
-                  <Text style={styles.checkmark}>✓</Text>
-                  <Text style={styles.featureText}>{feature}</Text>
-                </View>
-              ))}
-            </View>
-
-            {/* CTA Button */}
-            {isPremium ? (
-              <View>
-                <View style={styles.premiumBadge}>
-                  <Text style={styles.premiumBadgeText}>✅ You're Premium!</Text>
-                </View>
-                <GradientButton
-                  title="Manage Subscription"
-                  onPress={handleManageSubscription}
-                  style={{ marginTop: Spacing.md }}
-                />
-              </View>
-            ) : (
-              <TouchableOpacity
-                style={[styles.ctaBtn, isLoading && styles.ctaBtnDisabled]}
-                onPress={handleSubscribe}
-                disabled={isLoading}
-              >
+            <LinearGradient
+              colors={Gradients.cardPrimary}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.planCard}
+            >
+              {/* Free Trial Badge */}
+              <View style={styles.badgeContainer}>
                 <LinearGradient
-                  colors={Gradients.sunrise as unknown as [string, string, ...string[]]}
-                  style={styles.ctaBtnGradient}
+                  colors={Gradients.sunrise}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 0 }}
+                  style={styles.badge}
                 >
-                  {isLoading ? (
-                    <ActivityIndicator color={Colors.textPrimary} />
-                  ) : (
-                    <Text style={styles.ctaBtnText}>Start Free Trial</Text>
-                  )}
+                  <Text style={styles.badgeText}>7-Day Free Trial</Text>
                 </LinearGradient>
-              </TouchableOpacity>
-            )}
-          </LinearGradient>
-        </LinearGradient>
+              </View>
 
+              {/* Price */}
+              <View style={styles.priceContainer}>
+                <Text style={styles.price}>${currentPrice.toFixed(2)}</Text>
+                <Text style={styles.billingLabel}>{billingText}</Text>
+              </View>
+
+              {/* Features List */}
+              <View style={styles.featuresList}>
+                {features.map((feature, index) => (
+                  <View key={index} style={styles.featureItem}>
+                    <Text style={styles.checkmark}>✓</Text>
+                    <Text style={styles.featureText}>{feature}</Text>
+                  </View>
+                ))}
+              </View>
+
+              {/* CTA Button */}
+              {isPremium ? (
+                <View>
+                  <View style={styles.premiumBadge}>
+                    <Text style={styles.premiumBadgeText}>✅ You're Premium!</Text>
+                  </View>
+                  <GradientButton
+                    title="Manage Subscription"
+                    onPress={handleManageSubscription}
+                    style={{ marginTop: Spacing.md }}
+                  />
+                </View>
+              ) : (
+                <TouchableOpacity
+                  style={[styles.ctaBtn, isLoading && styles.ctaBtnDisabled]}
+                  onPress={handleSubscribe}
+                  disabled={isLoading}
+                >
+                  <LinearGradient
+                    colors={Gradients.sunrise as unknown as [string, string, ...string[]]}
+                    style={styles.ctaBtnGradient}
+                  >
+                    {isLoading ? (
+                      <ActivityIndicator color={Colors.textPrimary} />
+                    ) : (
+                      <Text style={styles.ctaBtnText}>Start Free Trial</Text>
+                    )}
+                  </LinearGradient>
+                </TouchableOpacity>
+              )}
+            </LinearGradient>
+          </LinearGradient>
         </AnimatedEntry>
 
         {/* Restore Purchase Link */}
         <AnimatedEntry delay={300}>
-        <TouchableOpacity style={styles.restoreButton} onPress={handleManageSubscription}>
-          <Text style={styles.restoreButtonText}>Restore Purchase</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.restoreButton} onPress={handleManageSubscription}>
+            <Text style={styles.restoreButtonText}>Restore Purchase</Text>
+          </TouchableOpacity>
         </AnimatedEntry>
       </ScrollView>
     </SafeAreaView>
@@ -394,12 +389,21 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   premiumBadge: {
-    alignItems: 'center', paddingVertical: Spacing.sm,
-    backgroundColor: Colors.sageLeaf + '22', borderRadius: BorderRadius.md,
-    borderWidth: 1, borderColor: Colors.sageLeaf + '44', marginBottom: Spacing.sm,
+    alignItems: 'center',
+    paddingVertical: Spacing.sm,
+    backgroundColor: Colors.sageLeaf + '22',
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.sageLeaf + '44',
+    marginBottom: Spacing.sm,
   },
   premiumBadgeText: { fontSize: FontSizes.md, color: Colors.sageLeaf, fontWeight: '700' },
-  ctaBtn: { width: '100%', borderRadius: BorderRadius.lg, overflow: 'hidden', marginTop: Spacing.md },
+  ctaBtn: {
+    width: '100%',
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    marginTop: Spacing.md,
+  },
   ctaBtnDisabled: { opacity: 0.6 },
   ctaBtnGradient: { paddingVertical: Spacing.md, alignItems: 'center', justifyContent: 'center' },
   ctaBtnText: { fontSize: FontSizes.lg, fontWeight: '700', color: Colors.textPrimary },

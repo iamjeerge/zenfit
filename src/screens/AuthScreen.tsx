@@ -77,11 +77,7 @@ export default function AuthScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       router.replace('/(tabs)');
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Sign in failed. Please try again.'
-      );
+      setError(err instanceof Error ? err.message : 'Sign in failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -124,11 +120,7 @@ export default function AuthScreen() {
       }
       router.replace('/(tabs)');
     } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : 'Sign up failed. Please try again.'
-      );
+      setError(err instanceof Error ? err.message : 'Sign up failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -169,41 +161,25 @@ export default function AuthScreen() {
           {/* Mode toggle */}
           <View style={styles.modeToggle}>
             <TouchableOpacity
-              style={[
-                styles.toggleButton,
-                isSignIn && styles.toggleButtonActive,
-              ]}
+              style={[styles.toggleButton, isSignIn && styles.toggleButtonActive]}
               onPress={() => {
                 setMode('signin');
                 setError('');
               }}
             >
-              <Text
-                style={[
-                  styles.toggleButtonText,
-                  isSignIn && styles.toggleButtonTextActive,
-                ]}
-              >
+              <Text style={[styles.toggleButtonText, isSignIn && styles.toggleButtonTextActive]}>
                 Sign In
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity
-              style={[
-                styles.toggleButton,
-                !isSignIn && styles.toggleButtonActive,
-              ]}
+              style={[styles.toggleButton, !isSignIn && styles.toggleButtonActive]}
               onPress={() => {
                 setMode('signup');
                 setError('');
               }}
             >
-              <Text
-                style={[
-                  styles.toggleButtonText,
-                  !isSignIn && styles.toggleButtonTextActive,
-                ]}
-              >
+              <Text style={[styles.toggleButtonText, !isSignIn && styles.toggleButtonTextActive]}>
                 Sign Up
               </Text>
             </TouchableOpacity>
@@ -278,14 +254,9 @@ export default function AuthScreen() {
                 style={styles.ctaButtonGradient}
               >
                 {loading ? (
-                  <ActivityIndicator
-                    size="small"
-                    color={Colors.moonlight}
-                  />
+                  <ActivityIndicator size="small" color={Colors.moonlight} />
                 ) : (
-                  <Text style={styles.ctaButtonText}>
-                    Start Your Journey
-                  </Text>
+                  <Text style={styles.ctaButtonText}>Start Your Journey</Text>
                 )}
               </LinearGradient>
             </TouchableOpacity>
@@ -294,9 +265,7 @@ export default function AuthScreen() {
           {/* Footer text */}
           <View style={styles.footerContainer}>
             <Text style={styles.footerText}>
-              {isSignIn
-                ? "Don't have an account? "
-                : 'Already have an account? '}
+              {isSignIn ? "Don't have an account? " : 'Already have an account? '}
               <Text
                 style={styles.footerLink}
                 onPress={() => {

@@ -30,14 +30,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from '../utils/haptics';
 import { useRouter, useLocalSearchParams } from '../utils/router';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import { useCelebration } from '../components/CelebrationOverlay';
@@ -60,7 +53,7 @@ type Phase = 'exercise' | 'rest' | 'done';
 
 export default function ActiveWorkoutScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ exercises: string }>();
+  const params = useLocalSearchParams();
   const user = useAuthStore((s) => s.user);
   const { celebrate, overlay: celebrationOverlay } = useCelebration();
 
@@ -144,11 +137,11 @@ export default function ActiveWorkoutScreen() {
     if (phase === 'exercise') {
       pulseScale.value = withRepeat(
         withSequence(
-          withTiming(1.06, { duration: 900, easing: Easing.inOut(Easing.sine) }),
-          withTiming(1, { duration: 900, easing: Easing.inOut(Easing.sine) })
+          withTiming(1.06, { duration: 900, easing: Easing.inOut(Easing.sin) }),
+          withTiming(1, { duration: 900, easing: Easing.inOut(Easing.sin) }),
         ),
         -1,
-        true
+        true,
       );
     } else {
       pulseScale.value = withTiming(1, { duration: 300 });
@@ -220,12 +213,17 @@ export default function ActiveWorkoutScreen() {
     transform: [{ scale: pulseScale.value }],
   }));
 
-  const strokeDashoffsetStyle = useAnimatedStyle(() => ({
-    strokeDashoffset: CIRCUMFERENCE * (1 - progressValue.value),
-  })) as any;
+  const strokeDashoffsetStyle = useAnimatedStyle(
+    () =>
+      ({
+        strokeDashoffset: CIRCUMFERENCE * (1 - progressValue.value),
+      }) as any,
+  );
 
   const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const m = Math.floor(seconds / 60)
+      .toString()
+      .padStart(2, '0');
     const s = (seconds % 60).toString().padStart(2, '0');
     return `${m}:${s}`;
   };
@@ -242,12 +240,13 @@ export default function ActiveWorkoutScreen() {
             {exercises.length} exercises · {formatTime(elapsedSeconds)}
           </Text>
 
-          <LinearGradient
-            colors={Gradients.cardPrimary}
-            style={styles.doneStats}
-          >
+          <LinearGradient colors={Gradients.cardPrimary} style={styles.doneStats}>
             {[
-              { label: 'Total Sets', value: exercises.reduce((s, e) => s + e.sets, 0).toString(), icon: '🎯' },
+              {
+                label: 'Total Sets',
+                value: exercises.reduce((s, e) => s + e.sets, 0).toString(),
+                icon: '🎯',
+              },
               { label: 'Duration', value: formatTime(elapsedSeconds), icon: '⏱️' },
               {
                 label: 'Volume',
@@ -306,7 +305,6 @@ export default function ActiveWorkoutScreen() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-
         {/* Progress bar: exercises */}
         <View style={styles.exerciseProgressContainer}>
           {exercises.map((_, idx) => (
@@ -334,7 +332,12 @@ export default function ActiveWorkoutScreen() {
         {phase === 'rest' ? (
           <View style={styles.timerContainer}>
             {/* SVG-like timer ring using View trick */}
-            <View style={[styles.timerRing, { width: TIMER_SIZE, height: TIMER_SIZE, borderRadius: TIMER_SIZE / 2 }]}>
+            <View
+              style={[
+                styles.timerRing,
+                { width: TIMER_SIZE, height: TIMER_SIZE, borderRadius: TIMER_SIZE / 2 },
+              ]}
+            >
               <View style={styles.timerInner}>
                 <Text style={styles.timerPhaseLabel}>REST</Text>
                 <Text style={styles.timerCountdown}>{restSecondsLeft}</Text>
@@ -349,7 +352,10 @@ export default function ActiveWorkoutScreen() {
           <Animated.View style={[styles.timerContainer, pulseStyle]}>
             <LinearGradient
               colors={Gradients.cardPrimary}
-              style={[styles.exerciseCircle, { width: TIMER_SIZE, height: TIMER_SIZE, borderRadius: TIMER_SIZE / 2 }]}
+              style={[
+                styles.exerciseCircle,
+                { width: TIMER_SIZE, height: TIMER_SIZE, borderRadius: TIMER_SIZE / 2 },
+              ]}
             >
               <Text style={styles.setLabel}>SET</Text>
               <Text style={styles.setNumber}>{setIndex + 1}</Text>
@@ -416,8 +422,8 @@ export default function ActiveWorkoutScreen() {
                 ]}
               >
                 <Text style={styles.remainingItemText}>
-                  {idx < exerciseIndex ? '✅' : idx === exerciseIndex ? '▶️' : '⬜'}{' '}
-                  {ex.name} — {ex.sets}×{ex.reps}
+                  {idx < exerciseIndex ? '✅' : idx === exerciseIndex ? '▶️' : '⬜'} {ex.name} —{' '}
+                  {ex.sets}×{ex.reps}
                   {ex.weightKg > 0 ? ` @ ${ex.weightKg}kg` : ''}
                 </Text>
               </View>
@@ -475,7 +481,11 @@ const styles = StyleSheet.create({
     borderColor: Colors.glassBorder,
   },
   exerciseProgressDotDone: { backgroundColor: Colors.sageLeaf, borderColor: Colors.sageLeaf },
-  exerciseProgressDotActive: { width: 24, backgroundColor: Colors.violet, borderColor: Colors.violet },
+  exerciseProgressDotActive: {
+    width: 24,
+    backgroundColor: Colors.violet,
+    borderColor: Colors.violet,
+  },
 
   exerciseLabel: {
     fontSize: FontSizes.sm,
@@ -618,7 +628,12 @@ const styles = StyleSheet.create({
   // Done screen
   doneContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: Spacing.xl },
   doneEmoji: { fontSize: 72, marginBottom: Spacing.lg },
-  doneTitle: { fontSize: FontSizes.xxxl, fontWeight: '900', color: Colors.textPrimary, marginBottom: Spacing.sm },
+  doneTitle: {
+    fontSize: FontSizes.xxxl,
+    fontWeight: '900',
+    color: Colors.textPrimary,
+    marginBottom: Spacing.sm,
+  },
   doneSub: { fontSize: FontSizes.md, color: Colors.textSecondary, marginBottom: Spacing.xl },
   doneStats: {
     flexDirection: 'row',

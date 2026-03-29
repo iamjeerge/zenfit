@@ -20,14 +20,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Haptics from '../utils/haptics';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import AnimatedEntry from '../components/AnimatedEntry';
@@ -86,12 +79,14 @@ export default function SocialScreen() {
     try {
       const { data, error: err } = await supabase
         .from('friendships')
-        .select(`
+        .select(
+          `
           id, status,
           requester_id, addressee_id,
           requester:profiles!requester_id(id, full_name, level, streak_days),
           addressee:profiles!addressee_id(id, full_name, level, streak_days)
-        `)
+        `,
+        )
         .or(`requester_id.eq.${user!.id},addressee_id.eq.${user!.id}`)
         .neq('status', 'blocked');
 
@@ -136,7 +131,8 @@ export default function SocialScreen() {
         if (err) throw err;
         const counts: Record<string, { full_name: string | null; count: number }> = {};
         (d || []).forEach((r: any) => {
-          if (!counts[r.user_id]) counts[r.user_id] = { full_name: r.profiles?.full_name, count: 0 };
+          if (!counts[r.user_id])
+            counts[r.user_id] = { full_name: r.profiles?.full_name, count: 0 };
           counts[r.user_id].count++;
         });
         data = Object.entries(counts)
@@ -150,7 +146,11 @@ export default function SocialScreen() {
           .order('streak_days', { ascending: false })
           .limit(20);
         if (err) throw err;
-        data = (d || []).map((r: any) => ({ user_id: r.id, full_name: r.full_name, value: r.streak_days }));
+        data = (d || []).map((r: any) => ({
+          user_id: r.id,
+          full_name: r.full_name,
+          value: r.streak_days,
+        }));
       }
 
       setLeaderboard(data.map((r) => ({ ...r, isCurrentUser: r.user_id === user!.id })));
@@ -211,9 +211,12 @@ export default function SocialScreen() {
     }
   };
 
-  const leaderboardLabel = leaderboardTab === 'steps' ? 'Steps (this week)'
-    : leaderboardTab === 'workouts' ? 'Sessions (this month)'
-    : 'Streak (days)';
+  const leaderboardLabel =
+    leaderboardTab === 'steps'
+      ? 'Steps (this week)'
+      : leaderboardTab === 'workouts'
+        ? 'Sessions (this month)'
+        : 'Streak (days)';
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -234,7 +237,10 @@ export default function SocialScreen() {
           <TouchableOpacity
             key={t}
             style={[styles.tabBtn, tab === t && styles.tabBtnActive]}
-            onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setTab(t); }}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setTab(t);
+            }}
           >
             <Text style={[styles.tabBtnText, tab === t && styles.tabBtnTextActive]}>
               {t === 'friends' ? '👥 Friends' : '🏆 Leaderboard'}
@@ -260,24 +266,41 @@ export default function SocialScreen() {
                   onSubmitEditing={handleSearch}
                 />
                 <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
-                  <LinearGradient colors={Gradients.auroraSubtle as unknown as [string, string]} style={styles.searchBtnGradient}>
-                    {isSearching ? <ActivityIndicator color={Colors.textPrimary} /> : <Text style={styles.searchBtnText}>Search</Text>}
+                  <LinearGradient
+                    colors={Gradients.auroraSubtle as unknown as [string, string]}
+                    style={styles.searchBtnGradient}
+                  >
+                    {isSearching ? (
+                      <ActivityIndicator color={Colors.textPrimary} />
+                    ) : (
+                      <Text style={styles.searchBtnText}>Search</Text>
+                    )}
                   </LinearGradient>
                 </TouchableOpacity>
               </View>
 
               {searchResults.length > 0 && (
-                <LinearGradient colors={Gradients.cardSecondary as unknown as [string, string]} style={styles.searchResults}>
+                <LinearGradient
+                  colors={Gradients.cardSecondary as unknown as [string, string]}
+                  style={styles.searchResults}
+                >
                   {searchResults.map((p) => (
                     <View key={p.id} style={styles.searchResultRow}>
                       <View style={styles.avatar}>
-                        <Text style={styles.avatarText}>{(p.full_name?.[0] ?? '?').toUpperCase()}</Text>
+                        <Text style={styles.avatarText}>
+                          {(p.full_name?.[0] ?? '?').toUpperCase()}
+                        </Text>
                       </View>
                       <View style={styles.personInfo}>
                         <Text style={styles.personName}>{p.full_name ?? 'Unknown'}</Text>
-                        <Text style={styles.personMeta}>Level {p.level} · {p.streak_days}🔥 streak</Text>
+                        <Text style={styles.personMeta}>
+                          Level {p.level} · {p.streak_days}🔥 streak
+                        </Text>
                       </View>
-                      <TouchableOpacity style={styles.addBtn} onPress={() => sendFriendRequest(p.id)}>
+                      <TouchableOpacity
+                        style={styles.addBtn}
+                        onPress={() => sendFriendRequest(p.id)}
+                      >
                         <Text style={styles.addBtnText}>+ Add</Text>
                       </TouchableOpacity>
                     </View>
@@ -303,24 +326,38 @@ export default function SocialScreen() {
                 <Text style={styles.emptyText}>No friends yet. Search above to connect!</Text>
               ) : (
                 friends.map((f) => (
-                  <LinearGradient key={f.id} colors={Gradients.cardSecondary as unknown as [string, string]} style={styles.friendCard}>
+                  <LinearGradient
+                    key={f.id}
+                    colors={Gradients.cardSecondary as unknown as [string, string]}
+                    style={styles.friendCard}
+                  >
                     <View style={styles.avatar}>
-                      <Text style={styles.avatarText}>{(f.friend.full_name?.[0] ?? '?').toUpperCase()}</Text>
+                      <Text style={styles.avatarText}>
+                        {(f.friend.full_name?.[0] ?? '?').toUpperCase()}
+                      </Text>
                     </View>
                     <View style={styles.personInfo}>
                       <Text style={styles.personName}>{f.friend.full_name ?? 'Unknown'}</Text>
                       <Text style={styles.personMeta}>
                         {f.status === 'pending'
-                          ? (f.isRequester ? '⏳ Request sent' : '📨 Wants to connect')
+                          ? f.isRequester
+                            ? '⏳ Request sent'
+                            : '📨 Wants to connect'
                           : `Level ${f.friend.level} · ${f.friend.streak_days}🔥`}
                       </Text>
                     </View>
                     {f.status === 'pending' && !f.isRequester && (
                       <View style={styles.actionRow}>
-                        <TouchableOpacity style={styles.acceptBtn} onPress={() => respondToRequest(f.id, true)}>
+                        <TouchableOpacity
+                          style={styles.acceptBtn}
+                          onPress={() => respondToRequest(f.id, true)}
+                        >
                           <Text style={styles.acceptBtnText}>✓</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.declineBtn} onPress={() => respondToRequest(f.id, false)}>
+                        <TouchableOpacity
+                          style={styles.declineBtn}
+                          onPress={() => respondToRequest(f.id, false)}
+                        >
                           <Text style={styles.declineBtnText}>✕</Text>
                         </TouchableOpacity>
                       </View>
@@ -338,7 +375,10 @@ export default function SocialScreen() {
                 <TouchableOpacity
                   key={lt}
                   style={[styles.lbTab, leaderboardTab === lt && styles.lbTabActive]}
-                  onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setLeaderboardTab(lt); }}
+                  onPress={() => {
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                    setLeaderboardTab(lt);
+                  }}
                 >
                   <Text style={[styles.lbTabText, leaderboardTab === lt && styles.lbTabTextActive]}>
                     {lt === 'steps' ? '👟 Steps' : lt === 'workouts' ? '💪 Workouts' : '🔥 Streak'}
@@ -361,14 +401,20 @@ export default function SocialScreen() {
               leaderboard.map((entry, idx) => (
                 <LinearGradient
                   key={entry.user_id}
-                  colors={entry.isCurrentUser ? Gradients.auroraSubtle as unknown as [string, string] : Gradients.cardSecondary as unknown as [string, string]}
+                  colors={
+                    entry.isCurrentUser
+                      ? (Gradients.auroraSubtle as unknown as [string, string])
+                      : (Gradients.cardSecondary as unknown as [string, string])
+                  }
                   style={[styles.lbRow, entry.isCurrentUser && styles.lbRowHighlight]}
                 >
                   <Text style={styles.lbRank}>
                     {idx === 0 ? '🥇' : idx === 1 ? '🥈' : idx === 2 ? '🥉' : `#${idx + 1}`}
                   </Text>
                   <View style={styles.avatar}>
-                    <Text style={styles.avatarText}>{(entry.full_name?.[0] ?? '?').toUpperCase()}</Text>
+                    <Text style={styles.avatarText}>
+                      {(entry.full_name?.[0] ?? '?').toUpperCase()}
+                    </Text>
                   </View>
                   <Text style={[styles.lbName, entry.isCurrentUser && { color: Colors.lavender }]}>
                     {entry.isCurrentUser ? 'You' : (entry.full_name ?? 'Unknown')}
@@ -420,7 +466,12 @@ const styles = StyleSheet.create({
     borderColor: Colors.glassBorder,
   },
   searchBtn: { borderRadius: BorderRadius.md, overflow: 'hidden' },
-  searchBtnGradient: { paddingHorizontal: Spacing.lg, paddingVertical: Spacing.sm, justifyContent: 'center', alignItems: 'center' },
+  searchBtnGradient: {
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.sm,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   searchBtnText: { color: Colors.textPrimary, fontWeight: '700', fontSize: FontSizes.sm },
   searchResults: {
     borderRadius: BorderRadius.lg,
@@ -466,15 +517,21 @@ const styles = StyleSheet.create({
   addBtnText: { color: Colors.textPrimary, fontWeight: '700', fontSize: FontSizes.sm },
   actionRow: { flexDirection: 'row', gap: Spacing.xs },
   acceptBtn: {
-    width: 32, height: 32, borderRadius: 16,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: Colors.sageLeaf,
-    justifyContent: 'center', alignItems: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   acceptBtnText: { color: Colors.textPrimary, fontWeight: '700' },
   declineBtn: {
-    width: 32, height: 32, borderRadius: 16,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: Colors.error,
-    justifyContent: 'center', alignItems: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   declineBtnText: { color: Colors.textPrimary, fontWeight: '700' },
   lbTabs: {
@@ -485,11 +542,21 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
     gap: 4,
   },
-  lbTab: { flex: 1, paddingVertical: Spacing.sm, alignItems: 'center', borderRadius: BorderRadius.md },
+  lbTab: {
+    flex: 1,
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+    borderRadius: BorderRadius.md,
+  },
   lbTabActive: { backgroundColor: Colors.violet },
   lbTabText: { fontSize: FontSizes.xs, color: Colors.textSecondary, fontWeight: '600' },
   lbTabTextActive: { color: Colors.textPrimary },
-  lbSubtitle: { fontSize: FontSizes.xs, color: Colors.textMuted, textAlign: 'center', marginBottom: Spacing.md },
+  lbSubtitle: {
+    fontSize: FontSizes.xs,
+    color: Colors.textMuted,
+    textAlign: 'center',
+    marginBottom: Spacing.md,
+  },
   lbRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -504,6 +571,16 @@ const styles = StyleSheet.create({
   lbRank: { width: 32, fontSize: FontSizes.md, textAlign: 'center' },
   lbName: { flex: 1, fontSize: FontSizes.md, color: Colors.textPrimary, fontWeight: '500' },
   lbValue: { fontSize: FontSizes.md, fontWeight: '700', color: Colors.lavender },
-  errorText: { fontSize: FontSizes.sm, color: Colors.error, textAlign: 'center', marginVertical: Spacing.md },
-  emptyText: { fontSize: FontSizes.sm, color: Colors.textSecondary, textAlign: 'center', marginVertical: Spacing.md },
+  errorText: {
+    fontSize: FontSizes.sm,
+    color: Colors.error,
+    textAlign: 'center',
+    marginVertical: Spacing.md,
+  },
+  emptyText: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginVertical: Spacing.md,
+  },
 });

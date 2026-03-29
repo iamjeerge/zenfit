@@ -23,14 +23,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Haptics from '../utils/haptics';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import AnimatedEntry from '../components/AnimatedEntry';
@@ -87,11 +80,13 @@ export default function WorkoutPlanScreen() {
 
   useEffect(() => {
     const n = Math.min(Math.max(parseInt(daysPerWeek) || 1, 1), 7);
-    setPlanDays(Array.from({ length: n }, (_, i) => ({
-      day_number: i + 1,
-      name: DAY_NAMES[i],
-      exercises: [],
-    })));
+    setPlanDays(
+      Array.from({ length: n }, (_, i) => ({
+        day_number: i + 1,
+        name: DAY_NAMES[i],
+        exercises: [],
+      })),
+    );
   }, [daysPerWeek]);
 
   const fetchPlans = async () => {
@@ -122,8 +117,8 @@ export default function WorkoutPlanScreen() {
     };
     setPlanDays((prev) =>
       prev.map((d, idx) =>
-        idx === selectedDayIndex ? { ...d, exercises: [...d.exercises, ex] } : d
-      )
+        idx === selectedDayIndex ? { ...d, exercises: [...d.exercises, ex] } : d,
+      ),
     );
     setExName('');
     setExSets('3');
@@ -181,7 +176,9 @@ export default function WorkoutPlanScreen() {
           try {
             await supabase.from('workout_plans').delete().eq('id', planId);
             await fetchPlans();
-          } catch { setError('Failed to delete plan.'); }
+          } catch {
+            setError('Failed to delete plan.');
+          }
         },
       },
     ]);
@@ -205,10 +202,16 @@ export default function WorkoutPlanScreen() {
         {/* Active Plan Banner */}
         {activePlan && (
           <AnimatedEntry delay={0}>
-            <LinearGradient colors={Gradients.auroraSubtle as unknown as [string, string]} style={styles.activeBanner}>
+            <LinearGradient
+              colors={Gradients.auroraSubtle as unknown as [string, string]}
+              style={styles.activeBanner}
+            >
               <Text style={styles.activeBannerLabel}>✅ Active Plan</Text>
               <Text style={styles.activeBannerName}>{activePlan.name}</Text>
-              <Text style={styles.activeBannerMeta}>{activePlan.days_per_week} days/week · {activePlan.plan_days.reduce((s, d) => s + d.exercises.length, 0)} exercises</Text>
+              <Text style={styles.activeBannerMeta}>
+                {activePlan.days_per_week} days/week ·{' '}
+                {activePlan.plan_days.reduce((s, d) => s + d.exercises.length, 0)} exercises
+              </Text>
             </LinearGradient>
           </AnimatedEntry>
         )}
@@ -216,9 +219,15 @@ export default function WorkoutPlanScreen() {
         {/* Create Button */}
         <TouchableOpacity
           style={styles.createBtn}
-          onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setCreateModalVisible(true); }}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            setCreateModalVisible(true);
+          }}
         >
-          <LinearGradient colors={Gradients.aurora as unknown as [string, string, ...string[]]} style={styles.createBtnGradient}>
+          <LinearGradient
+            colors={Gradients.aurora as unknown as [string, string, ...string[]]}
+            style={styles.createBtnGradient}
+          >
             <Text style={styles.createBtnText}>+ Create New Plan</Text>
           </LinearGradient>
         </TouchableOpacity>
@@ -237,13 +246,19 @@ export default function WorkoutPlanScreen() {
           plans.map((plan) => (
             <LinearGradient
               key={plan.id}
-              colors={plan.is_active ? Gradients.auroraSubtle as unknown as [string, string] : Gradients.cardSecondary as unknown as [string, string]}
+              colors={
+                plan.is_active
+                  ? (Gradients.auroraSubtle as unknown as [string, string])
+                  : (Gradients.cardSecondary as unknown as [string, string])
+              }
               style={[styles.planCard, plan.is_active && { borderColor: Colors.lavender }]}
             >
               <View style={styles.planHeader}>
                 <View style={styles.planInfo}>
                   <Text style={styles.planName}>{plan.name}</Text>
-                  {plan.description ? <Text style={styles.planDesc}>{plan.description}</Text> : null}
+                  {plan.description ? (
+                    <Text style={styles.planDesc}>{plan.description}</Text>
+                  ) : null}
                   <Text style={styles.planMeta}>{plan.days_per_week} days/week</Text>
                 </View>
                 <View style={styles.planActions}>
@@ -272,32 +287,73 @@ export default function WorkoutPlanScreen() {
       </ScrollView>
 
       {/* Create Plan Modal */}
-      <Modal visible={createModalVisible} transparent animationType="slide" onRequestClose={() => setCreateModalVisible(false)}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalOverlay}>
-          <LinearGradient colors={['#1A1730', '#2D2554']} style={[styles.modalContent, { borderColor: Colors.glassBorder }]}>
+      <Modal
+        visible={createModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setCreateModalVisible(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalOverlay}
+        >
+          <LinearGradient
+            colors={['#1A1730', '#2D2554']}
+            style={[styles.modalContent, { borderColor: Colors.glassBorder }]}
+          >
             <ScrollView showsVerticalScrollIndicator={false}>
               <Text style={styles.modalTitle}>New Workout Plan</Text>
 
               <Text style={styles.inputLabel}>Plan Name</Text>
-              <TextInput style={styles.textInput} value={planName} onChangeText={setPlanName} placeholder="e.g. Push/Pull/Legs" placeholderTextColor={Colors.textMuted} />
+              <TextInput
+                style={styles.textInput}
+                value={planName}
+                onChangeText={setPlanName}
+                placeholder="e.g. Push/Pull/Legs"
+                placeholderTextColor={Colors.textMuted}
+              />
 
               <Text style={styles.inputLabel}>Description (optional)</Text>
-              <TextInput style={styles.textInput} value={planDescription} onChangeText={setPlanDescription} placeholder="e.g. 3-day beginner strength plan" placeholderTextColor={Colors.textMuted} />
+              <TextInput
+                style={styles.textInput}
+                value={planDescription}
+                onChangeText={setPlanDescription}
+                placeholder="e.g. 3-day beginner strength plan"
+                placeholderTextColor={Colors.textMuted}
+              />
 
               <Text style={styles.inputLabel}>Days per Week (1-7)</Text>
-              <TextInput style={styles.textInput} value={daysPerWeek} onChangeText={setDaysPerWeek} keyboardType="number-pad" placeholder="3" placeholderTextColor={Colors.textMuted} />
+              <TextInput
+                style={styles.textInput}
+                value={daysPerWeek}
+                onChangeText={setDaysPerWeek}
+                keyboardType="number-pad"
+                placeholder="3"
+                placeholderTextColor={Colors.textMuted}
+              />
 
               {planDays.length > 0 && (
                 <>
                   <Text style={styles.inputLabel}>Training Days</Text>
-                  <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.dayTabsScroll}>
+                  <ScrollView
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    style={styles.dayTabsScroll}
+                  >
                     {planDays.map((d, idx) => (
                       <TouchableOpacity
                         key={idx}
                         style={[styles.dayTab, selectedDayIndex === idx && styles.dayTabActive]}
                         onPress={() => setSelectedDayIndex(idx)}
                       >
-                        <Text style={[styles.dayTabText, selectedDayIndex === idx && styles.dayTabTextActive]}>{d.name}</Text>
+                        <Text
+                          style={[
+                            styles.dayTabText,
+                            selectedDayIndex === idx && styles.dayTabTextActive,
+                          ]}
+                        >
+                          {d.name}
+                        </Text>
                         <Text style={styles.dayTabCount}>{d.exercises.length} ex</Text>
                       </TouchableOpacity>
                     ))}
@@ -305,23 +361,45 @@ export default function WorkoutPlanScreen() {
 
                   <View style={styles.exerciseList}>
                     {planDays[selectedDayIndex]?.exercises.map((ex, i) => (
-                      <Text key={i} style={styles.exerciseItem}>• {ex.name}: {ex.sets}×{ex.reps}{ex.weight_kg > 0 ? ` @ ${ex.weight_kg}kg` : ''}</Text>
+                      <Text key={i} style={styles.exerciseItem}>
+                        • {ex.name}: {ex.sets}×{ex.reps}
+                        {ex.weight_kg > 0 ? ` @ ${ex.weight_kg}kg` : ''}
+                      </Text>
                     ))}
                   </View>
 
-                  <TouchableOpacity style={styles.addExBtn} onPress={() => setAddExerciseVisible(true)}>
-                    <Text style={styles.addExBtnText}>+ Add Exercise to {planDays[selectedDayIndex]?.name}</Text>
+                  <TouchableOpacity
+                    style={styles.addExBtn}
+                    onPress={() => setAddExerciseVisible(true)}
+                  >
+                    <Text style={styles.addExBtnText}>
+                      + Add Exercise to {planDays[selectedDayIndex]?.name}
+                    </Text>
                   </TouchableOpacity>
                 </>
               )}
 
               <View style={styles.modalButtons}>
-                <TouchableOpacity style={styles.cancelModalBtn} onPress={() => setCreateModalVisible(false)}>
+                <TouchableOpacity
+                  style={styles.cancelModalBtn}
+                  onPress={() => setCreateModalVisible(false)}
+                >
                   <Text style={styles.cancelModalText}>Cancel</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.saveModalBtn} onPress={handleSavePlan} disabled={isSaving}>
-                  <LinearGradient colors={Gradients.aurora as unknown as [string, string, ...string[]]} style={styles.saveModalGradient}>
-                    {isSaving ? <ActivityIndicator color={Colors.textPrimary} /> : <Text style={styles.saveModalText}>Save Plan</Text>}
+                <TouchableOpacity
+                  style={styles.saveModalBtn}
+                  onPress={handleSavePlan}
+                  disabled={isSaving}
+                >
+                  <LinearGradient
+                    colors={Gradients.aurora as unknown as [string, string, ...string[]]}
+                    style={styles.saveModalGradient}
+                  >
+                    {isSaving ? (
+                      <ActivityIndicator color={Colors.textPrimary} />
+                    ) : (
+                      <Text style={styles.saveModalText}>Save Plan</Text>
+                    )}
                   </LinearGradient>
                 </TouchableOpacity>
               </View>
@@ -331,26 +409,59 @@ export default function WorkoutPlanScreen() {
       </Modal>
 
       {/* Add Exercise Modal */}
-      <Modal visible={addExerciseVisible} transparent animationType="slide" onRequestClose={() => setAddExerciseVisible(false)}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalOverlay}>
-          <LinearGradient colors={['#1A1730', '#2D2554']} style={[styles.modalContent, { borderColor: Colors.glassBorder }]}>
+      <Modal
+        visible={addExerciseVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setAddExerciseVisible(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalOverlay}
+        >
+          <LinearGradient
+            colors={['#1A1730', '#2D2554']}
+            style={[styles.modalContent, { borderColor: Colors.glassBorder }]}
+          >
             <Text style={styles.modalTitle}>Add Exercise</Text>
             <Text style={styles.inputLabel}>Exercise Name</Text>
-            <TextInput style={styles.textInput} value={exName} onChangeText={setExName} placeholder="e.g. Bench Press" placeholderTextColor={Colors.textMuted} />
+            <TextInput
+              style={styles.textInput}
+              value={exName}
+              onChangeText={setExName}
+              placeholder="e.g. Bench Press"
+              placeholderTextColor={Colors.textMuted}
+            />
             <View style={styles.inputRow}>
-              {[['Sets', exSets, setExSets], ['Reps', exReps, setExReps], ['Weight (kg)', exWeight, setExWeight]].map(([label, val, setter]) => (
+              {[
+                ['Sets', exSets, setExSets],
+                ['Reps', exReps, setExReps],
+                ['Weight (kg)', exWeight, setExWeight],
+              ].map(([label, val, setter]) => (
                 <View key={label as string} style={styles.inputGroup}>
                   <Text style={styles.inputLabel}>{label as string}</Text>
-                  <TextInput style={styles.textInput} value={val as string} onChangeText={setter as any} keyboardType="decimal-pad" placeholderTextColor={Colors.textMuted} />
+                  <TextInput
+                    style={styles.textInput}
+                    value={val as string}
+                    onChangeText={setter as any}
+                    keyboardType="decimal-pad"
+                    placeholderTextColor={Colors.textMuted}
+                  />
                 </View>
               ))}
             </View>
             <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.cancelModalBtn} onPress={() => setAddExerciseVisible(false)}>
+              <TouchableOpacity
+                style={styles.cancelModalBtn}
+                onPress={() => setAddExerciseVisible(false)}
+              >
                 <Text style={styles.cancelModalText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.saveModalBtn} onPress={handleAddExercise}>
-                <LinearGradient colors={Gradients.aurora as unknown as [string, string, ...string[]]} style={styles.saveModalGradient}>
+                <LinearGradient
+                  colors={Gradients.aurora as unknown as [string, string, ...string[]]}
+                  style={styles.saveModalGradient}
+                >
                   <Text style={styles.saveModalText}>Add</Text>
                 </LinearGradient>
               </TouchableOpacity>
@@ -369,56 +480,117 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: FontSizes.md, color: Colors.textSecondary, marginTop: Spacing.xs },
   content: { paddingHorizontal: Spacing.lg, paddingBottom: 120 },
   activeBanner: {
-    borderRadius: BorderRadius.xl, padding: Spacing.lg,
-    marginBottom: Spacing.md, borderWidth: 1, borderColor: Colors.lavender,
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    marginBottom: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.lavender,
   },
-  activeBannerLabel: { fontSize: FontSizes.xs, color: Colors.sageLeaf, fontWeight: '700', marginBottom: Spacing.xs },
+  activeBannerLabel: {
+    fontSize: FontSizes.xs,
+    color: Colors.sageLeaf,
+    fontWeight: '700',
+    marginBottom: Spacing.xs,
+  },
   activeBannerName: { fontSize: FontSizes.xl, fontWeight: '700', color: Colors.textPrimary },
   activeBannerMeta: { fontSize: FontSizes.sm, color: Colors.textSecondary, marginTop: 4 },
   createBtn: { borderRadius: BorderRadius.lg, overflow: 'hidden', marginBottom: Spacing.lg },
-  createBtnGradient: { paddingVertical: Spacing.md, alignItems: 'center', justifyContent: 'center' },
+  createBtnGradient: {
+    paddingVertical: Spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   createBtnText: { fontSize: FontSizes.md, fontWeight: '700', color: Colors.textPrimary },
   planCard: {
-    borderRadius: BorderRadius.xl, borderWidth: 1, borderColor: Colors.glassBorder,
-    padding: Spacing.md, marginBottom: Spacing.md,
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
   },
-  planHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: Spacing.sm },
+  planHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: Spacing.sm,
+  },
   planInfo: { flex: 1 },
   planName: { fontSize: FontSizes.lg, fontWeight: '700', color: Colors.textPrimary },
   planDesc: { fontSize: FontSizes.sm, color: Colors.textSecondary, marginTop: 2 },
   planMeta: { fontSize: FontSizes.xs, color: Colors.lavender, marginTop: 4 },
   planActions: { marginLeft: Spacing.sm },
-  planDaysRow: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs, marginBottom: Spacing.sm },
+  planDaysRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: Spacing.xs,
+    marginBottom: Spacing.sm,
+  },
   dayChip: {
-    backgroundColor: Colors.card, borderRadius: BorderRadius.sm,
-    paddingHorizontal: Spacing.sm, paddingVertical: 4, alignItems: 'center',
+    backgroundColor: Colors.card,
+    borderRadius: BorderRadius.sm,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 4,
+    alignItems: 'center',
   },
   dayChipText: { fontSize: FontSizes.xs, color: Colors.textSecondary, fontWeight: '600' },
   dayChipCount: { fontSize: 10, color: Colors.lavender },
   deleteBtn: { alignSelf: 'flex-start', paddingVertical: 4 },
   deleteBtnText: { fontSize: FontSizes.xs, color: Colors.error },
-  errorText: { fontSize: FontSizes.sm, color: Colors.error, textAlign: 'center', marginVertical: Spacing.md },
-  emptyText: { fontSize: FontSizes.sm, color: Colors.textSecondary, textAlign: 'center', marginVertical: Spacing.lg },
+  errorText: {
+    fontSize: FontSizes.sm,
+    color: Colors.error,
+    textAlign: 'center',
+    marginVertical: Spacing.md,
+  },
+  emptyText: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginVertical: Spacing.lg,
+  },
   modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.6)' },
   modalContent: {
-    borderTopLeftRadius: BorderRadius.xl, borderTopRightRadius: BorderRadius.xl,
-    borderWidth: 1, padding: Spacing.xl, paddingBottom: Spacing.xxl, maxHeight: '85%',
+    borderTopLeftRadius: BorderRadius.xl,
+    borderTopRightRadius: BorderRadius.xl,
+    borderWidth: 1,
+    padding: Spacing.xl,
+    paddingBottom: Spacing.xxl,
+    maxHeight: '85%',
   },
-  modalTitle: { fontSize: FontSizes.xl, fontWeight: '700', color: Colors.textPrimary, marginBottom: Spacing.md },
-  inputLabel: { fontSize: FontSizes.sm, color: Colors.textSecondary, marginBottom: Spacing.xs, fontWeight: '600', marginTop: Spacing.sm },
+  modalTitle: {
+    fontSize: FontSizes.xl,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: Spacing.md,
+  },
+  inputLabel: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
+    marginBottom: Spacing.xs,
+    fontWeight: '600',
+    marginTop: Spacing.sm,
+  },
   textInput: {
-    backgroundColor: Colors.card, borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm,
-    color: Colors.textPrimary, fontSize: FontSizes.md,
-    borderWidth: 1, borderColor: Colors.glassBorder, marginBottom: Spacing.sm,
+    backgroundColor: Colors.card,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    color: Colors.textPrimary,
+    fontSize: FontSizes.md,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    marginBottom: Spacing.sm,
   },
   inputRow: { flexDirection: 'row', gap: Spacing.sm },
   inputGroup: { flex: 1 },
   dayTabsScroll: { marginBottom: Spacing.sm },
   dayTab: {
-    paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.md, backgroundColor: Colors.card,
-    marginRight: Spacing.xs, alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.card,
+    marginRight: Spacing.xs,
+    alignItems: 'center',
   },
   dayTabActive: { backgroundColor: Colors.violet },
   dayTabText: { fontSize: FontSizes.xs, color: Colors.textSecondary, fontWeight: '600' },
@@ -427,17 +599,30 @@ const styles = StyleSheet.create({
   exerciseList: { marginBottom: Spacing.sm },
   exerciseItem: { fontSize: FontSizes.sm, color: Colors.textSecondary, marginBottom: 4 },
   addExBtn: {
-    borderWidth: 1, borderColor: Colors.glassBorder, borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.sm, alignItems: 'center', marginBottom: Spacing.md,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+    marginBottom: Spacing.md,
   },
   addExBtnText: { fontSize: FontSizes.sm, color: Colors.lavender, fontWeight: '600' },
   modalButtons: { flexDirection: 'row', gap: Spacing.md, marginTop: Spacing.md },
   cancelModalBtn: {
-    flex: 1, paddingVertical: Spacing.md, borderRadius: BorderRadius.lg,
-    backgroundColor: Colors.card, alignItems: 'center', borderWidth: 1, borderColor: Colors.glassBorder,
+    flex: 1,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.card,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
   },
   cancelModalText: { fontSize: FontSizes.md, fontWeight: '600', color: Colors.textSecondary },
   saveModalBtn: { flex: 1, borderRadius: BorderRadius.lg, overflow: 'hidden' },
-  saveModalGradient: { paddingVertical: Spacing.md, alignItems: 'center', justifyContent: 'center' },
+  saveModalGradient: {
+    paddingVertical: Spacing.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   saveModalText: { fontSize: FontSizes.md, fontWeight: '700', color: Colors.textPrimary },
 });

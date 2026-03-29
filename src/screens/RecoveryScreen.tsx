@@ -6,14 +6,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  ScrollView,
-  Dimensions,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Dimensions, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import Animated, {
@@ -28,14 +21,7 @@ import Animated, {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 import AnimatedEntry from '../components/AnimatedEntry';
 import SectionHeader from '../components/SectionHeader';
 
@@ -43,11 +29,11 @@ const { width: W } = Dimensions.get('window');
 const WATER_KEY = 'zenfit:water_intake';
 
 interface RecoveryFactors {
-  sleepScore: number;      // 0-100 based on last sleep log quality & duration
-  moodScore: number;       // 0-100 based on last mood
-  heartRateScore: number;  // 0-100 based on wearable / manual resting HR
-  hydrationScore: number;  // 0-100 based on today's water intake
-  workoutScore: number;    // 0-100 — rewards rest days, penalizes overtraining
+  sleepScore: number; // 0-100 based on last sleep log quality & duration
+  moodScore: number; // 0-100 based on last mood
+  heartRateScore: number; // 0-100 based on wearable / manual resting HR
+  hydrationScore: number; // 0-100 based on today's water intake
+  workoutScore: number; // 0-100 — rewards rest days, penalizes overtraining
 }
 
 interface RecoveryData {
@@ -85,16 +71,17 @@ function computeOverallScore(factors: RecoveryFactors): number {
   // Weights: sleep 35%, mood 20%, HR 15%, hydration 15%, workout 15%
   return Math.round(
     sleepScore * 0.35 +
-    moodScore * 0.20 +
-    heartRateScore * 0.15 +
-    hydrationScore * 0.15 +
-    workoutScore * 0.15
+      moodScore * 0.2 +
+      heartRateScore * 0.15 +
+      hydrationScore * 0.15 +
+      workoutScore * 0.15,
   );
 }
 
 function getRecommendation(score: number, intensity: string) {
-  if (score >= 80) return 'You\'re fully recovered. 💪 Push hard today — strength or HIIT is ideal.';
-  if (score >= 65) return 'Good recovery. 🏃 Moderate cardio or functional training will serve you well.';
+  if (score >= 80) return "You're fully recovered. 💪 Push hard today — strength or HIIT is ideal.";
+  if (score >= 65)
+    return 'Good recovery. 🏃 Moderate cardio or functional training will serve you well.';
   if (score >= 45) return 'Partial recovery. 🧘 Light yoga or a walk — let your body repair.';
   return 'Low recovery. 😴 Prioritize rest, hydration, and sleep tonight.';
 }
@@ -107,10 +94,10 @@ function getIntensity(score: number): RecoveryData['intensity'] {
 }
 
 function getScoreColor(score: number): string {
-  if (score >= 80) return '#34D399';  // green
-  if (score >= 65) return '#60A5FA';  // blue
-  if (score >= 45) return '#FBBF24';  // yellow
-  return '#F87171';                   // red
+  if (score >= 80) return '#34D399'; // green
+  if (score >= 65) return '#60A5FA'; // blue
+  if (score >= 45) return '#FBBF24'; // yellow
+  return '#F87171'; // red
 }
 
 const INTENSITY_CONFIG = {
@@ -128,7 +115,10 @@ function ScoreDial({ score, color }: { score: number; color: string }) {
   const [displayScore, setDisplayScore] = useState(0);
 
   useEffect(() => {
-    progressAngle.value = withDelay(300, withTiming(score, { duration: 1200, easing: Easing.out(Easing.cubic) }));
+    progressAngle.value = withDelay(
+      300,
+      withTiming(score, { duration: 1200, easing: Easing.out(Easing.cubic) }),
+    );
     // Count up animation
     let start = 0;
     const step = score / 40;
@@ -156,14 +146,19 @@ function ScoreDial({ score, color }: { score: number; color: string }) {
       <View style={[styles.dialRing, { borderColor: 'rgba(255,255,255,0.08)' }]} />
 
       {/* Colored arc (approximate with border) */}
-      <View style={[styles.dialRing, {
-        borderColor: color,
-        borderTopColor: color,
-        borderRightColor: score > 25 ? color : 'transparent',
-        borderBottomColor: score > 50 ? color : 'transparent',
-        borderLeftColor: score > 75 ? color : 'transparent',
-        opacity: 0.9,
-      }]} />
+      <View
+        style={[
+          styles.dialRing,
+          {
+            borderColor: color,
+            borderTopColor: color,
+            borderRightColor: score > 25 ? color : 'transparent',
+            borderBottomColor: score > 50 ? color : 'transparent',
+            borderLeftColor: score > 75 ? color : 'transparent',
+            opacity: 0.9,
+          },
+        ]}
+      />
 
       {/* Center content */}
       <View style={styles.dialCenter}>
@@ -177,11 +172,24 @@ function ScoreDial({ score, color }: { score: number; color: string }) {
 
 // ── Factor Bar ─────────────────────────────────────────────────────────────
 
-function FactorBar({ label, score, icon, delay }: { label: string; score: number; icon: string; delay: number }) {
+function FactorBar({
+  label,
+  score,
+  icon,
+  delay,
+}: {
+  label: string;
+  score: number;
+  icon: string;
+  delay: number;
+}) {
   const width = useSharedValue(0);
 
   useEffect(() => {
-    width.value = withDelay(delay, withTiming(score, { duration: 800, easing: Easing.out(Easing.cubic) }));
+    width.value = withDelay(
+      delay,
+      withTiming(score, { duration: 800, easing: Easing.out(Easing.cubic) }),
+    );
   }, [score, delay]);
 
   const barStyle = useAnimatedStyle(() => ({
@@ -343,16 +351,17 @@ export default function RecoveryScreen() {
     <SafeAreaView style={styles.container}>
       <LinearGradient colors={Gradients.cosmic} style={StyleSheet.absoluteFill} />
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <AnimatedEntry delay={0}>
           <View style={styles.header}>
             <Text style={styles.title}>🩺 Recovery Score</Text>
             <Text style={styles.subtitle}>
-              Updated {recovery.lastUpdated.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })}
+              Updated{' '}
+              {recovery.lastUpdated.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+              })}
             </Text>
             <TouchableOpacity onPress={computeRecovery} style={styles.refreshBtn}>
               <Text style={styles.refreshBtnText}>↻ Refresh</Text>
@@ -367,18 +376,22 @@ export default function RecoveryScreen() {
 
         {/* Intensity Badge */}
         <AnimatedEntry delay={300}>
-          <View style={[styles.intensityBadge, { borderColor: intensityConfig.color, backgroundColor: `${intensityConfig.color}20` }]}>
+          <View
+            style={[
+              styles.intensityBadge,
+              { borderColor: intensityConfig.color, backgroundColor: `${intensityConfig.color}20` },
+            ]}
+          >
             <Text style={styles.intensityEmoji}>{intensityConfig.emoji}</Text>
-            <Text style={[styles.intensityLabel, { color: intensityConfig.color }]}>{intensityConfig.label}</Text>
+            <Text style={[styles.intensityLabel, { color: intensityConfig.color }]}>
+              {intensityConfig.label}
+            </Text>
           </View>
         </AnimatedEntry>
 
         {/* Recommendation card */}
         <AnimatedEntry delay={400}>
-          <LinearGradient
-            colors={Gradients.cardPrimary}
-            style={styles.recommendCard}
-          >
+          <LinearGradient colors={Gradients.cardPrimary} style={styles.recommendCard}>
             <Text style={styles.recommendTitle}>Today's Recommendation</Text>
             <Text style={styles.recommendText}>{recovery.recommendation}</Text>
           </LinearGradient>
@@ -405,7 +418,7 @@ export default function RecoveryScreen() {
           <SectionHeader title="How It's Calculated" style={styles.sectionHeader} />
           <LinearGradient colors={Gradients.cardSecondary} style={styles.howCard}>
             {[
-              { label: 'Sleep (35%)', desc: 'Last night\'s duration and quality rating' },
+              { label: 'Sleep (35%)', desc: "Last night's duration and quality rating" },
               { label: 'Mood (20%)', desc: 'Your most recent mood log entry' },
               { label: 'Heart Rate (15%)', desc: 'Resting HR from wearable or last log' },
               { label: 'Hydration (15%)', desc: "Today's water intake vs 2L goal" },
@@ -533,6 +546,11 @@ const styles = StyleSheet.create({
   },
   howRow: { paddingVertical: Spacing.sm },
   howRowBorder: { borderTopWidth: 1, borderTopColor: Colors.glassBorder },
-  howLabel: { fontSize: FontSizes.sm, color: Colors.textPrimary, fontWeight: '700', marginBottom: 2 },
+  howLabel: {
+    fontSize: FontSizes.sm,
+    color: Colors.textPrimary,
+    fontWeight: '700',
+    marginBottom: 2,
+  },
   howDesc: { fontSize: FontSizes.sm, color: Colors.textSecondary },
 });

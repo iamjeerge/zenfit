@@ -22,14 +22,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import { useRouter } from '../utils/router';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import SkeletonLoader, { SkeletonListItem } from '../components/SkeletonLoader';
@@ -189,11 +182,19 @@ export default function WorkoutScreen() {
     }
 
     // End workout — save to Supabase
-    if (!user) { setIsWorkoutActive(false); return; }
+    if (!user) {
+      setIsWorkoutActive(false);
+      return;
+    }
     setIsSaving(true);
     const startedAt = workoutStartTime.current ?? new Date();
     const durationMinutes = Math.round((Date.now() - startedAt.getTime()) / 60000);
-    const newSession: Omit<WorkoutSession, 'id' | 'date'> & { user_id: string; started_at: string; completed_at: string; duration_minutes: number } = {
+    const newSession: Omit<WorkoutSession, 'id' | 'date'> & {
+      user_id: string;
+      started_at: string;
+      completed_at: string;
+      duration_minutes: number;
+    } = {
       user_id: user.id,
       exercises: todayExercises,
       durationMinutes,
@@ -232,11 +233,7 @@ export default function WorkoutScreen() {
       if (saveError) throw saveError;
       // Replace optimistic entry with real one
       setRecentSessions((prev) =>
-        prev.map((s) =>
-          s.id === optimistic.id
-            ? { ...optimistic, id: data.id }
-            : s
-        )
+        prev.map((s) => (s.id === optimistic.id ? { ...optimistic, id: data.id } : s)),
       );
     } catch {
       setError('Failed to save workout. Check your connection.');
@@ -328,7 +325,7 @@ No explanation, no markdown, just the JSON array.`;
 
   const totalVolume = todayExercises.reduce(
     (sum, e) => sum + (e.weightKg > 0 ? e.sets * e.reps * e.weightKg : 0),
-    0
+    0,
   );
 
   const ExerciseCard = ({ exercise }: { exercise: Exercise }) => (
@@ -375,9 +372,7 @@ No explanation, no markdown, just the JSON array.`;
           {ex.weightKg > 0 ? ` @ ${ex.weightKg} kg` : ''}
         </Text>
       ))}
-      {session.notes ? (
-        <Text style={styles.sessionNotes}>💬 {session.notes}</Text>
-      ) : null}
+      {session.notes ? <Text style={styles.sessionNotes}>💬 {session.notes}</Text> : null}
     </LinearGradient>
   );
 
@@ -628,11 +623,11 @@ No explanation, no markdown, just the JSON array.`;
               <SkeletonListItem />
             </>
           ) : recentSessions.length === 0 ? (
-            <Text style={styles.emptyStateHint}>No sessions logged yet. Start your first workout!</Text>
+            <Text style={styles.emptyStateHint}>
+              No sessions logged yet. Start your first workout!
+            </Text>
           ) : (
-            recentSessions.map((session) => (
-              <SessionCard key={session.id} session={session} />
-            ))
+            recentSessions.map((session) => <SessionCard key={session.id} session={session} />)
           )}
         </View>
       </ScrollView>

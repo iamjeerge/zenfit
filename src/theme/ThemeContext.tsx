@@ -8,9 +8,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  Colors, LightColors, Gradients, LightGradients, Shadows, LightShadows,
-} from './colors';
+import { Colors, LightColors, Gradients, LightGradients, Shadows, LightShadows } from './colors';
 
 export type ThemeMode = 'dark' | 'light' | 'system';
 
@@ -51,9 +49,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     AsyncStorage.setItem(THEME_KEY, newMode);
   };
 
-  const isDark =
-    mode === 'dark' ||
-    (mode === 'system' && systemScheme !== 'light');
+  const isDark = mode === 'dark' || (mode === 'system' && systemScheme !== 'light');
 
   const value: ThemeContextValue = {
     mode,
@@ -64,11 +60,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setMode,
   };
 
-  return (
-    <ThemeContext.Provider value={value}>
-      {children}
-    </ThemeContext.Provider>
-  );
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
 export function useTheme(): ThemeContextValue {

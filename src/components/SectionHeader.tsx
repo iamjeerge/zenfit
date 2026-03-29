@@ -12,6 +12,7 @@ import { Colors, FontSizes, Spacing } from '../theme/colors';
 interface SectionHeaderProps {
   title: string;
   subtitle?: string;
+  emoji?: string;
   rightElement?: React.ReactNode;
   style?: ViewStyle;
 }
@@ -19,13 +20,14 @@ interface SectionHeaderProps {
 export default function SectionHeader({
   title,
   subtitle,
+  emoji,
   rightElement,
   style,
 }: SectionHeaderProps) {
   return (
     <View style={[styles.container, style]}>
       <View style={styles.textContainer}>
-        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.title}>{emoji ? `${emoji} ${title}` : title}</Text>
         {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
       </View>
       {rightElement}

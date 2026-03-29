@@ -6,25 +6,11 @@
  */
 
 import React from 'react';
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  Dimensions,
-} from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Haptics from '../utils/haptics';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 import AnimatedEntry from '../components/AnimatedEntry';
 import SectionHeader from '../components/SectionHeader';
 import { GradientButton } from '../components';
@@ -92,9 +78,7 @@ export default function ProgressScreen() {
                 style={[
                   styles.heatmapCell,
                   {
-                    backgroundColor: isCompleted
-                      ? Colors.violet
-                      : Colors.card,
+                    backgroundColor: isCompleted ? Colors.violet : Colors.card,
                     opacity: intensity,
                   },
                 ]}
@@ -154,105 +138,95 @@ export default function ProgressScreen() {
         contentContainerStyle={styles.scrollContent}
       >
         <AnimatedEntry delay={0}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Your Progress</Text>
-        </View>
+          <View style={styles.header}>
+            <Text style={styles.title}>Your Progress</Text>
+          </View>
         </AnimatedEntry>
 
         {/* Streak Section */}
         <AnimatedEntry delay={100}>
-        <LinearGradient
-          colors={Gradients.cardPrimary}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={[styles.streakCard, { borderColor: Colors.glassBorder }]}
-        >
-          <View style={styles.streakContent}>
-            <Text style={styles.streakEmoji}>🔥</Text>
-            <View>
-              <Text style={styles.streakLabel}>Current Streak</Text>
-              <Text style={styles.streakNumber}>{currentStreak} Days</Text>
+          <LinearGradient
+            colors={Gradients.cardPrimary}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={[styles.streakCard, { borderColor: Colors.glassBorder }]}
+          >
+            <View style={styles.streakContent}>
+              <Text style={styles.streakEmoji}>🔥</Text>
+              <View>
+                <Text style={styles.streakLabel}>Current Streak</Text>
+                <Text style={styles.streakNumber}>{currentStreak} Days</Text>
+              </View>
             </View>
-          </View>
-        </LinearGradient>
-
+          </LinearGradient>
         </AnimatedEntry>
 
         {/* Calendar Heatmap */}
         <AnimatedEntry delay={200}>
-        <View style={styles.heatmapSection}>
-          <SectionHeader title="21-Day Habit Tracker" />
-          <CalendarHeatmap />
-        </View>
-
+          <View style={styles.heatmapSection}>
+            <SectionHeader title="21-Day Habit Tracker" />
+            <CalendarHeatmap />
+          </View>
         </AnimatedEntry>
 
         {/* Stats Grid */}
         <AnimatedEntry delay={300}>
-        <View style={styles.statsSection}>
-          <SectionHeader title="Your Stats" />
-          <View style={styles.statsGrid}>
-            {stats.map((stat, index) => (
-              <View
-                key={index}
-                style={[
-                  styles.statGridItem,
-                  index % 2 === 1 && { marginLeft: Spacing.md },
-                ]}
-              >
-                <StatCard stat={stat} />
-              </View>
-            ))}
+          <View style={styles.statsSection}>
+            <SectionHeader title="Your Stats" />
+            <View style={styles.statsGrid}>
+              {stats.map((stat, index) => (
+                <View
+                  key={index}
+                  style={[styles.statGridItem, index % 2 === 1 && { marginLeft: Spacing.md }]}
+                >
+                  <StatCard stat={stat} />
+                </View>
+              ))}
+            </View>
           </View>
-        </View>
-
         </AnimatedEntry>
 
         {/* Weekly Chart */}
         <AnimatedEntry delay={400}>
-        <View style={styles.chartSection}>
-          <SectionHeader title="Weekly Steps" />
-          <LinearGradient
-            colors={Gradients.cardSecondary}
-            style={styles.chartCard}
-          >
-            <BarChart
-              data={weeklyBarData}
-              height={150}
-              unit=""
-              goalLine={10000}
-              barColor={Colors.violet}
-              activeColor={Colors.lavender}
-            />
-          </LinearGradient>
-        </View>
+          <View style={styles.chartSection}>
+            <SectionHeader title="Weekly Steps" />
+            <LinearGradient colors={Gradients.cardSecondary} style={styles.chartCard}>
+              <BarChart
+                data={weeklyBarData}
+                height={150}
+                unit=""
+                goalLine={10000}
+                barColor={Colors.violet}
+                activeColor={Colors.lavender}
+              />
+            </LinearGradient>
+          </View>
         </AnimatedEntry>
 
         {/* Badges Section */}
         <AnimatedEntry delay={500}>
-        <View style={styles.badgesSection}>
-          <SectionHeader title="Achievements" />
-          <View style={styles.badgesGrid}>
-            {badges.map((badge) => (
-              <View key={badge.id} style={styles.badgeGridItem}>
-                <BadgeCard badge={badge} />
-              </View>
-            ))}
+          <View style={styles.badgesSection}>
+            <SectionHeader title="Achievements" />
+            <View style={styles.badgesGrid}>
+              {badges.map((badge) => (
+                <View key={badge.id} style={styles.badgeGridItem}>
+                  <BadgeCard badge={badge} />
+                </View>
+              ))}
+            </View>
           </View>
-        </View>
-
         </AnimatedEntry>
 
         {/* Generate Report Button */}
         <AnimatedEntry delay={600}>
-        <GradientButton
-          title="Generate Health Report"
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          }}
-          icon="📊"
-          style={{ marginBottom: Spacing.md }}
-        />
+          <GradientButton
+            title="Generate Health Report"
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            }}
+            icon="📊"
+            style={{ marginBottom: Spacing.md }}
+          />
         </AnimatedEntry>
       </ScrollView>
     </SafeAreaView>

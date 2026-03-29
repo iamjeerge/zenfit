@@ -24,19 +24,18 @@ import LinearGradient from 'react-native-linear-gradient';
 const ImagePicker = {
   requestMediaLibraryPermissionsAsync: async () => ({ status: 'denied' as const }),
   requestCameraPermissionsAsync: async () => ({ status: 'denied' as const }),
-  launchImageLibraryAsync: async (_: any) => ({ canceled: true, assets: [] }),
-  launchCameraAsync: async (_: any) => ({ canceled: true, assets: [] }),
+  launchImageLibraryAsync: async (_: any) => ({
+    canceled: true as boolean,
+    assets: [] as Array<{ uri: string }>,
+  }),
+  launchCameraAsync: async (_: any) => ({
+    canceled: true as boolean,
+    assets: [] as Array<{ uri: string }>,
+  }),
   MediaTypeOptions: { Images: 'Images' as const },
 };
 import * as Haptics from '../utils/haptics';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import AnimatedEntry from '../components/AnimatedEntry';
@@ -97,8 +96,8 @@ export default function ProgressPhotosScreen() {
 
   const pickImage = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if ((perm.status as string) !== 'granted') {
       Alert.alert('Permission Required', 'Allow photo access to upload progress photos.');
       return;
     }
@@ -108,16 +107,17 @@ export default function ProgressPhotosScreen() {
       aspect: [3, 4],
       quality: 0.6,
     });
-    if (!result.canceled && result.assets[0]?.uri) {
-      setPendingUri(result.assets[0].uri);
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const uri = result.assets[0].uri;
+      setPendingUri(uri);
       setCategoryPickerVisible(true);
     }
   };
 
   const takePhoto = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
-    if (status !== 'granted') {
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
+    if ((perm.status as string) !== 'granted') {
       Alert.alert('Permission Required', 'Allow camera access to take progress photos.');
       return;
     }
@@ -126,8 +126,9 @@ export default function ProgressPhotosScreen() {
       aspect: [3, 4],
       quality: 0.6,
     });
-    if (!result.canceled && result.assets[0]?.uri) {
-      setPendingUri(result.assets[0].uri);
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const uri = result.assets[0].uri;
+      setPendingUri(uri);
       setCategoryPickerVisible(true);
     }
   };
@@ -177,7 +178,10 @@ export default function ProgressPhotosScreen() {
 
   // Group photos by month
   const grouped = photos.reduce<Record<string, ProgressPhoto[]>>((acc, p) => {
-    const month = new Date(p.taken_at).toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+    const month = new Date(p.taken_at).toLocaleDateString('en-US', {
+      month: 'long',
+      year: 'numeric',
+    });
     if (!acc[month]) acc[month] = [];
     acc[month].push(p);
     return acc;
@@ -200,13 +204,19 @@ export default function ProgressPhotosScreen() {
       <AnimatedEntry delay={0}>
         <View style={styles.uploadRow}>
           <TouchableOpacity style={styles.uploadBtn} onPress={takePhoto} disabled={isUploading}>
-            <LinearGradient colors={Gradients.auroraSubtle as unknown as [string, string]} style={styles.uploadGradient}>
+            <LinearGradient
+              colors={Gradients.auroraSubtle as unknown as [string, string]}
+              style={styles.uploadGradient}
+            >
               <Text style={styles.uploadIcon}>📷</Text>
               <Text style={styles.uploadText}>Take Photo</Text>
             </LinearGradient>
           </TouchableOpacity>
           <TouchableOpacity style={styles.uploadBtn} onPress={pickImage} disabled={isUploading}>
-            <LinearGradient colors={Gradients.ocean as unknown as [string, string]} style={styles.uploadGradient}>
+            <LinearGradient
+              colors={Gradients.ocean as unknown as [string, string]}
+              style={styles.uploadGradient}
+            >
               <Text style={styles.uploadIcon}>🖼️</Text>
               <Text style={styles.uploadText}>From Gallery</Text>
             </LinearGradient>
@@ -239,7 +249,10 @@ export default function ProgressPhotosScreen() {
                   <TouchableOpacity
                     key={p.id}
                     style={styles.thumb}
-                    onPress={() => { Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); setSelectedPhoto(p); }}
+                    onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      setSelectedPhoto(p);
+                    }}
                   >
                     <Image source={{ uri: p.photo_url }} style={styles.thumbImage} />
                     <View style={styles.thumbBadge}>
@@ -256,17 +269,35 @@ export default function ProgressPhotosScreen() {
       </ScrollView>
 
       {/* Category Picker Modal */}
-      <Modal visible={categoryPickerVisible} transparent animationType="slide" onRequestClose={() => setCategoryPickerVisible(false)}>
+      <Modal
+        visible={categoryPickerVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setCategoryPickerVisible(false)}
+      >
         <View style={styles.modalOverlay}>
-          <LinearGradient colors={['#1A1730', '#2D2554']} style={[styles.modalContent, { borderColor: Colors.glassBorder }]}>
+          <LinearGradient
+            colors={['#1A1730', '#2D2554']}
+            style={[styles.modalContent, { borderColor: Colors.glassBorder }]}
+          >
             <Text style={styles.modalTitle}>Select Category</Text>
             {CATEGORIES.map((cat) => (
-              <TouchableOpacity key={cat.value} style={styles.categoryRow} onPress={() => uploadPhoto(cat.value)}>
+              <TouchableOpacity
+                key={cat.value}
+                style={styles.categoryRow}
+                onPress={() => uploadPhoto(cat.value)}
+              >
                 <Text style={styles.categoryEmoji}>{cat.emoji}</Text>
                 <Text style={styles.categoryLabel}>{cat.label}</Text>
               </TouchableOpacity>
             ))}
-            <TouchableOpacity style={styles.cancelBtn} onPress={() => { setCategoryPickerVisible(false); setPendingUri(null); }}>
+            <TouchableOpacity
+              style={styles.cancelBtn}
+              onPress={() => {
+                setCategoryPickerVisible(false);
+                setPendingUri(null);
+              }}
+            >
               <Text style={styles.cancelText}>Cancel</Text>
             </TouchableOpacity>
           </LinearGradient>
@@ -280,9 +311,14 @@ export default function ProgressPhotosScreen() {
             <TouchableOpacity style={styles.viewerClose} onPress={() => setSelectedPhoto(null)}>
               <Text style={styles.viewerCloseText}>✕</Text>
             </TouchableOpacity>
-            <Image source={{ uri: selectedPhoto.photo_url }} style={styles.viewerImage} resizeMode="contain" />
+            <Image
+              source={{ uri: selectedPhoto.photo_url }}
+              style={styles.viewerImage}
+              resizeMode="contain"
+            />
             <Text style={styles.viewerMeta}>
-              {CATEGORIES.find((c) => c.value === selectedPhoto.category)?.label} · {selectedPhoto.taken_at}
+              {CATEGORIES.find((c) => c.value === selectedPhoto.category)?.label} ·{' '}
+              {selectedPhoto.taken_at}
             </Text>
           </View>
         </Modal>
@@ -296,39 +332,100 @@ const styles = StyleSheet.create({
   header: { paddingHorizontal: Spacing.lg, paddingTop: Spacing.md, marginBottom: Spacing.md },
   title: { fontSize: FontSizes.xxxl, fontWeight: '700', color: Colors.textPrimary },
   subtitle: { fontSize: FontSizes.md, color: Colors.textSecondary, marginTop: Spacing.xs },
-  uploadRow: { flexDirection: 'row', gap: Spacing.sm, paddingHorizontal: Spacing.lg, marginBottom: Spacing.md },
+  uploadRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing.md,
+  },
   uploadBtn: { flex: 1, borderRadius: BorderRadius.lg, overflow: 'hidden' },
-  uploadGradient: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.sm, paddingVertical: Spacing.md },
+  uploadGradient: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: Spacing.sm,
+    paddingVertical: Spacing.md,
+  },
   uploadIcon: { fontSize: 20 },
   uploadText: { fontSize: FontSizes.md, fontWeight: '700', color: Colors.textPrimary },
-  uploadingBanner: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, paddingHorizontal: Spacing.lg, marginBottom: Spacing.sm },
+  uploadingBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.sm,
+    paddingHorizontal: Spacing.lg,
+    marginBottom: Spacing.sm,
+  },
   uploadingText: { fontSize: FontSizes.sm, color: Colors.lavender },
   content: { paddingHorizontal: Spacing.lg, paddingBottom: 120 },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm, marginBottom: Spacing.md },
-  thumb: { width: THUMB_SIZE, height: THUMB_SIZE, borderRadius: BorderRadius.md, overflow: 'hidden', position: 'relative' },
+  thumb: {
+    width: THUMB_SIZE,
+    height: THUMB_SIZE,
+    borderRadius: BorderRadius.md,
+    overflow: 'hidden',
+    position: 'relative',
+  },
   thumbImage: { width: '100%', height: '100%' },
   thumbBadge: {
-    position: 'absolute', bottom: 4, right: 4,
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
     backgroundColor: 'rgba(0,0,0,0.6)',
     borderRadius: BorderRadius.sm,
     paddingHorizontal: 4,
   },
   thumbBadgeText: { fontSize: 12 },
-  errorText: { fontSize: FontSizes.sm, color: Colors.error, textAlign: 'center', marginVertical: Spacing.md },
-  emptyText: { fontSize: FontSizes.sm, color: Colors.textSecondary, textAlign: 'center', marginVertical: Spacing.xl },
+  errorText: {
+    fontSize: FontSizes.sm,
+    color: Colors.error,
+    textAlign: 'center',
+    marginVertical: Spacing.md,
+  },
+  emptyText: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginVertical: Spacing.xl,
+  },
   modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.6)' },
   modalContent: {
-    borderTopLeftRadius: BorderRadius.xl, borderTopRightRadius: BorderRadius.xl,
-    borderWidth: 1, padding: Spacing.xl, paddingBottom: Spacing.xxl,
+    borderTopLeftRadius: BorderRadius.xl,
+    borderTopRightRadius: BorderRadius.xl,
+    borderWidth: 1,
+    padding: Spacing.xl,
+    paddingBottom: Spacing.xxl,
   },
-  modalTitle: { fontSize: FontSizes.xl, fontWeight: '700', color: Colors.textPrimary, marginBottom: Spacing.lg },
-  categoryRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, paddingVertical: Spacing.md, borderBottomWidth: 1, borderBottomColor: Colors.glassBorder },
+  modalTitle: {
+    fontSize: FontSizes.xl,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: Spacing.lg,
+  },
+  categoryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.glassBorder,
+  },
   categoryEmoji: { fontSize: 24 },
   categoryLabel: { fontSize: FontSizes.md, color: Colors.textPrimary, fontWeight: '500' },
   cancelBtn: { marginTop: Spacing.lg, alignItems: 'center' },
   cancelText: { fontSize: FontSizes.md, color: Colors.textSecondary },
-  viewerOverlay: { flex: 1, backgroundColor: '#000', justifyContent: 'center', alignItems: 'center' },
-  viewerClose: { position: 'absolute', top: 60, right: Spacing.lg, zIndex: 10, padding: Spacing.md },
+  viewerOverlay: {
+    flex: 1,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  viewerClose: {
+    position: 'absolute',
+    top: 60,
+    right: Spacing.lg,
+    zIndex: 10,
+    padding: Spacing.md,
+  },
   viewerCloseText: { fontSize: 24, color: Colors.textPrimary, fontWeight: '300' },
   viewerImage: { width: '100%', height: '80%' },
   viewerMeta: { color: Colors.textSecondary, fontSize: FontSizes.sm, marginTop: Spacing.md },

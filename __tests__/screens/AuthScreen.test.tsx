@@ -21,12 +21,12 @@ describe('AuthScreen', () => {
       replace: jest.fn(),
       back: jest.fn(),
     };
-    (useRouter as jest.Mock).mockReturnValue(mockRouter);
+    (useRouter as unknown as jest.Mock).mockReturnValue(mockRouter);
 
     mockSignInWithEmail = jest.fn(() => Promise.resolve());
     mockSignUpWithEmail = jest.fn(() => Promise.resolve());
 
-    mockUseAuthStore = jest.fn((selector) => {
+    mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
       const state = {
         session: null,
         signInWithEmail: mockSignInWithEmail,
@@ -34,7 +34,7 @@ describe('AuthScreen', () => {
       };
       return typeof selector === 'function' ? selector(state) : state;
     });
-    (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+    (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
   });
 
   describe('Rendering', () => {
@@ -156,9 +156,7 @@ describe('AuthScreen', () => {
       fireEvent.press(submitButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText('Password must be at least 6 characters')
-        ).toBeTruthy();
+        expect(screen.getByText('Password must be at least 6 characters')).toBeTruthy();
       });
     });
 
@@ -169,9 +167,7 @@ describe('AuthScreen', () => {
       fireEvent.press(submitButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText('Please enter email and password')
-        ).toBeTruthy();
+        expect(screen.getByText('Please enter email and password')).toBeTruthy();
       });
     });
 
@@ -204,10 +200,7 @@ describe('AuthScreen', () => {
       fireEvent.press(submitButton);
 
       await waitFor(() => {
-        expect(mockSignInWithEmail).toHaveBeenCalledWith(
-          'test@example.com',
-          'password123'
-        );
+        expect(mockSignInWithEmail).toHaveBeenCalledWith('test@example.com', 'password123');
       });
     });
 
@@ -229,7 +222,7 @@ describe('AuthScreen', () => {
 
     it('should display error on sign in failure', async () => {
       mockSignInWithEmail.mockImplementation(() =>
-        Promise.reject(new Error('Invalid credentials'))
+        Promise.reject(new Error('Invalid credentials')),
       );
 
       render(<AuthScreen />);
@@ -270,7 +263,7 @@ describe('AuthScreen', () => {
         expect(mockSignUpWithEmail).toHaveBeenCalledWith(
           'test@example.com',
           'password123',
-          'Test User'
+          'Test User',
         );
       });
     });
@@ -298,7 +291,7 @@ describe('AuthScreen', () => {
 
     it('should display error on sign up failure', async () => {
       mockSignUpWithEmail.mockImplementation(() =>
-        Promise.reject(new Error('Email already exists'))
+        Promise.reject(new Error('Email already exists')),
       );
 
       render(<AuthScreen />);
@@ -325,7 +318,7 @@ describe('AuthScreen', () => {
   describe('Loading State', () => {
     it('should show loading indicator during sign in', async () => {
       mockSignInWithEmail.mockImplementation(
-        () => new Promise((resolve) => setTimeout(resolve, 100))
+        () => new Promise((resolve) => setTimeout(resolve, 100)),
       );
 
       render(<AuthScreen />);
@@ -345,7 +338,7 @@ describe('AuthScreen', () => {
 
     it('should disable inputs during loading', async () => {
       mockSignInWithEmail.mockImplementation(
-        () => new Promise((resolve) => setTimeout(resolve, 100))
+        () => new Promise((resolve) => setTimeout(resolve, 100)),
       );
 
       render(<AuthScreen />);
@@ -372,31 +365,27 @@ describe('AuthScreen', () => {
       fireEvent.press(submitButton);
 
       // Error should appear
-      expect(
-        screen.getByText('Please enter email and password')
-      ).toBeTruthy();
+      expect(screen.getByText('Please enter email and password')).toBeTruthy();
 
       // Switch to sign up mode
       const signUpButton = screen.getAllByText('Sign Up')[0];
       fireEvent.press(signUpButton);
 
       // Error should be cleared
-      expect(
-        screen.queryByText('Please enter email and password')
-      ).toBeNull();
+      expect(screen.queryByText('Please enter email and password')).toBeNull();
     });
 
     it('should display wellness message at bottom', () => {
       render(<AuthScreen />);
       expect(
-        screen.getByText(/Unlock personalized yoga, meditation, and nutrition plans/)
+        screen.getByText(/Unlock personalized yoga, meditation, and nutrition plans/),
       ).toBeTruthy();
     });
   });
 
   describe('Authenticated User Navigation', () => {
     it('should navigate to tabs if user is already authenticated', () => {
-      mockUseAuthStore.mockImplementation((selector) => {
+      mockUseAuthStore.mockImplementation((selector: (s: unknown) => unknown) => {
         const state = {
           session: { access_token: 'test-token', user: { id: 'user-id' } },
           signInWithEmail: mockSignInWithEmail,

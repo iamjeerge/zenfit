@@ -46,7 +46,16 @@ const ACTIVITY_LEVELS = [
   { key: 'extra_active', label: '⚡ Extra Active', sub: 'Twice daily training' },
 ];
 
-const WORKOUT_OPTIONS = ['🧘 Yoga', '🏋️ Strength', '🏃 Running', '⚡ HIIT', '🚴 Cycling', '🏊 Swimming', '🤸 Pilates', '🥊 Boxing'];
+const WORKOUT_OPTIONS = [
+  '🧘 Yoga',
+  '🏋️ Strength',
+  '🏃 Running',
+  '⚡ HIIT',
+  '🚴 Cycling',
+  '🏊 Swimming',
+  '🤸 Pilates',
+  '🥊 Boxing',
+];
 
 export default function OnboardingScreen() {
   const router = useRouter();
@@ -111,7 +120,7 @@ export default function OnboardingScreen() {
 
   const toggleWorkoutType = (type: string) => {
     setWorkoutTypes((prev) =>
-      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
     );
   };
 
@@ -120,22 +129,34 @@ export default function OnboardingScreen() {
   const renderProgressBar = () => (
     <View style={styles.progressContainer}>
       <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: `${((step + 1) / TOTAL_STEPS) * 100}%` as any }]} />
+        <View
+          style={[styles.progressFill, { width: `${((step + 1) / TOTAL_STEPS) * 100}%` as any }]}
+        />
       </View>
-      <Text style={styles.progressLabel}>Step {step + 1} of {TOTAL_STEPS}</Text>
+      <Text style={styles.progressLabel}>
+        Step {step + 1} of {TOTAL_STEPS}
+      </Text>
     </View>
   );
 
   const renderStep = () => {
     switch (step) {
-      case 0: return renderWelcome();
-      case 1: return renderAboutYou();
-      case 2: return renderBodyMetrics();
-      case 3: return renderFitnessGoal();
-      case 4: return renderActivityLevel();
-      case 5: return renderWorkoutTypes();
-      case 6: return renderSleepReminders();
-      default: return null;
+      case 0:
+        return renderWelcome();
+      case 1:
+        return renderAboutYou();
+      case 2:
+        return renderBodyMetrics();
+      case 3:
+        return renderFitnessGoal();
+      case 4:
+        return renderActivityLevel();
+      case 5:
+        return renderWorkoutTypes();
+      case 6:
+        return renderSleepReminders();
+      default:
+        return null;
     }
   };
 
@@ -145,19 +166,29 @@ export default function OnboardingScreen() {
       <Text style={styles.stepTitle}>Welcome to ZenFit</Text>
       <Text style={styles.stepSubtitle}>Your Personal Wellness Journey</Text>
       <Text style={styles.stepDescription}>
-        Let's personalise your experience in just a few steps. We'll set up your profile so
-        you get the most relevant workouts, nutrition goals, and reminders from day one.
+        Let's personalise your experience in just a few steps. We'll set up your profile so you get
+        the most relevant workouts, nutrition goals, and reminders from day one.
       </Text>
       <View style={styles.featureList}>
-        {['🏋️  Personalised workouts', '🥗  Smart nutrition goals', '😴  Sleep tracking', '🔔  Smart reminders'].map((f) => (
-          <Text key={f} style={styles.featureItem}>{f}</Text>
+        {[
+          '🏋️  Personalised workouts',
+          '🥗  Smart nutrition goals',
+          '😴  Sleep tracking',
+          '🔔  Smart reminders',
+        ].map((f) => (
+          <Text key={f} style={styles.featureItem}>
+            {f}
+          </Text>
         ))}
       </View>
     </View>
   );
 
   const renderAboutYou = () => (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.kaView}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={styles.kaView}
+    >
       <ScrollView contentContainerStyle={styles.stepContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.bigIcon}>👤</Text>
         <Text style={styles.stepTitle}>About You</Text>
@@ -202,7 +233,10 @@ export default function OnboardingScreen() {
   );
 
   const renderBodyMetrics = () => (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.kaView}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={styles.kaView}
+    >
       <ScrollView contentContainerStyle={styles.stepContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.bigIcon}>📏</Text>
         <Text style={styles.stepTitle}>Body Metrics</Text>
@@ -304,13 +338,14 @@ export default function OnboardingScreen() {
   );
 
   const renderSleepReminders = () => (
-    <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.kaView}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={styles.kaView}
+    >
       <ScrollView contentContainerStyle={styles.stepContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.bigIcon}>😴</Text>
         <Text style={styles.stepTitle}>Sleep Schedule</Text>
-        <Text style={styles.stepDescription}>
-          Help us track and improve your sleep quality
-        </Text>
+        <Text style={styles.stepDescription}>Help us track and improve your sleep quality</Text>
 
         <Text style={styles.fieldLabel}>Bedtime (HH:MM)</Text>
         <TextInput
@@ -383,16 +418,11 @@ export default function OnboardingScreen() {
       {renderProgressBar()}
 
       {/* Content */}
-      <View style={styles.contentArea}>
-        {renderStep()}
-      </View>
+      <View style={styles.contentArea}>{renderStep()}</View>
 
       {/* CTA */}
       <View style={styles.buttonContainer}>
-        <GradientButton
-          title={isLastStep ? 'Get Started 🚀' : 'Next →'}
-          onPress={handleNext}
-        />
+        <GradientButton title={isLastStep ? 'Get Started 🚀' : 'Next →'} onPress={handleNext} />
       </View>
     </LinearGradient>
   );

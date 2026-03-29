@@ -56,7 +56,7 @@ export default function SplashScreen() {
             duration: star.duration / 2,
             useNativeDriver: true,
           }),
-        ])
+        ]),
       );
       twirlAnimation.start();
     });
@@ -120,11 +120,7 @@ export default function SplashScreen() {
 
       {/* Aurora gradient overlay */}
       <LinearGradient
-        colors={[
-          'rgba(124, 58, 237, 0.2)',
-          'rgba(244, 114, 182, 0.1)',
-          'rgba(196, 181, 253, 0.1)',
-        ]}
+        colors={['rgba(124, 58, 237, 0.2)', 'rgba(244, 114, 182, 0.1)', 'rgba(196, 181, 253, 0.1)']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFillObject}

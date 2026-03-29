@@ -48,6 +48,8 @@ export type Profile = {
   xp: number;
   /** Gamification level derived from XP */
   level: number;
+  /** Activity level for TDEE calculation, e.g. "sedentary" | "light" | "moderate" | "active" */
+  activity_level: string | null;
   /** ISO timestamp of profile creation */
   created_at: string;
 };

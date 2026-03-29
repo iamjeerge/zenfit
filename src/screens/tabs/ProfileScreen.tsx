@@ -6,13 +6,7 @@
  */
 
 import React from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-} from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import { useRouter } from '../../utils/router';
@@ -27,7 +21,13 @@ import {
   Shadows,
   HIT_SLOP,
 } from '../../theme/colors';
-import { AnimatedEntry, GlassCard, SectionHeader, GradientButton, StatCard } from '../../components';
+import {
+  AnimatedEntry,
+  GlassCard,
+  SectionHeader,
+  GradientButton,
+  StatCard,
+} from '../../components';
 
 interface MenuItem {
   id: string;
@@ -137,155 +137,144 @@ export default function ProfileScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {/* Header with Aurora Gradient */}
         <AnimatedEntry delay={0} duration={600}>
-        <LinearGradient
-          colors={Gradients.aurora as unknown as [string, string, ...string[]]}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.headerGradient}
-        >
-          <View style={styles.profileHeader}>
-            {/* Avatar */}
-            <View style={styles.avatarContainer}>
-              <View style={styles.avatar}>
-                <Text style={styles.avatarInitial}>{getInitial()}</Text>
+          <LinearGradient
+            colors={Gradients.aurora as unknown as [string, string, ...string[]]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.headerGradient}
+          >
+            <View style={styles.profileHeader}>
+              {/* Avatar */}
+              <View style={styles.avatarContainer}>
+                <View style={styles.avatar}>
+                  <Text style={styles.avatarInitial}>{getInitial()}</Text>
+                </View>
+              </View>
+
+              {/* User Info */}
+              <View style={styles.userInfo}>
+                <Text style={styles.userName}>{profile?.full_name || 'Welcome to ZenFit'}</Text>
+                <Text style={styles.userEmail}>
+                  {profile?.subscription_status === 'premium'
+                    ? '✨ Premium Member'
+                    : '📱 Free Member'}
+                </Text>
               </View>
             </View>
-
-            {/* User Info */}
-            <View style={styles.userInfo}>
-              <Text style={styles.userName}>
-                {profile?.full_name || 'Welcome to ZenFit'}
-              </Text>
-              <Text style={styles.userEmail}>
-                {profile?.subscription_status === 'premium'
-                  ? '✨ Premium Member'
-                  : '📱 Free Member'}
-              </Text>
-            </View>
-          </View>
-        </LinearGradient>
+          </LinearGradient>
         </AnimatedEntry>
 
         {/* Stats Row */}
         <AnimatedEntry delay={100} duration={600}>
-        <View style={styles.statsRow}>
-          <View style={styles.statCard}>
-            <LinearGradient
-              colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
-              style={styles.statGradient}
-            >
-              <Text style={styles.statLabel}>Level</Text>
-              <Text style={styles.statValue}>{profile?.level || 1}</Text>
-              <View style={styles.levelBar}>
-                <View
-                  style={[
-                    styles.levelProgress,
-                    {
-                      width: `${((profile?.xp || 0) % 1000) / 10}%`,
-                      backgroundColor: Colors.violet,
-                    },
-                  ]}
-                />
-              </View>
-            </LinearGradient>
-          </View>
+          <View style={styles.statsRow}>
+            <View style={styles.statCard}>
+              <LinearGradient
+                colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
+                style={styles.statGradient}
+              >
+                <Text style={styles.statLabel}>Level</Text>
+                <Text style={styles.statValue}>{profile?.level || 1}</Text>
+                <View style={styles.levelBar}>
+                  <View
+                    style={[
+                      styles.levelProgress,
+                      {
+                        width: `${((profile?.xp || 0) % 1000) / 10}%`,
+                        backgroundColor: Colors.violet,
+                      },
+                    ]}
+                  />
+                </View>
+              </LinearGradient>
+            </View>
 
-          <View style={styles.statCard}>
-            <LinearGradient
-              colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
-              style={styles.statGradient}
-            >
-              <Text style={styles.statLabel}>XP</Text>
-              <Text style={styles.statValue}>{profile?.xp || 0}</Text>
-              <Text style={styles.xpSubtext}>XP earned</Text>
-            </LinearGradient>
-          </View>
+            <View style={styles.statCard}>
+              <LinearGradient
+                colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
+                style={styles.statGradient}
+              >
+                <Text style={styles.statLabel}>XP</Text>
+                <Text style={styles.statValue}>{profile?.xp || 0}</Text>
+                <Text style={styles.xpSubtext}>XP earned</Text>
+              </LinearGradient>
+            </View>
 
-          <View style={styles.statCard}>
-            <LinearGradient
-              colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
-              style={styles.statGradient}
-            >
-              <Text style={styles.statLabel}>🔥 Streak</Text>
-              <Text style={styles.statValue}>{profile?.streak_days || 0}</Text>
-              <Text style={styles.streakSubtext}>days</Text>
-            </LinearGradient>
+            <View style={styles.statCard}>
+              <LinearGradient
+                colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
+                style={styles.statGradient}
+              >
+                <Text style={styles.statLabel}>🔥 Streak</Text>
+                <Text style={styles.statValue}>{profile?.streak_days || 0}</Text>
+                <Text style={styles.streakSubtext}>days</Text>
+              </LinearGradient>
+            </View>
           </View>
-        </View>
-
         </AnimatedEntry>
 
         {/* Menu Items */}
         <AnimatedEntry delay={200} duration={600}>
-        <View style={styles.menuSection}>
-          <SectionHeader title="Account" />
-          <View style={styles.menuList}>
-            {menuItems.map((item) => (
-              <TouchableOpacity
-                key={item.id}
-                style={styles.menuItem}
-                onPress={item.onPress}
-                activeOpacity={0.8}
-              >
-                <LinearGradient
-                  colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
-                  style={styles.menuItemGradient}
+          <View style={styles.menuSection}>
+            <SectionHeader title="Account" />
+            <View style={styles.menuList}>
+              {menuItems.map((item) => (
+                <TouchableOpacity
+                  key={item.id}
+                  style={styles.menuItem}
+                  onPress={item.onPress}
+                  activeOpacity={0.8}
                 >
-                  <View style={styles.menuItemContent}>
-                    <View style={styles.menuItemLeft}>
-                      <Text style={styles.menuItemIcon}>{item.icon}</Text>
-                      <View style={styles.menuItemText}>
-                        <Text style={styles.menuItemTitle}>{item.title}</Text>
-                        {item.subtitle && (
-                          <Text style={styles.menuItemSubtitle}>
-                            {item.subtitle}
-                          </Text>
-                        )}
+                  <LinearGradient
+                    colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
+                    style={styles.menuItemGradient}
+                  >
+                    <View style={styles.menuItemContent}>
+                      <View style={styles.menuItemLeft}>
+                        <Text style={styles.menuItemIcon}>{item.icon}</Text>
+                        <View style={styles.menuItemText}>
+                          <Text style={styles.menuItemTitle}>{item.title}</Text>
+                          {item.subtitle && (
+                            <Text style={styles.menuItemSubtitle}>{item.subtitle}</Text>
+                          )}
+                        </View>
                       </View>
+                      <Text style={styles.chevron}>›</Text>
                     </View>
-                    <Text style={styles.chevron}>›</Text>
-                  </View>
-                </LinearGradient>
-              </TouchableOpacity>
-            ))}
+                  </LinearGradient>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
-        </View>
-
         </AnimatedEntry>
 
         {/* About Section */}
         <AnimatedEntry delay={300} duration={600}>
-        <View style={styles.aboutSection}>
-          <SectionHeader title="About" />
-          <View style={styles.aboutCard}>
-            <LinearGradient
-              colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
-              style={styles.aboutGradient}
-            >
-              <Text style={styles.aboutTitle}>ZenFit v1.0</Text>
-              <Text style={styles.aboutText}>
-                Your personal wellness companion for yoga, meditation, and
-                holistic health.
-              </Text>
-              <View style={styles.aboutLinks}>
-                <TouchableOpacity activeOpacity={0.7}>
-                  <Text style={styles.aboutLink}>Privacy Policy</Text>
-                </TouchableOpacity>
-                <Text style={styles.aboutDot}>•</Text>
-                <TouchableOpacity activeOpacity={0.7}>
-                  <Text style={styles.aboutLink}>Terms of Service</Text>
-                </TouchableOpacity>
-              </View>
-            </LinearGradient>
+          <View style={styles.aboutSection}>
+            <SectionHeader title="About" />
+            <View style={styles.aboutCard}>
+              <LinearGradient
+                colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
+                style={styles.aboutGradient}
+              >
+                <Text style={styles.aboutTitle}>ZenFit v1.0</Text>
+                <Text style={styles.aboutText}>
+                  Your personal wellness companion for yoga, meditation, and holistic health.
+                </Text>
+                <View style={styles.aboutLinks}>
+                  <TouchableOpacity activeOpacity={0.7}>
+                    <Text style={styles.aboutLink}>Privacy Policy</Text>
+                  </TouchableOpacity>
+                  <Text style={styles.aboutDot}>•</Text>
+                  <TouchableOpacity activeOpacity={0.7}>
+                    <Text style={styles.aboutLink}>Terms of Service</Text>
+                  </TouchableOpacity>
+                </View>
+              </LinearGradient>
+            </View>
           </View>
-        </View>
-
         </AnimatedEntry>
 
         {/* Sign Out Button */}

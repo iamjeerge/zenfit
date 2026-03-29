@@ -8,13 +8,7 @@
 import React from 'react';
 import { StyleSheet, View, Text, ViewStyle } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import {
-  Colors,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../theme/colors';
+import { Colors, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 
 interface StatCardProps {
   value: string;
@@ -40,10 +34,7 @@ export default function StatCard({
         style={styles.gradient}
       >
         {icon && <Text style={styles.icon}>{icon}</Text>}
-        <Text
-          style={styles.value}
-          accessibilityLabel={`${label}: ${value}`}
-        >
+        <Text style={styles.value} accessibilityLabel={`${label}: ${value}`}>
           {value}
         </Text>
         <Text style={styles.label}>{label}</Text>

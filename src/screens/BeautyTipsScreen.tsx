@@ -6,25 +6,11 @@
  */
 
 import React, { useState } from 'react';
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  Image,
-} from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity, Text, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Haptics from '../utils/haptics';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 import AnimatedEntry from '../components/AnimatedEntry';
 import SectionHeader from '../components/SectionHeader';
 
@@ -87,7 +73,7 @@ export default function BeautyTipsScreen() {
     },
     {
       id: '6',
-      title: 'Men\'s Skincare 101',
+      title: "Men's Skincare 101",
       category: 'Skin',
       preview: 'Minimalist routine for clear, healthy skin',
       gender: 'men',
@@ -98,27 +84,22 @@ export default function BeautyTipsScreen() {
   const categories: Category[] = ['Skin', 'Hair', 'Grooming', 'Post-Workout', 'Nutrition Beauty'];
 
   const filteredTips = tips.filter((tip) => {
-    const matchesGender = genderFilter === 'all' || tip.gender === genderFilter || tip.gender === 'unisex';
+    const matchesGender =
+      genderFilter === 'all' || tip.gender === genderFilter || tip.gender === 'unisex';
     const matchesCategory = selectedCategory === 'all' || tip.category === selectedCategory;
     return matchesGender && matchesCategory;
   });
 
   const GenderButton = ({ value, label }: { value: Gender; label: string }) => (
     <TouchableOpacity
-      style={[
-        styles.genderButton,
-        genderFilter === value && styles.genderButtonActive,
-      ]}
+      style={[styles.genderButton, genderFilter === value && styles.genderButtonActive]}
       onPress={() => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         setGenderFilter(value);
       }}
     >
       <Text
-        style={[
-          styles.genderButtonText,
-          genderFilter === value && styles.genderButtonTextActive,
-        ]}
+        style={[styles.genderButtonText, genderFilter === value && styles.genderButtonTextActive]}
       >
         {label}
       </Text>
@@ -127,10 +108,7 @@ export default function BeautyTipsScreen() {
 
   const CategoryChip = ({ category }: { category: Category | 'all' }) => (
     <TouchableOpacity
-      style={[
-        styles.categoryChip,
-        selectedCategory === category && styles.categoryChipActive,
-      ]}
+      style={[styles.categoryChip, selectedCategory === category && styles.categoryChipActive]}
       onPress={() => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         setSelectedCategory(category as Category | 'all');
@@ -192,44 +170,42 @@ export default function BeautyTipsScreen() {
       >
         {/* Gender Filter */}
         <AnimatedEntry delay={100}>
-        <View style={styles.filterSection}>
-          <Text style={styles.filterLabel}>For</Text>
-          <View style={styles.genderButtonGroup}>
-            <GenderButton value="women" label="Women" />
-            <GenderButton value="men" label="Men" />
-            <GenderButton value="all" label="All" />
+          <View style={styles.filterSection}>
+            <Text style={styles.filterLabel}>For</Text>
+            <View style={styles.genderButtonGroup}>
+              <GenderButton value="women" label="Women" />
+              <GenderButton value="men" label="Men" />
+              <GenderButton value="all" label="All" />
+            </View>
           </View>
-        </View>
-
         </AnimatedEntry>
         {/* Category Filter */}
         <AnimatedEntry delay={200}>
-        <View style={styles.filterSection}>
-          <Text style={styles.filterLabel}>Categories</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.categoryChipContainer}
-          >
-            <CategoryChip category="all" />
-            {categories.map((category) => (
-              <CategoryChip key={category} category={category} />
-            ))}
-          </ScrollView>
-        </View>
-
+          <View style={styles.filterSection}>
+            <Text style={styles.filterLabel}>Categories</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.categoryChipContainer}
+            >
+              <CategoryChip category="all" />
+              {categories.map((category) => (
+                <CategoryChip key={category} category={category} />
+              ))}
+            </ScrollView>
+          </View>
         </AnimatedEntry>
         {/* Tips Grid */}
         <AnimatedEntry delay={300}>
-        <View style={styles.tipsContainer}>
-          {filteredTips.length > 0 ? (
-            filteredTips.map((tip) => <TipCard key={tip.id} tip={tip} />)
-          ) : (
-            <View style={styles.emptyState}>
-              <Text style={styles.emptyStateText}>No tips found</Text>
-            </View>
-          )}
-        </View>
+          <View style={styles.tipsContainer}>
+            {filteredTips.length > 0 ? (
+              filteredTips.map((tip) => <TipCard key={tip.id} tip={tip} />)
+            ) : (
+              <View style={styles.emptyState}>
+                <Text style={styles.emptyStateText}>No tips found</Text>
+              </View>
+            )}
+          </View>
         </AnimatedEntry>
       </ScrollView>
     </SafeAreaView>

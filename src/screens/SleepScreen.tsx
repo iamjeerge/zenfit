@@ -19,14 +19,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import SkeletonLoader, { SkeletonListItem } from '../components/SkeletonLoader';
@@ -113,7 +106,7 @@ export default function SleepScreen() {
   const [todayLog, setTodayLog] = useState<SleepLog | null>(null);
   const [recentLogs, setRecentLogs] = useState<SleepLog[]>([]);
   const [weekData, setWeekData] = useState<{ day: string; hours: number }[]>(
-    DAYS_OF_WEEK.map((d) => ({ day: d, hours: 0 }))
+    DAYS_OF_WEEK.map((d) => ({ day: d, hours: 0 })),
   );
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -139,9 +132,23 @@ export default function SleepScreen() {
       if (fetchError) throw fetchError;
       const logs: SleepLog[] = (data || []).map((row: any) => ({
         id: row.id,
-        date: new Date(row.date).toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' }),
-        bedtime: row.bedtime ? new Date(row.bedtime).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '--',
-        wakeTime: row.wake_time ? new Date(row.wake_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : '--',
+        date: new Date(row.date).toLocaleDateString('en-US', {
+          weekday: 'long',
+          month: 'short',
+          day: 'numeric',
+        }),
+        bedtime: row.bedtime
+          ? new Date(row.bedtime).toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+          : '--',
+        wakeTime: row.wake_time
+          ? new Date(row.wake_time).toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit',
+            })
+          : '--',
         durationHours: parseFloat(row.duration_hours ?? 0),
         quality: (row.quality ?? 3) as QualityRating,
         notes: row.notes ?? undefined,
@@ -163,10 +170,12 @@ export default function SleepScreen() {
         }
       });
       const sorted = Object.entries(dayMap).sort(([a], [b]) => a.localeCompare(b));
-      setWeekData(sorted.map(([dateStr, hours]) => ({
-        day: new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short' }),
-        hours,
-      })));
+      setWeekData(
+        sorted.map(([dateStr, hours]) => ({
+          day: new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short' }),
+          hours,
+        })),
+      );
 
       if (logs.length > 0) setTodayLog(logs[0]);
     } catch {
@@ -176,9 +185,11 @@ export default function SleepScreen() {
     }
   };
 
-  const avgHours = weekData.length > 0
-    ? weekData.reduce((sum, d) => sum + d.hours, 0) / weekData.filter((d) => d.hours > 0).length || 0
-    : 0;
+  const avgHours =
+    weekData.length > 0
+      ? weekData.reduce((sum, d) => sum + d.hours, 0) /
+          weekData.filter((d) => d.hours > 0).length || 0
+      : 0;
 
   const handleSaveLog = async () => {
     if (!user) return;
@@ -220,10 +231,7 @@ export default function SleepScreen() {
         >
           <Text style={styles.qualityEmoji}>{QUALITY_EMOJIS[q]}</Text>
           <Text
-            style={[
-              styles.qualityLabel,
-              selectedQuality === q && { color: Colors.textPrimary },
-            ]}
+            style={[styles.qualityLabel, selectedQuality === q && { color: Colors.textPrimary }]}
           >
             {QUALITY_LABELS[q]}
           </Text>
@@ -246,21 +254,14 @@ export default function SleepScreen() {
             {log.bedtime} → {log.wakeTime}
           </Text>
         </View>
-        <View
-          style={[
-            styles.qualityBadge,
-            { backgroundColor: QUALITY_COLORS[log.quality] },
-          ]}
-        >
+        <View style={[styles.qualityBadge, { backgroundColor: QUALITY_COLORS[log.quality] }]}>
           <Text style={styles.qualityBadgeEmoji}>{QUALITY_EMOJIS[log.quality]}</Text>
           <Text style={styles.qualityBadgeText}>{QUALITY_LABELS[log.quality]}</Text>
         </View>
       </View>
       <View style={styles.logStats}>
         <Text style={styles.logDuration}>🌙 {log.durationHours}h sleep</Text>
-        {log.notes ? (
-          <Text style={styles.logNotes}>💬 {log.notes}</Text>
-        ) : null}
+        {log.notes ? <Text style={styles.logNotes}>💬 {log.notes}</Text> : null}
       </View>
     </LinearGradient>
   );
@@ -315,12 +316,8 @@ export default function SleepScreen() {
                 <Text style={styles.nightStatLabel}>Duration</Text>
               </View>
               <View style={styles.nightStat}>
-                <Text style={styles.nightStatValue}>
-                  {QUALITY_EMOJIS[todayLog.quality]}
-                </Text>
-                <Text style={styles.nightStatLabel}>
-                  {QUALITY_LABELS[todayLog.quality]}
-                </Text>
+                <Text style={styles.nightStatValue}>{QUALITY_EMOJIS[todayLog.quality]}</Text>
+                <Text style={styles.nightStatLabel}>{QUALITY_LABELS[todayLog.quality]}</Text>
               </View>
               <View style={styles.nightStat}>
                 <Text style={styles.nightStatValue}>{todayLog.wakeTime}</Text>
@@ -358,7 +355,9 @@ export default function SleepScreen() {
               style={[styles.avgCard, { borderColor: Colors.glassBorder }]}
             >
               <Text style={styles.avgIcon}>📊</Text>
-              <Text style={styles.avgValue}>{isNaN(avgHours) ? '—' : `${avgHours.toFixed(1)}h`}</Text>
+              <Text style={styles.avgValue}>
+                {isNaN(avgHours) ? '—' : `${avgHours.toFixed(1)}h`}
+              </Text>
               <Text style={styles.avgLabel}>Weekly Avg</Text>
             </LinearGradient>
             <LinearGradient
@@ -399,10 +398,10 @@ export default function SleepScreen() {
                       d.hours >= 8
                         ? Gradients.ocean
                         : d.hours >= 6
-                        ? Gradients.auroraSubtle
-                        : d.hours > 0
-                        ? [Colors.error, Colors.sunriseOrange]
-                        : [Colors.glassBackground, Colors.glassBackground]
+                          ? Gradients.auroraSubtle
+                          : d.hours > 0
+                            ? [Colors.error, Colors.sunriseOrange]
+                            : [Colors.glassBackground, Colors.glassBackground]
                     }
                     start={{ x: 0, y: 1 }}
                     end={{ x: 0, y: 0 }}

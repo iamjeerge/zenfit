@@ -39,7 +39,12 @@ export function bmiCategory(bmi: number): { label: string; color: string } {
 }
 
 // Mifflin-St Jeor
-export function calcBMR(weightKg: number, heightCm: number, age: number, gender: 'male' | 'female' | 'other'): number {
+export function calcBMR(
+  weightKg: number,
+  heightCm: number,
+  age: number,
+  gender: 'male' | 'female' | 'other',
+): number {
   const base = 10 * weightKg + 6.25 * heightCm - 5 * age;
   return gender === 'female' ? base - 161 : base + 5;
 }
@@ -57,8 +62,11 @@ export function calcTDEE(bmr: number, activityLevel: string): number {
 }
 
 // Devine formula
-export function calcIdealWeight(heightCm: number, gender: 'male' | 'female' | 'other'): [number, number] {
-  const inchesOver5Ft = Math.max((heightCm / 2.54 - 60), 0);
+export function calcIdealWeight(
+  heightCm: number,
+  gender: 'male' | 'female' | 'other',
+): [number, number] {
+  const inchesOver5Ft = Math.max(heightCm / 2.54 - 60, 0);
   const base = gender === 'female' ? 45.5 : 50;
   const mid = base + 2.3 * inchesOver5Ft;
   return [mid * 0.9, mid * 1.1];
@@ -81,10 +89,10 @@ function BMIGauge({ bmi }: { bmi: number }) {
   const clamped = Math.min(Math.max(bmi, 10), 40);
   const pct = (clamped - 10) / 30; // 10–40 range
   const zones = [
-    { label: 'Underweight', color: '#60A5FA', from: 0, to: 0.283 },    // 10–18.5
+    { label: 'Underweight', color: '#60A5FA', from: 0, to: 0.283 }, // 10–18.5
     { label: 'Normal', color: Colors.sageLeaf, from: 0.283, to: 0.5 }, // 18.5–25
-    { label: 'Overweight', color: '#FBBF24', from: 0.5, to: 0.667 },   // 25–30
-    { label: 'Obese', color: Colors.error, from: 0.667, to: 1 },       // 30–40
+    { label: 'Overweight', color: '#FBBF24', from: 0.5, to: 0.667 }, // 25–30
+    { label: 'Obese', color: Colors.error, from: 0.667, to: 1 }, // 30–40
   ];
 
   return (
@@ -107,7 +115,10 @@ function BMIGauge({ bmi }: { bmi: number }) {
       </View>
       <View style={gaugeStyles.labels}>
         {zones.map((z) => (
-          <Text key={z.label} style={[gaugeStyles.zoneLabel, { flex: z.to - z.from, color: z.color }]}>
+          <Text
+            key={z.label}
+            style={[gaugeStyles.zoneLabel, { flex: z.to - z.from, color: z.color }]}
+          >
             {z.label}
           </Text>
         ))}
@@ -122,13 +133,21 @@ function BMIGauge({ bmi }: { bmi: number }) {
 const gaugeStyles = StyleSheet.create({
   container: { marginVertical: Spacing.md },
   bar: {
-    flexDirection: 'row', height: 20, borderRadius: 10,
-    overflow: 'hidden', backgroundColor: Colors.card, position: 'relative',
+    flexDirection: 'row',
+    height: 20,
+    borderRadius: 10,
+    overflow: 'hidden',
+    backgroundColor: Colors.card,
+    position: 'relative',
   },
   zone: { height: 20 },
   needle: {
-    position: 'absolute', top: -4, width: 4, height: 28,
-    backgroundColor: Colors.textPrimary, borderRadius: 2,
+    position: 'absolute',
+    top: -4,
+    width: 4,
+    height: 28,
+    backgroundColor: Colors.textPrimary,
+    borderRadius: 2,
     marginLeft: -2,
   },
   labels: { flexDirection: 'row', marginTop: 6 },
@@ -215,7 +234,10 @@ export default function BMIScreen() {
       const today = new Date().toISOString().split('T')[0];
       const { error: err } = await supabase
         .from('weight_logs')
-        .upsert({ user_id: user.id, weight_kg: w, logged_at: today }, { onConflict: 'user_id,logged_at' });
+        .upsert(
+          { user_id: user.id, weight_kg: w, logged_at: today },
+          { onConflict: 'user_id,logged_at' },
+        );
       if (err) throw err;
       setLogInput('');
       setWeightKg(String(w));
@@ -253,7 +275,10 @@ export default function BMIScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         {/* Inputs */}
         <AnimatedEntry delay={0}>
-          <LinearGradient colors={Gradients.card as unknown as [string, string]} style={styles.card}>
+          <LinearGradient
+            colors={Gradients.card as unknown as [string, string]}
+            style={styles.card}
+          >
             <Text style={styles.cardTitle}>Your Measurements</Text>
             <View style={styles.inputRow}>
               {[
@@ -293,7 +318,10 @@ export default function BMIScreen() {
         {/* BMI Gauge */}
         {bmi !== null && (
           <AnimatedEntry delay={50}>
-            <LinearGradient colors={Gradients.card as unknown as [string, string]} style={styles.card}>
+            <LinearGradient
+              colors={Gradients.card as unknown as [string, string]}
+              style={styles.card}
+            >
               <Text style={styles.cardTitle}>BMI Analysis</Text>
               <BMIGauge bmi={bmi} />
               {hasValues && (
@@ -307,17 +335,32 @@ export default function BMIScreen() {
 
         {/* Activity & Calorie Needs */}
         <AnimatedEntry delay={100}>
-          <LinearGradient colors={Gradients.card as unknown as [string, string]} style={styles.card}>
+          <LinearGradient
+            colors={Gradients.card as unknown as [string, string]}
+            style={styles.card}
+          >
             <Text style={styles.cardTitle}>Calorie Needs</Text>
             <Text style={styles.inputLabel}>Activity Level</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginBottom: Spacing.md }}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={{ marginBottom: Spacing.md }}
+            >
               {ACTIVITY_OPTIONS.map((opt) => (
                 <TouchableOpacity
                   key={opt.key}
-                  style={[styles.activityChip, activityLevel === opt.key && styles.activityChipActive]}
+                  style={[
+                    styles.activityChip,
+                    activityLevel === opt.key && styles.activityChipActive,
+                  ]}
                   onPress={() => setActivityLevel(opt.key)}
                 >
-                  <Text style={[styles.activityLabel, activityLevel === opt.key && styles.activityLabelActive]}>
+                  <Text
+                    style={[
+                      styles.activityLabel,
+                      activityLevel === opt.key && styles.activityLabelActive,
+                    ]}
+                  >
                     {opt.label}
                   </Text>
                   <Text style={styles.activityDetail}>{opt.detail}</Text>
@@ -333,13 +376,17 @@ export default function BMIScreen() {
                 </View>
                 <View style={styles.metricDivider} />
                 <View style={styles.metricBox}>
-                  <Text style={[styles.metricValue, { color: Colors.sacredGold }]}>{Math.round(tdee)}</Text>
+                  <Text style={[styles.metricValue, { color: Colors.sacredGold }]}>
+                    {Math.round(tdee)}
+                  </Text>
                   <Text style={styles.metricLabel}>TDEE (kcal)</Text>
                   <Text style={styles.metricSub}>Daily total</Text>
                 </View>
               </View>
             ) : (
-              <Text style={styles.emptyText}>Fill in measurements above to see your calorie needs.</Text>
+              <Text style={styles.emptyText}>
+                Fill in measurements above to see your calorie needs.
+              </Text>
             )}
           </LinearGradient>
         </AnimatedEntry>
@@ -347,7 +394,10 @@ export default function BMIScreen() {
         {/* Weight Logging */}
         <SectionHeader title="Weight Journal" emoji="⚖️" />
         <AnimatedEntry delay={150}>
-          <LinearGradient colors={Gradients.card as unknown as [string, string]} style={styles.card}>
+          <LinearGradient
+            colors={Gradients.card as unknown as [string, string]}
+            style={styles.card}
+          >
             <Text style={styles.cardTitle}>Log Today's Weight</Text>
             <View style={styles.logRow}>
               <TextInput
@@ -376,7 +426,10 @@ export default function BMIScreen() {
 
         {/* Weight History */}
         <AnimatedEntry delay={200}>
-          <LinearGradient colors={Gradients.card as unknown as [string, string]} style={styles.card}>
+          <LinearGradient
+            colors={Gradients.card as unknown as [string, string]}
+            style={styles.card}
+          >
             <Text style={styles.cardTitle}>Weight History (last 30 days)</Text>
             {isLoading ? (
               <ActivityIndicator color={Colors.violet} style={{ marginVertical: Spacing.lg }} />
@@ -411,33 +464,65 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: FontSizes.md, color: Colors.textSecondary, marginTop: Spacing.xs },
   content: { paddingHorizontal: Spacing.lg, paddingBottom: 120 },
   card: {
-    borderRadius: BorderRadius.xl, borderWidth: 1, borderColor: Colors.glassBorder,
-    padding: Spacing.md, marginBottom: Spacing.md,
+    borderRadius: BorderRadius.xl,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
   },
-  cardTitle: { fontSize: FontSizes.lg, fontWeight: '700', color: Colors.textPrimary, marginBottom: Spacing.md },
+  cardTitle: {
+    fontSize: FontSizes.lg,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: Spacing.md,
+  },
   inputRow: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.sm },
   inputGroup: { flex: 1 },
-  inputLabel: { fontSize: FontSizes.sm, color: Colors.textSecondary, marginBottom: 6, fontWeight: '600' },
+  inputLabel: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
+    marginBottom: 6,
+    fontWeight: '600',
+  },
   textInput: {
-    backgroundColor: Colors.card, borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm,
-    color: Colors.textPrimary, fontSize: FontSizes.md,
-    borderWidth: 1, borderColor: Colors.glassBorder, marginBottom: Spacing.sm,
+    backgroundColor: Colors.card,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    color: Colors.textPrimary,
+    fontSize: FontSizes.md,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    marginBottom: Spacing.sm,
   },
   genderRow: { flexDirection: 'row', gap: Spacing.sm },
   chip: {
-    flex: 1, paddingVertical: Spacing.sm, borderRadius: BorderRadius.md,
-    backgroundColor: Colors.card, alignItems: 'center',
-    borderWidth: 1, borderColor: Colors.glassBorder,
+    flex: 1,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.card,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
   },
   chipActive: { backgroundColor: Colors.violet, borderColor: Colors.violet },
   chipText: { fontSize: FontSizes.sm, color: Colors.textSecondary, fontWeight: '600' },
   chipTextActive: { color: Colors.textPrimary },
-  idealText: { fontSize: FontSizes.sm, color: Colors.textSecondary, textAlign: 'center', marginTop: Spacing.sm },
+  idealText: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginTop: Spacing.sm,
+  },
   activityChip: {
-    paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm,
-    borderRadius: BorderRadius.md, backgroundColor: Colors.card,
-    marginRight: Spacing.sm, borderWidth: 1, borderColor: Colors.glassBorder, alignItems: 'center',
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.card,
+    marginRight: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+    alignItems: 'center',
   },
   activityChipActive: { backgroundColor: Colors.violet, borderColor: Colors.violet },
   activityLabel: { fontSize: FontSizes.xs, color: Colors.textSecondary, fontWeight: '700' },
@@ -447,21 +532,47 @@ const styles = StyleSheet.create({
   metricBox: { flex: 1, alignItems: 'center', paddingVertical: Spacing.sm },
   metricDivider: { width: 1, height: 60, backgroundColor: Colors.glassBorder },
   metricValue: { fontSize: FontSizes.xxl, fontWeight: '700', color: Colors.lavender },
-  metricLabel: { fontSize: FontSizes.xs, color: Colors.textSecondary, fontWeight: '600', marginTop: 4 },
+  metricLabel: {
+    fontSize: FontSizes.xs,
+    color: Colors.textSecondary,
+    fontWeight: '600',
+    marginTop: 4,
+  },
   metricSub: { fontSize: 10, color: Colors.textMuted, marginTop: 2 },
   logRow: { flexDirection: 'row', alignItems: 'center' },
   logBtn: {
-    paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm + 2,
-    borderRadius: BorderRadius.md, backgroundColor: Colors.violet,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm + 2,
+    borderRadius: BorderRadius.md,
+    backgroundColor: Colors.violet,
   },
   logBtnText: { fontSize: FontSizes.sm, fontWeight: '700', color: Colors.textPrimary },
   logEntry: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingVertical: Spacing.sm, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: Colors.glassBorder,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: Spacing.sm,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: Colors.glassBorder,
   },
   logDate: { fontSize: FontSizes.sm, color: Colors.textSecondary },
   logWeight: { fontSize: FontSizes.sm, fontWeight: '700', color: Colors.textPrimary },
-  emptyText: { fontSize: FontSizes.sm, color: Colors.textSecondary, textAlign: 'center', marginVertical: Spacing.md },
-  errorText: { fontSize: FontSizes.sm, color: Colors.error, textAlign: 'center', marginTop: Spacing.sm },
-  moreText: { fontSize: FontSizes.xs, color: Colors.textMuted, textAlign: 'center', marginTop: Spacing.sm },
+  emptyText: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    marginVertical: Spacing.md,
+  },
+  errorText: {
+    fontSize: FontSizes.sm,
+    color: Colors.error,
+    textAlign: 'center',
+    marginTop: Spacing.sm,
+  },
+  moreText: {
+    fontSize: FontSizes.xs,
+    color: Colors.textMuted,
+    textAlign: 'center',
+    marginTop: Spacing.sm,
+  },
 });

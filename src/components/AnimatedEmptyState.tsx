@@ -53,7 +53,7 @@ export default function AnimatedEmptyState({
           easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start();
 
     // Gentle scale pulse
@@ -71,7 +71,7 @@ export default function AnimatedEmptyState({
           easing: Easing.inOut(Easing.sin),
           useNativeDriver: true,
         }),
-      ])
+      ]),
     ).start();
   }, []);
 
@@ -79,16 +79,10 @@ export default function AnimatedEmptyState({
     <Animated.View style={[styles.container, { opacity: fadeAnim }, style]}>
       {/* Glow ring behind emoji */}
       <Animated.View
-        style={[
-          styles.glowRing,
-          { transform: [{ translateY: floatAnim }, { scale: scaleAnim }] },
-        ]}
+        style={[styles.glowRing, { transform: [{ translateY: floatAnim }, { scale: scaleAnim }] }]}
       />
       <Animated.Text
-        style={[
-          styles.emoji,
-          { transform: [{ translateY: floatAnim }, { scale: scaleAnim }] },
-        ]}
+        style={[styles.emoji, { transform: [{ translateY: floatAnim }, { scale: scaleAnim }] }]}
       >
         {emoji}
       </Animated.Text>

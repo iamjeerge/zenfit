@@ -6,23 +6,10 @@
  */
 
 import React from 'react';
-import {
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  ViewStyle,
-  ActivityIndicator,
-} from 'react-native';
+import { StyleSheet, TouchableOpacity, Text, ViewStyle, ActivityIndicator } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Haptics from '../utils/haptics';
-import {
-  Colors,
-  Gradients,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-  Spacing,
-} from '../theme/colors';
+import { Colors, Gradients, BorderRadius, FontSizes, Shadows, Spacing } from '../theme/colors';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
@@ -31,9 +18,11 @@ interface GradientButtonProps {
   onPress: () => void;
   variant?: ButtonVariant;
   gradient?: readonly string[];
+  colors?: string[];
   disabled?: boolean;
   loading?: boolean;
   style?: ViewStyle;
+  textStyle?: object;
   icon?: string;
   accessibilityLabel?: string;
 }

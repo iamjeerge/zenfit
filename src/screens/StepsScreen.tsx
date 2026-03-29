@@ -6,25 +6,11 @@
  */
 
 import React, { useEffect } from 'react';
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  Dimensions,
-} from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity, Text, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Haptics from '../utils/haptics';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 import AnimatedEntry from '../components/AnimatedEntry';
 import SectionHeader from '../components/SectionHeader';
 import { GradientButton } from '../components';
@@ -54,7 +40,10 @@ export default function StepsScreen() {
 
   useEffect(() => {
     if (currentSteps >= stepGoal) {
-      const timer = setTimeout(() => celebrate('👟', 'Goal Reached!', `${currentSteps.toLocaleString()} steps today!`), 600);
+      const timer = setTimeout(
+        () => celebrate('👟', 'Goal Reached!', `${currentSteps.toLocaleString()} steps today!`),
+        600,
+      );
       return () => clearTimeout(timer);
     }
   }, []);
@@ -172,11 +161,7 @@ export default function StepsScreen() {
 
   const LeaderboardCard = ({ entry }: { entry: LeaderboardEntry }) => (
     <LinearGradient
-      colors={
-        entry.isCurrentUser
-          ? Gradients.cardPrimary
-          : Gradients.cardSecondary
-      }
+      colors={entry.isCurrentUser ? Gradients.cardPrimary : Gradients.cardSecondary}
       start={{ x: 0, y: 0 }}
       end={{ x: 1, y: 1 }}
       style={[
@@ -189,14 +174,10 @@ export default function StepsScreen() {
         <Text style={styles.leaderboardAvatar}>{entry.avatar}</Text>
         <View style={styles.leaderboardInfo}>
           <Text style={styles.leaderboardName}>{entry.name}</Text>
-          <Text style={styles.leaderboardSteps}>
-            {entry.steps.toLocaleString()} steps
-          </Text>
+          <Text style={styles.leaderboardSteps}>{entry.steps.toLocaleString()} steps</Text>
         </View>
         <View style={styles.leaderboardRank}>
-          <Text style={styles.leaderboardRankText}>
-            {leaderboard.indexOf(entry) + 1}
-          </Text>
+          <Text style={styles.leaderboardRankText}>{leaderboard.indexOf(entry) + 1}</Text>
         </View>
       </View>
     </LinearGradient>
@@ -217,97 +198,86 @@ export default function StepsScreen() {
         contentContainerStyle={styles.scrollContent}
       >
         <AnimatedEntry delay={0}>
-        <View style={styles.header}>
-          <Text style={styles.title}>Steps</Text>
-          <Text style={styles.subtitle}>Today</Text>
-        </View>
+          <View style={styles.header}>
+            <Text style={styles.title}>Steps</Text>
+            <Text style={styles.subtitle}>Today</Text>
+          </View>
         </AnimatedEntry>
 
         {/* Circular Progress */}
         <AnimatedEntry delay={100}>
-        <View style={styles.progressSection}>
-          <CircularProgress />
-          <Text style={styles.progressLabel}>
-            {Math.round(progress * 100)}% of daily goal
-          </Text>
-        </View>
-
+          <View style={styles.progressSection}>
+            <CircularProgress />
+            <Text style={styles.progressLabel}>{Math.round(progress * 100)}% of daily goal</Text>
+          </View>
         </AnimatedEntry>
 
         {/* Stats Row */}
         <AnimatedEntry delay={200}>
-        <View style={styles.statsGrid}>
-          {stats.map((stat, index) => (
-            <View key={index} style={styles.statGridItem}>
-              <StatCard stat={stat} />
-            </View>
-          ))}
-        </View>
-
+          <View style={styles.statsGrid}>
+            {stats.map((stat, index) => (
+              <View key={index} style={styles.statGridItem}>
+                <StatCard stat={stat} />
+              </View>
+            ))}
+          </View>
         </AnimatedEntry>
 
         {/* Weekly Chart */}
         <AnimatedEntry delay={300}>
-        <View style={styles.chartSection}>
-          <SectionHeader title="This Week" />
-          <WeeklyChart />
-        </View>
-
+          <View style={styles.chartSection}>
+            <SectionHeader title="This Week" />
+            <WeeklyChart />
+          </View>
         </AnimatedEntry>
 
         {/* Heart Rate Section */}
         <AnimatedEntry delay={400}>
-        <View style={styles.heartRateSection}>
-          <SectionHeader title="Live Heart Rate" />
-          <LinearGradient
-            colors={Gradients.cardPrimary}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 1 }}
-            style={[styles.heartRateCard, { borderColor: Colors.glassBorder }]}
-          >
-            <View style={styles.heartRateContent}>
-              <View style={styles.heartRateLeft}>
-                <Text style={styles.heartEmoji}>❤️</Text>
-                <View style={styles.heartRateInfo}>
-                  <Text style={styles.bpmValue}>{currentBPM}</Text>
-                  <Text style={styles.bpmLabel}>BPM</Text>
+          <View style={styles.heartRateSection}>
+            <SectionHeader title="Live Heart Rate" />
+            <LinearGradient
+              colors={Gradients.cardPrimary}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={[styles.heartRateCard, { borderColor: Colors.glassBorder }]}
+            >
+              <View style={styles.heartRateContent}>
+                <View style={styles.heartRateLeft}>
+                  <Text style={styles.heartEmoji}>❤️</Text>
+                  <View style={styles.heartRateInfo}>
+                    <Text style={styles.bpmValue}>{currentBPM}</Text>
+                    <Text style={styles.bpmLabel}>BPM</Text>
+                  </View>
+                </View>
+                <View style={[styles.zoneIndicator, { backgroundColor: heartRateZone.color }]}>
+                  <Text style={styles.zoneText}>{heartRateZone.zone}</Text>
                 </View>
               </View>
-              <View
-                style={[
-                  styles.zoneIndicator,
-                  { backgroundColor: heartRateZone.color },
-                ]}
-              >
-                <Text style={styles.zoneText}>{heartRateZone.zone}</Text>
-              </View>
-            </View>
-          </LinearGradient>
-        </View>
-
+            </LinearGradient>
+          </View>
         </AnimatedEntry>
 
         {/* Sync Watch Button */}
         <AnimatedEntry delay={500}>
-        <GradientButton
-          title="⌚ Sync Watch"
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-          }}
-          style={{ marginBottom: Spacing.xl }}
-        />
+          <GradientButton
+            title="⌚ Sync Watch"
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            }}
+            style={{ marginBottom: Spacing.xl }}
+          />
         </AnimatedEntry>
 
         {/* Leaderboard */}
         <AnimatedEntry delay={600}>
-        <View style={styles.leaderboardSection}>
-          <SectionHeader title="Friend Leaderboard" />
-          <View style={styles.leaderboardList}>
-            {leaderboard.map((entry) => (
-              <LeaderboardCard key={entry.id} entry={entry} />
-            ))}
+          <View style={styles.leaderboardSection}>
+            <SectionHeader title="Friend Leaderboard" />
+            <View style={styles.leaderboardList}>
+              {leaderboard.map((entry) => (
+                <LeaderboardCard key={entry.id} entry={entry} />
+              ))}
+            </View>
           </View>
-        </View>
         </AnimatedEntry>
       </ScrollView>
       {celebrationOverlay}

@@ -19,13 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Haptics from '../utils/haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes } from '../theme/colors';
 import AnimatedEntry from '../components/AnimatedEntry';
 import SectionHeader from '../components/SectionHeader';
 import AnimatedEmptyState from '../components/AnimatedEmptyState';
@@ -44,38 +38,39 @@ interface Challenge {
   description: string;
 }
 
-const PRESET_CHALLENGES: Omit<Challenge, 'id' | 'startDate' | 'completedDays' | 'participants'>[] = [
-  {
-    name: '7-Day Step Surge',
-    emoji: '👟',
-    durationDays: 7,
-    description: 'Hit 10,000 steps every day for a week.',
-  },
-  {
-    name: '21-Day Mindfulness',
-    emoji: '🧘',
-    durationDays: 21,
-    description: '5 minutes of meditation daily for 21 days.',
-  },
-  {
-    name: '30-Day Hydration',
-    emoji: '💧',
-    durationDays: 30,
-    description: 'Drink 2 litres of water every day for a month.',
-  },
-  {
-    name: '30-Day Strength',
-    emoji: '💪',
-    durationDays: 30,
-    description: 'Complete a workout 5 days per week for 30 days.',
-  },
-  {
-    name: '90-Day Transformation',
-    emoji: '🏆',
-    durationDays: 90,
-    description: 'Sleep 7h, hydrate 2L, and walk 8k steps daily for 90 days.',
-  },
-];
+const PRESET_CHALLENGES: Omit<Challenge, 'id' | 'startDate' | 'completedDays' | 'participants'>[] =
+  [
+    {
+      name: '7-Day Step Surge',
+      emoji: '👟',
+      durationDays: 7,
+      description: 'Hit 10,000 steps every day for a week.',
+    },
+    {
+      name: '21-Day Mindfulness',
+      emoji: '🧘',
+      durationDays: 21,
+      description: '5 minutes of meditation daily for 21 days.',
+    },
+    {
+      name: '30-Day Hydration',
+      emoji: '💧',
+      durationDays: 30,
+      description: 'Drink 2 litres of water every day for a month.',
+    },
+    {
+      name: '30-Day Strength',
+      emoji: '💪',
+      durationDays: 30,
+      description: 'Complete a workout 5 days per week for 30 days.',
+    },
+    {
+      name: '90-Day Transformation',
+      emoji: '🏆',
+      durationDays: 90,
+      description: 'Sleep 7h, hydrate 2L, and walk 8k steps daily for 90 days.',
+    },
+  ];
 
 function todayKey() {
   return new Date().toISOString().slice(0, 10);
@@ -103,7 +98,9 @@ export default function ChallengeRoomsScreen() {
   const [activeTab, setActiveTab] = useState<'active' | 'browse'>('browse');
   const { celebrate, overlay } = useCelebration();
 
-  React.useEffect(() => { loadChallenges(); }, []);
+  React.useEffect(() => {
+    loadChallenges();
+  }, []);
 
   const loadChallenges = async () => {
     try {
@@ -118,7 +115,7 @@ export default function ChallengeRoomsScreen() {
     await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
   };
 
-  const joinChallenge = async (preset: typeof PRESET_CHALLENGES[0]) => {
+  const joinChallenge = async (preset: (typeof PRESET_CHALLENGES)[0]) => {
     const alreadyJoined = challenges.some((c) => c.name === preset.name);
     if (alreadyJoined) {
       Alert.alert('Already Joined', "You're already in this challenge!");
@@ -165,9 +162,7 @@ export default function ChallengeRoomsScreen() {
     ]);
   };
 
-  const activeChallenges = challenges.filter(
-    (c) => daysElapsed(c.startDate) < c.durationDays
-  );
+  const activeChallenges = challenges.filter((c) => daysElapsed(c.startDate) < c.durationDays);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -190,7 +185,10 @@ export default function ChallengeRoomsScreen() {
               <TouchableOpacity
                 key={tab}
                 style={[styles.tab, activeTab === tab && styles.tabActive]}
-                onPress={() => { setActiveTab(tab); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
+                onPress={() => {
+                  setActiveTab(tab);
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                }}
               >
                 {activeTab === tab ? (
                   <LinearGradient colors={Gradients.auroraSubtle} style={styles.tabActiveGradient}>
@@ -214,9 +212,14 @@ export default function ChallengeRoomsScreen() {
             <SectionHeader title="Available Challenges" style={styles.sectionHeader} />
             {PRESET_CHALLENGES.map((preset, idx) => {
               const isJoined = challenges.some((c) => c.name === preset.name);
-              const durationLabel = preset.durationDays === 7 ? '7 days' :
-                preset.durationDays === 21 ? '21 days' :
-                preset.durationDays === 30 ? '30 days' : '90 days';
+              const durationLabel =
+                preset.durationDays === 7
+                  ? '7 days'
+                  : preset.durationDays === 21
+                    ? '21 days'
+                    : preset.durationDays === 30
+                      ? '30 days'
+                      : '90 days';
               const fakeParticipants = [124, 892, 1234, 567, 2341][idx] ?? 300;
               return (
                 <AnimatedEntry key={preset.name} delay={idx * 60}>
@@ -264,7 +267,7 @@ export default function ChallengeRoomsScreen() {
               <AnimatedEmptyState
                 emoji="🚀"
                 title="No active challenges"
-                subtitle='Browse and join a challenge to see it here!'
+                subtitle="Browse and join a challenge to see it here!"
               />
             ) : (
               activeChallenges.map((ch, idx) => {
@@ -280,10 +283,14 @@ export default function ChallengeRoomsScreen() {
                         <View style={{ flex: 1 }}>
                           <Text style={styles.challengeName}>{ch.name}</Text>
                           <Text style={styles.activeMeta}>
-                            Day {Math.min(daysIn, ch.durationDays)}/{ch.durationDays} · ends {formatDate(end)}
+                            Day {Math.min(daysIn, ch.durationDays)}/{ch.durationDays} · ends{' '}
+                            {formatDate(end)}
                           </Text>
                         </View>
-                        <TouchableOpacity onPress={() => leaveChallenge(ch.id)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                        <TouchableOpacity
+                          onPress={() => leaveChallenge(ch.id)}
+                          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        >
                           <Text style={styles.leaveBtn}>✕</Text>
                         </TouchableOpacity>
                       </View>
@@ -292,11 +299,15 @@ export default function ChallengeRoomsScreen() {
                       <View style={styles.progressBarBg}>
                         <LinearGradient
                           colors={Gradients.aurora}
-                          style={[styles.progressBarFill, { width: `${Math.round(progress * 100)}%` }]}
+                          style={[
+                            styles.progressBarFill,
+                            { width: `${Math.round(progress * 100)}%` },
+                          ]}
                         />
                       </View>
                       <Text style={styles.progressLabel}>
-                        {ch.completedDays.length}/{ch.durationDays} days · {Math.round(progress * 100)}% complete
+                        {ch.completedDays.length}/{ch.durationDays} days ·{' '}
+                        {Math.round(progress * 100)}% complete
                       </Text>
 
                       {/* Leaderboard sim */}
@@ -309,13 +320,22 @@ export default function ChallengeRoomsScreen() {
                         ]
                           .sort((a, b) => b.days - a.days)
                           .map((p, i) => (
-                            <View key={p.rank} style={[styles.leaderboardRow, p.self && styles.leaderboardSelf]}>
+                            <View
+                              key={p.rank}
+                              style={[styles.leaderboardRow, p.self && styles.leaderboardSelf]}
+                            >
                               <Text style={styles.lbRank}>#{i + 1}</Text>
-                              <Text style={[styles.lbName, p.self && { color: Colors.violet, fontWeight: '800' }]}>{p.name}</Text>
+                              <Text
+                                style={[
+                                  styles.lbName,
+                                  p.self && { color: Colors.violet, fontWeight: '800' },
+                                ]}
+                              >
+                                {p.name}
+                              </Text>
                               <Text style={styles.lbDays}>{p.days}d</Text>
                             </View>
-                          ))
-                        }
+                          ))}
                       </View>
 
                       <TouchableOpacity
@@ -326,7 +346,10 @@ export default function ChallengeRoomsScreen() {
                         {isLoggedToday ? (
                           <Text style={styles.logDayText}>✅ Logged Today</Text>
                         ) : (
-                          <LinearGradient colors={[Colors.sageLeaf, '#059669']} style={styles.logDayGradient}>
+                          <LinearGradient
+                            colors={[Colors.sageLeaf, '#059669']}
+                            style={styles.logDayGradient}
+                          >
                             <Text style={styles.logDayText}>✓ Log Today's Progress</Text>
                           </LinearGradient>
                         )}
@@ -351,11 +374,27 @@ const styles = StyleSheet.create({
   title: { fontSize: FontSizes.xxxl, fontWeight: '900', color: Colors.textPrimary },
   subtitle: { fontSize: FontSizes.sm, color: Colors.textSecondary, marginTop: 4 },
 
-  tabRow: { flexDirection: 'row', backgroundColor: Colors.card, borderRadius: BorderRadius.lg, padding: 4, marginBottom: Spacing.md },
+  tabRow: {
+    flexDirection: 'row',
+    backgroundColor: Colors.card,
+    borderRadius: BorderRadius.lg,
+    padding: 4,
+    marginBottom: Spacing.md,
+  },
   tab: { flex: 1, borderRadius: BorderRadius.md, overflow: 'hidden' },
   tabActive: {},
-  tabActiveGradient: { paddingVertical: Spacing.sm, alignItems: 'center', borderRadius: BorderRadius.md },
-  tabText: { fontSize: FontSizes.sm, fontWeight: '700', color: Colors.textSecondary, textAlign: 'center', paddingVertical: Spacing.sm },
+  tabActiveGradient: {
+    paddingVertical: Spacing.sm,
+    alignItems: 'center',
+    borderRadius: BorderRadius.md,
+  },
+  tabText: {
+    fontSize: FontSizes.sm,
+    fontWeight: '700',
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    paddingVertical: Spacing.sm,
+  },
   tabTextActive: { color: Colors.textPrimary },
 
   sectionHeader: { marginBottom: Spacing.sm },
@@ -370,7 +409,12 @@ const styles = StyleSheet.create({
   challengeTop: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.sm },
   challengeEmoji: { fontSize: 32 },
   challengeName: { fontSize: FontSizes.md, fontWeight: '800', color: Colors.textPrimary },
-  challengeDesc: { fontSize: FontSizes.xs, color: Colors.textSecondary, marginTop: 2, lineHeight: 16 },
+  challengeDesc: {
+    fontSize: FontSizes.xs,
+    color: Colors.textSecondary,
+    marginTop: 2,
+    lineHeight: 16,
+  },
   challengeMeta: { flexDirection: 'row', gap: Spacing.xs, marginBottom: Spacing.sm },
   metaChip: {
     backgroundColor: 'rgba(124,58,237,0.12)',
@@ -391,7 +435,12 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.glassBorder,
   },
-  activeTop: { flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.sm, alignItems: 'flex-start' },
+  activeTop: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginBottom: Spacing.sm,
+    alignItems: 'flex-start',
+  },
   activeMeta: { fontSize: FontSizes.xs, color: Colors.textSecondary },
   leaveBtn: { color: Colors.textMuted, fontSize: 18 },
 
@@ -411,9 +460,23 @@ const styles = StyleSheet.create({
     padding: Spacing.sm,
     marginBottom: Spacing.sm,
   },
-  leaderboardLabel: { fontSize: FontSizes.xs, fontWeight: '700', color: Colors.textSecondary, marginBottom: Spacing.xs },
-  leaderboardRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 3, gap: Spacing.xs },
-  leaderboardSelf: { backgroundColor: 'rgba(124,58,237,0.12)', borderRadius: BorderRadius.sm, paddingHorizontal: 4 },
+  leaderboardLabel: {
+    fontSize: FontSizes.xs,
+    fontWeight: '700',
+    color: Colors.textSecondary,
+    marginBottom: Spacing.xs,
+  },
+  leaderboardRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 3,
+    gap: Spacing.xs,
+  },
+  leaderboardSelf: {
+    backgroundColor: 'rgba(124,58,237,0.12)',
+    borderRadius: BorderRadius.sm,
+    paddingHorizontal: 4,
+  },
   lbRank: { fontSize: FontSizes.xs, color: Colors.textMuted, width: 24 },
   lbName: { flex: 1, fontSize: FontSizes.xs, color: Colors.textPrimary },
   lbDays: { fontSize: FontSizes.xs, color: Colors.textSecondary },
@@ -421,5 +484,11 @@ const styles = StyleSheet.create({
   logDayBtn: { borderRadius: BorderRadius.lg, overflow: 'hidden' },
   logDayBtnDone: { backgroundColor: 'rgba(52,211,153,0.15)' },
   logDayGradient: { padding: Spacing.sm, alignItems: 'center' },
-  logDayText: { color: Colors.textPrimary, fontWeight: '800', fontSize: FontSizes.sm, textAlign: 'center', padding: Spacing.xs },
+  logDayText: {
+    color: Colors.textPrimary,
+    fontWeight: '800',
+    fontSize: FontSizes.sm,
+    textAlign: 'center',
+    padding: Spacing.xs,
+  },
 });

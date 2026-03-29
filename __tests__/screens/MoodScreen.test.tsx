@@ -21,18 +21,12 @@ describe('MoodScreen', () => {
     it('should show today check-in card', () => {
       render(<MoodScreen />);
       // Shows either a mood prompt or today's existing mood
-      expect(
-        screen.queryByText(/Log Mood/i) ||
-        screen.queryByText(/Update Mood/i)
-      ).toBeTruthy();
+      expect(screen.queryByText(/Log Mood/i) || screen.queryByText(/Update Mood/i)).toBeTruthy();
     });
 
     it('should show a mood logging button', () => {
       render(<MoodScreen />);
-      expect(
-        screen.queryByText(/\+ Log Mood/i) ||
-        screen.queryByText(/Update Mood/i)
-      ).toBeTruthy();
+      expect(screen.queryByText(/\+ Log Mood/i) || screen.queryByText(/Update Mood/i)).toBeTruthy();
     });
 
     it('should display weekly stats row', () => {
@@ -68,9 +62,7 @@ describe('MoodScreen', () => {
   describe('Log Mood Modal', () => {
     it('should open modal when Log Mood button is pressed', async () => {
       render(<MoodScreen />);
-      const logButton =
-        screen.queryByText(/\+ Log Mood/i) ||
-        screen.queryByText(/Update Mood/i);
+      const logButton = screen.queryByText(/\+ Log Mood/i) || screen.queryByText(/Update Mood/i);
       fireEvent.press(logButton!);
       await waitFor(() => {
         // Modal title is "How are you feeling?"
@@ -80,9 +72,7 @@ describe('MoodScreen', () => {
 
     it('should display mood emoji options', async () => {
       render(<MoodScreen />);
-      const logButton =
-        screen.queryByText(/\+ Log Mood/i) ||
-        screen.queryByText(/Update Mood/i);
+      const logButton = screen.queryByText(/\+ Log Mood/i) || screen.queryByText(/Update Mood/i);
       fireEvent.press(logButton!);
       await waitFor(() => {
         expect(screen.getByText(/Awful/i)).toBeTruthy();
@@ -95,9 +85,7 @@ describe('MoodScreen', () => {
 
     it('should show notes text input in modal', async () => {
       render(<MoodScreen />);
-      const logButton =
-        screen.queryByText(/\+ Log Mood/i) ||
-        screen.queryByText(/Update Mood/i);
+      const logButton = screen.queryByText(/\+ Log Mood/i) || screen.queryByText(/Update Mood/i);
       fireEvent.press(logButton!);
       await waitFor(() => {
         expect(screen.getByPlaceholderText(/Write something/i)).toBeTruthy();
@@ -106,9 +94,7 @@ describe('MoodScreen', () => {
 
     it('should allow selecting a mood level', async () => {
       render(<MoodScreen />);
-      const logButton =
-        screen.queryByText(/\+ Log Mood/i) ||
-        screen.queryByText(/Update Mood/i);
+      const logButton = screen.queryByText(/\+ Log Mood/i) || screen.queryByText(/Update Mood/i);
       fireEvent.press(logButton!);
       await waitFor(() => {
         expect(screen.getByLabelText('Mood: Amazing')).toBeTruthy();
@@ -119,27 +105,21 @@ describe('MoodScreen', () => {
 
     it('should allow typing notes', async () => {
       render(<MoodScreen />);
-      const logButton =
-        screen.queryByText(/\+ Log Mood/i) ||
-        screen.queryByText(/Update Mood/i);
+      const logButton = screen.queryByText(/\+ Log Mood/i) || screen.queryByText(/Update Mood/i);
       fireEvent.press(logButton!);
       await waitFor(() => {
         expect(screen.getByPlaceholderText(/Write something/i)).toBeTruthy();
       });
       fireEvent.changeText(
         screen.getByPlaceholderText(/Write something/i),
-        'Had a great run today!'
+        'Had a great run today!',
       );
-      expect(
-        screen.getByDisplayValue('Had a great run today!')
-      ).toBeTruthy();
+      expect(screen.getByDisplayValue('Had a great run today!')).toBeTruthy();
     });
 
     it('should close modal when Cancel is pressed', async () => {
       render(<MoodScreen />);
-      const logButton =
-        screen.queryByText(/\+ Log Mood/i) ||
-        screen.queryByText(/Update Mood/i);
+      const logButton = screen.queryByText(/\+ Log Mood/i) || screen.queryByText(/Update Mood/i);
       fireEvent.press(logButton!);
       await waitFor(() => {
         expect(screen.getAllByText(/How are you feeling/i).length).toBeGreaterThan(0);
@@ -150,7 +130,7 @@ describe('MoodScreen', () => {
       });
     });
 
-    it('should save mood entry and update today\'s mood display', async () => {
+    it("should save mood entry and update today's mood display", async () => {
       render(<MoodScreen />);
       const logButton = screen.queryByText(/\+ Log Mood/i);
       if (!logButton) {
@@ -159,10 +139,15 @@ describe('MoodScreen', () => {
       } else {
         fireEvent.press(logButton);
       }
-      await waitFor(() => {
-        expect(screen.queryAllByText(/How are you feeling/i).length > 0 ||
-               screen.queryAllByText(/Mood Journal/i).length > 0).toBeTruthy();
-      }, { timeout: 2000 });
+      await waitFor(
+        () => {
+          expect(
+            screen.queryAllByText(/How are you feeling/i).length > 0 ||
+              screen.queryAllByText(/Mood Journal/i).length > 0,
+          ).toBeTruthy();
+        },
+        { timeout: 2000 },
+      );
     });
   });
 
@@ -176,9 +161,7 @@ describe('MoodScreen', () => {
     it('should display "Today" entry in history', () => {
       render(<MoodScreen />);
       // Today's check-in card renders the log/update button
-      expect(
-        screen.queryAllByText(/\+ Log Mood|Update Mood/i).length
-      ).toBeGreaterThan(0);
+      expect(screen.queryAllByText(/\+ Log Mood|Update Mood/i).length).toBeGreaterThan(0);
     });
   });
 
