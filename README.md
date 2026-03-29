@@ -20,6 +20,21 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/iamjeerge/zenfit/actions/workflows/ci.yml">
+    <img src="https://github.com/iamjeerge/zenfit/actions/workflows/ci.yml/badge.svg?branch=main&label=TypeScript" alt="TypeScript" />
+  </a>
+  <a href="https://github.com/iamjeerge/zenfit/actions/workflows/ci.yml">
+    <img src="https://github.com/iamjeerge/zenfit/actions/workflows/ci.yml/badge.svg?branch=main&label=ESLint+%2B+Prettier" alt="ESLint + Prettier" />
+  </a>
+  <a href="https://github.com/iamjeerge/zenfit/actions/workflows/ci.yml">
+    <img src="https://github.com/iamjeerge/zenfit/actions/workflows/ci.yml/badge.svg?branch=main&label=Jest" alt="Jest" />
+  </a>
+  <a href="https://github.com/iamjeerge/zenfit/actions/workflows/docs.yml">
+    <img src="https://github.com/iamjeerge/zenfit/actions/workflows/docs.yml/badge.svg?branch=main" alt="Publish Docs" />
+  </a>
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/React_Native-0.76-61DAFB?logo=react" alt="React Native" />
   <img src="https://img.shields.io/badge/Expo-52-000020?logo=expo" alt="Expo" />
   <img src="https://img.shields.io/badge/TypeScript-5.3-3178C6?logo=typescript" alt="TypeScript" />
