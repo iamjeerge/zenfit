@@ -6,26 +6,12 @@
  */
 
 import React, { useState, useCallback } from 'react';
-import {
-  StyleSheet,
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  Dimensions,
-} from 'react-native';
+import { StyleSheet, View, Text, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Haptics from '../../utils/haptics';
 import { useRouter } from '../../utils/router';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../../theme/colors';
 import { AnimatedEntry, SectionHeader, GlassCard, GradientButton } from '../../components';
 
 const { width } = Dimensions.get('window');
@@ -134,10 +120,7 @@ export default function NutritionScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {/* Header with Aurora Gradient */}
         <AnimatedEntry delay={0} duration={600}>
           <LinearGradient
@@ -149,7 +132,9 @@ export default function NutritionScreen() {
             <View style={styles.headerContent}>
               <View style={styles.headerRow}>
                 <View>
-                  <Text style={styles.title} accessibilityRole="header">Nutrition</Text>
+                  <Text style={styles.title} accessibilityRole="header">
+                    Nutrition
+                  </Text>
                   <Text style={styles.subtitle}>Track your daily intake</Text>
                 </View>
                 <TouchableOpacity
@@ -170,188 +155,150 @@ export default function NutritionScreen() {
 
         {/* Macro Tracking */}
         <AnimatedEntry delay={100} duration={600}>
-        <View style={styles.macroSection}>
-          <SectionHeader title="Macros" />
-          <View style={styles.macroGrid}>
-            {macros.map(renderMacroRing)}
+          <View style={styles.macroSection}>
+            <SectionHeader title="Macros" />
+            <View style={styles.macroGrid}>{macros.map(renderMacroRing)}</View>
           </View>
-        </View>
-
         </AnimatedEntry>
 
         {/* Water Tracker */}
         <AnimatedEntry delay={200} duration={600}>
-        <View style={styles.waterSection}>
-          <View style={styles.waterHeader}>
-            <Text style={styles.sectionTitle}>Water Intake</Text>
-            <Text style={styles.waterGoal}>
-              {waterGlasses}/{maxWaterGlasses} glasses
-            </Text>
-          </View>
+          <View style={styles.waterSection}>
+            <View style={styles.waterHeader}>
+              <Text style={styles.sectionTitle}>Water Intake</Text>
+              <Text style={styles.waterGoal}>
+                {waterGlasses}/{maxWaterGlasses} glasses
+              </Text>
+            </View>
 
-          <View style={styles.waterGrid}>
-            {Array.from({ length: maxWaterGlasses }).map((_, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[
-                  styles.waterGlass,
-                  index < waterGlasses && styles.waterGlassFilled,
-                ]}
-                onPress={() =>
-                  setWaterGlasses(index < waterGlasses ? index : index + 1)
-                }
-                activeOpacity={0.7}
-              >
-                <LinearGradient
-                  colors={
-                    index < waterGlasses
-                      ? [Colors.cosmicBlue, Colors.violetLight]
-                      : [Colors.glassBackground, Colors.glassBackgroundLight]
-                  }
-                  style={styles.waterGlassGradient}
+            <View style={styles.waterGrid}>
+              {Array.from({ length: maxWaterGlasses }).map((_, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={[styles.waterGlass, index < waterGlasses && styles.waterGlassFilled]}
+                  onPress={() => setWaterGlasses(index < waterGlasses ? index : index + 1)}
+                  activeOpacity={0.7}
                 >
-                  <Text style={styles.waterIcon}>
-                    {index < waterGlasses ? '💧' : '🥤'}
-                  </Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            ))}
+                  <LinearGradient
+                    colors={
+                      index < waterGlasses
+                        ? [Colors.cosmicBlue, Colors.violetLight]
+                        : [Colors.glassBackground, Colors.glassBackgroundLight]
+                    }
+                    style={styles.waterGlassGradient}
+                  >
+                    <Text style={styles.waterIcon}>{index < waterGlasses ? '💧' : '🥤'}</Text>
+                  </LinearGradient>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <TouchableOpacity
+              style={styles.addWaterButton}
+              onPress={() => setWaterGlasses(Math.min(waterGlasses + 1, maxWaterGlasses))}
+              activeOpacity={0.8}
+            >
+              <LinearGradient colors={Gradients.aurora} style={styles.buttonGradient}>
+                <Text style={styles.addWaterButtonText}>+ Add Water</Text>
+              </LinearGradient>
+            </TouchableOpacity>
           </View>
-
-          <TouchableOpacity
-            style={styles.addWaterButton}
-            onPress={() =>
-              setWaterGlasses(Math.min(waterGlasses + 1, maxWaterGlasses))
-            }
-            activeOpacity={0.8}
-          >
-            <LinearGradient colors={Gradients.aurora} style={styles.buttonGradient}>
-              <Text style={styles.addWaterButtonText}>+ Add Water</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
-
         </AnimatedEntry>
 
         {/* Today's Meals */}
         <AnimatedEntry delay={300} duration={600}>
-        <View style={styles.mealsSection}>
-          <SectionHeader title="Today's Meals" />
-          <View style={styles.mealsList}>
-            {meals.map((meal) => (
-              <TouchableOpacity
-                key={meal.id}
-                style={styles.mealCard}
-                activeOpacity={0.8}
-              >
-                <LinearGradient
-                  colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
-                  style={styles.mealGradient}
-                >
-                  <View style={styles.mealHeader}>
-                    <View style={styles.mealTitle}>
-                      <Text style={styles.mealIcon}>{meal.icon}</Text>
-                      <View style={styles.mealTitleText}>
-                        <Text style={styles.mealLabel}>{meal.label}</Text>
-                        <Text style={styles.mealTime}>{meal.time}</Text>
+          <View style={styles.mealsSection}>
+            <SectionHeader title="Today's Meals" />
+            <View style={styles.mealsList}>
+              {meals.map((meal) => (
+                <TouchableOpacity key={meal.id} style={styles.mealCard} activeOpacity={0.8}>
+                  <LinearGradient
+                    colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
+                    style={styles.mealGradient}
+                  >
+                    <View style={styles.mealHeader}>
+                      <View style={styles.mealTitle}>
+                        <Text style={styles.mealIcon}>{meal.icon}</Text>
+                        <View style={styles.mealTitleText}>
+                          <Text style={styles.mealLabel}>{meal.label}</Text>
+                          <Text style={styles.mealTime}>{meal.time}</Text>
+                        </View>
+                      </View>
+                      <View style={styles.mealCalories}>
+                        <Text style={styles.mealCaloriesValue}>{meal.calories}</Text>
+                        <Text style={styles.mealCaloriesUnit}>cal</Text>
                       </View>
                     </View>
-                    <View style={styles.mealCalories}>
-                      <Text style={styles.mealCaloriesValue}>
-                        {meal.calories}
-                      </Text>
-                      <Text style={styles.mealCaloriesUnit}>cal</Text>
-                    </View>
-                  </View>
 
-                  {meal.items && meal.items.length > 0 ? (
-                    <View style={styles.mealItems}>
-                      {meal.items.map((item, idx) => (
-                        <View key={idx} style={styles.mealItem}>
-                          <Text style={styles.mealItemDot}>•</Text>
-                          <Text style={styles.mealItemText}>{item}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  ) : (
-                    <Text style={styles.mealPlaceholder}>
-                      No meals logged yet
-                    </Text>
-                  )}
-                </LinearGradient>
-              </TouchableOpacity>
-            ))}
+                    {meal.items && meal.items.length > 0 ? (
+                      <View style={styles.mealItems}>
+                        {meal.items.map((item, idx) => (
+                          <View key={idx} style={styles.mealItem}>
+                            <Text style={styles.mealItemDot}>•</Text>
+                            <Text style={styles.mealItemText}>{item}</Text>
+                          </View>
+                        ))}
+                      </View>
+                    ) : (
+                      <Text style={styles.mealPlaceholder}>No meals logged yet</Text>
+                    )}
+                  </LinearGradient>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
-        </View>
-
         </AnimatedEntry>
 
         {/* AI Food Recommendation */}
         <AnimatedEntry delay={400} duration={600}>
-        <View style={styles.aiSection}>
-          <SectionHeader title="AI Recommendation" />
-          <TouchableOpacity
-            style={styles.aiCard}
-            activeOpacity={0.8}
-          >
-            <LinearGradient
-              colors={Gradients.cardPrimary}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-              style={styles.aiGradient}
-            >
-              <View style={styles.aiHeader}>
-                <Text style={styles.aiIcon}>🤖</Text>
-                <Text style={styles.aiBadge}>Smart Suggestion</Text>
-              </View>
-
-              <Text style={styles.aiTitle}>
-                Protein-Rich Buddha Bowl
-              </Text>
-              <Text style={styles.aiDescription}>
-                Perfect for dinner to meet your protein goals. Based on your
-                preferences and nutritional needs.
-              </Text>
-
-              <View style={styles.aiMacros}>
-                <View style={styles.aiMacroItem}>
-                  <Text style={styles.aiMacroLabel}>Protein</Text>
-                  <Text style={styles.aiMacroValue}>32g</Text>
+          <View style={styles.aiSection}>
+            <SectionHeader title="AI Recommendation" />
+            <TouchableOpacity style={styles.aiCard} activeOpacity={0.8}>
+              <LinearGradient
+                colors={Gradients.cardPrimary}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.aiGradient}
+              >
+                <View style={styles.aiHeader}>
+                  <Text style={styles.aiIcon}>🤖</Text>
+                  <Text style={styles.aiBadge}>Smart Suggestion</Text>
                 </View>
-                <View style={styles.aiMacroItem}>
-                  <Text style={styles.aiMacroLabel}>Carbs</Text>
-                  <Text style={styles.aiMacroValue}>45g</Text>
-                </View>
-                <View style={styles.aiMacroItem}>
-                  <Text style={styles.aiMacroLabel}>Fat</Text>
-                  <Text style={styles.aiMacroValue}>18g</Text>
-                </View>
-              </View>
 
-              <View style={styles.aiLocation}>
-                <Text style={styles.aiLocationIcon}>📍</Text>
-                <Text style={styles.aiLocationText}>
-                  Available at local restaurants
+                <Text style={styles.aiTitle}>Protein-Rich Buddha Bowl</Text>
+                <Text style={styles.aiDescription}>
+                  Perfect for dinner to meet your protein goals. Based on your preferences and
+                  nutritional needs.
                 </Text>
-              </View>
-            </LinearGradient>
-          </TouchableOpacity>
 
-          <TouchableOpacity
-            style={styles.suggestionsButton}
-            activeOpacity={0.8}
-          >
-            <LinearGradient
-              colors={Gradients.sunrise}
-              style={styles.buttonGradient}
-            >
-              <Text style={styles.suggestionsButtonText}>
-                Get AI Suggestions →
-              </Text>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
+                <View style={styles.aiMacros}>
+                  <View style={styles.aiMacroItem}>
+                    <Text style={styles.aiMacroLabel}>Protein</Text>
+                    <Text style={styles.aiMacroValue}>32g</Text>
+                  </View>
+                  <View style={styles.aiMacroItem}>
+                    <Text style={styles.aiMacroLabel}>Carbs</Text>
+                    <Text style={styles.aiMacroValue}>45g</Text>
+                  </View>
+                  <View style={styles.aiMacroItem}>
+                    <Text style={styles.aiMacroLabel}>Fat</Text>
+                    <Text style={styles.aiMacroValue}>18g</Text>
+                  </View>
+                </View>
 
+                <View style={styles.aiLocation}>
+                  <Text style={styles.aiLocationIcon}>📍</Text>
+                  <Text style={styles.aiLocationText}>Available at local restaurants</Text>
+                </View>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.suggestionsButton} activeOpacity={0.8}>
+              <LinearGradient colors={Gradients.sunrise} style={styles.buttonGradient}>
+                <Text style={styles.suggestionsButtonText}>Get AI Suggestions →</Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
         </AnimatedEntry>
 
         {/* Footer spacing */}

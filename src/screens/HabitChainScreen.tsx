@@ -27,13 +27,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from '../utils/haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes } from '../theme/colors';
 import AnimatedEntry from '../components/AnimatedEntry';
 import SectionHeader from '../components/SectionHeader';
 import { useCelebration } from '../components/CelebrationOverlay';
@@ -87,15 +81,7 @@ function calcStreak(completions: string[]): number {
 }
 
 function HabitCell({ filled, isToday }: { filled: boolean; isToday: boolean }) {
-  return (
-    <View
-      style={[
-        styles.cell,
-        filled && styles.cellFilled,
-        isToday && styles.cellToday,
-      ]}
-    />
-  );
+  return <View style={[styles.cell, filled && styles.cellFilled, isToday && styles.cellToday]} />;
 }
 
 function HabitRow({ habit, onToggle }: { habit: Habit; onToggle: (id: string) => void }) {
@@ -129,11 +115,7 @@ function HabitRow({ habit, onToggle }: { habit: Habit; onToggle: (id: string) =>
 
         <View style={styles.habitGrid}>
           {days.map((day) => (
-            <HabitCell
-              key={day}
-              filled={habit.completions.includes(day)}
-              isToday={day === today}
-            />
+            <HabitCell key={day} filled={habit.completions.includes(day)} isToday={day === today} />
           ))}
         </View>
 
@@ -157,7 +139,9 @@ export default function HabitChainScreen() {
   const { celebrate, overlay } = useCelebration();
   const sheet = useBottomSheet();
 
-  useEffect(() => { loadHabits(); }, []);
+  useEffect(() => {
+    loadHabits();
+  }, []);
 
   const loadHabits = async () => {
     setIsLoading(true);
@@ -187,29 +171,32 @@ export default function HabitChainScreen() {
     } catch {}
   };
 
-  const toggleHabit = useCallback(async (id: string) => {
-    const today = todayKey();
-    const updated = habits.map((h) => {
-      if (h.id !== id) return h;
-      const done = h.completions.includes(today);
-      const completions = done
-        ? h.completions.filter((d) => d !== today)
-        : [...h.completions, today];
-      const streak = calcStreak(completions);
-      return { ...h, completions, streak };
-    });
-    saveHabits(updated);
+  const toggleHabit = useCallback(
+    async (id: string) => {
+      const today = todayKey();
+      const updated = habits.map((h) => {
+        if (h.id !== id) return h;
+        const done = h.completions.includes(today);
+        const completions = done
+          ? h.completions.filter((d) => d !== today)
+          : [...h.completions, today];
+        const streak = calcStreak(completions);
+        return { ...h, completions, streak };
+      });
+      saveHabits(updated);
 
-    const habit = updated.find((h) => h.id === id);
-    const isDoneNow = habit?.completions.includes(today);
-    if (isDoneNow) {
-      // Check if all habits done today
-      const allDone = updated.every((h) => h.completions.includes(today));
-      if (allDone) {
-        celebrate('🏆 All Habits Done!', 'Perfect day achieved!');
+      const habit = updated.find((h) => h.id === id);
+      const isDoneNow = habit?.completions.includes(today);
+      if (isDoneNow) {
+        // Check if all habits done today
+        const allDone = updated.every((h) => h.completions.includes(today));
+        if (allDone) {
+          celebrate('🏆 All Habits Done!', 'Perfect day achieved!');
+        }
       }
-    }
-  }, [habits, celebrate]);
+    },
+    [habits, celebrate],
+  );
 
   const addHabit = async () => {
     if (!newName.trim()) {
@@ -267,14 +254,18 @@ export default function HabitChainScreen() {
         <AnimatedEntry delay={100}>
           <LinearGradient colors={Gradients.cardPrimary} style={styles.summaryCard}>
             <View style={styles.summaryLeft}>
-              <Text style={styles.summaryBig}>{completedToday}/{totalHabits}</Text>
+              <Text style={styles.summaryBig}>
+                {completedToday}/{totalHabits}
+              </Text>
               <Text style={styles.summaryLabel}>Completed Today</Text>
             </View>
             <View style={styles.summaryRight}>
               <View style={styles.progressRing}>
                 <Text style={styles.progressPct}>{completionRate}%</Text>
               </View>
-              <Text style={styles.progressLabel}>{completionRate === 100 ? '🏆 Perfect!' : 'Keep going!'}</Text>
+              <Text style={styles.progressLabel}>
+                {completionRate === 100 ? '🏆 Perfect!' : 'Keep going!'}
+              </Text>
             </View>
           </LinearGradient>
         </AnimatedEntry>
@@ -283,9 +274,9 @@ export default function HabitChainScreen() {
         <AnimatedEntry delay={150}>
           <View style={styles.legendRow}>
             <View style={[styles.legendCell, styles.cellFilled]} />
-            <Text style={styles.legendText}>Completed  </Text>
+            <Text style={styles.legendText}>Completed </Text>
             <View style={[styles.legendCell, styles.cellToday]} />
-            <Text style={styles.legendText}>Today  </Text>
+            <Text style={styles.legendText}>Today </Text>
             <View style={styles.legendCell} />
             <Text style={styles.legendText}>Missed</Text>
           </View>
@@ -296,10 +287,7 @@ export default function HabitChainScreen() {
         <AnimatedEntry delay={200}>
           <View style={styles.sectionRow}>
             <SectionHeader title="Your Habits" style={{ flex: 1 }} />
-            <TouchableOpacity
-              style={styles.addBtn}
-              onPress={sheet.open}
-            >
+            <TouchableOpacity style={styles.addBtn} onPress={sheet.open}>
               <LinearGradient colors={Gradients.aurora} style={styles.addBtnGradient}>
                 <Text style={styles.addBtnText}>+ Add</Text>
               </LinearGradient>
@@ -307,17 +295,20 @@ export default function HabitChainScreen() {
           </View>
 
           {habits.map((habit) => (
-            <HabitRow
-              key={habit.id}
-              habit={habit}
-              onToggle={toggleHabit}
-            />
+            <HabitRow key={habit.id} habit={habit} onToggle={toggleHabit} />
           ))}
         </AnimatedEntry>
       </ScrollView>
 
       {/* Add Habit Bottom Sheet */}
-      <BottomSheet ref={sheet.ref} snapHeight={420} onClose={() => { setNewName(''); setNewEmoji('⭐'); }}>
+      <BottomSheet
+        ref={sheet.ref}
+        snapHeight={420}
+        onClose={() => {
+          setNewName('');
+          setNewEmoji('⭐');
+        }}
+      >
         <Text style={styles.modalTitle}>New Habit</Text>
 
         <Text style={styles.inputLabel}>Choose Emoji</Text>

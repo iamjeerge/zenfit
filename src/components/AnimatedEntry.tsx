@@ -35,31 +35,21 @@ export default function AnimatedEntry({
   const translateX = useSharedValue(direction === 'left' ? 20 : direction === 'right' ? -20 : 0);
 
   useEffect(() => {
-    opacity.value = withDelay(
-      delay,
-      withTiming(1, { duration, easing: Easing.out(Easing.cubic) })
-    );
+    opacity.value = withDelay(delay, withTiming(1, { duration, easing: Easing.out(Easing.cubic) }));
     translateY.value = withDelay(
       delay,
-      withTiming(0, { duration, easing: Easing.out(Easing.cubic) })
+      withTiming(0, { duration, easing: Easing.out(Easing.cubic) }),
     );
     translateX.value = withDelay(
       delay,
-      withTiming(0, { duration, easing: Easing.out(Easing.cubic) })
+      withTiming(0, { duration, easing: Easing.out(Easing.cubic) }),
     );
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
     opacity: opacity.value,
-    transform: [
-      { translateY: translateY.value },
-      { translateX: translateX.value },
-    ],
+    transform: [{ translateY: translateY.value }, { translateX: translateX.value }],
   }));
 
-  return (
-    <Animated.View style={[animatedStyle, style]}>
-      {children}
-    </Animated.View>
-  );
+  return <Animated.View style={[animatedStyle, style]}>{children}</Animated.View>;
 }

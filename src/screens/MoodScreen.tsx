@@ -20,14 +20,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import SkeletonLoader, { SkeletonListItem } from '../components/SkeletonLoader';
@@ -95,9 +88,7 @@ export default function MoodScreen() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [randomPromptIndex] = useState(
-    Math.floor(Math.random() * MOOD_PROMPTS.length)
-  );
+  const [randomPromptIndex] = useState(Math.floor(Math.random() * MOOD_PROMPTS.length));
 
   useEffect(() => {
     if (user) fetchEntries();
@@ -122,12 +113,18 @@ export default function MoodScreen() {
 
       const mapped: MoodEntry[] = (data || []).map((row: any) => ({
         id: row.id,
-        date: row.date === todayStr ? 'Today'
-          : row.date === yesterdayStr ? 'Yesterday'
-          : new Date(row.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+        date:
+          row.date === todayStr
+            ? 'Today'
+            : row.date === yesterdayStr
+              ? 'Yesterday'
+              : new Date(row.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
         level: (row.mood_level ?? 3) as MoodLevel,
         notes: row.notes ?? '',
-        timestamp: new Date(row.logged_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        timestamp: new Date(row.logged_at).toLocaleTimeString('en-US', {
+          hour: '2-digit',
+          minute: '2-digit',
+        }),
       }));
       setEntries(mapped);
     } catch {
@@ -138,9 +135,8 @@ export default function MoodScreen() {
   };
 
   const todayEntry = entries.find((e) => e.date === 'Today');
-  const avgMood = entries.length > 0
-    ? entries.reduce((sum, e) => sum + e.level, 0) / entries.length
-    : 0;
+  const avgMood =
+    entries.length > 0 ? entries.reduce((sum, e) => sum + e.level, 0) / entries.length : 0;
   const streak = (() => {
     if (entries.length === 0) return 0;
     let count = 0;
@@ -149,12 +145,14 @@ export default function MoodScreen() {
       const expected = new Date(today);
       expected.setDate(today.getDate() - i);
       const exp = expected.toISOString().split('T')[0];
-      const entryDate = entries[i]?.date === 'Today'
-        ? today.toISOString().split('T')[0]
-        : entries[i]?.date === 'Yesterday'
-        ? new Date(Date.now() - 86400000).toISOString().split('T')[0]
-        : exp;
-      if (entryDate === exp) count++; else break;
+      const entryDate =
+        entries[i]?.date === 'Today'
+          ? today.toISOString().split('T')[0]
+          : entries[i]?.date === 'Yesterday'
+            ? new Date(Date.now() - 86400000).toISOString().split('T')[0]
+            : exp;
+      if (entryDate === exp) count++;
+      else break;
     }
     return count;
   })();
@@ -207,12 +205,7 @@ export default function MoodScreen() {
             accessibilityLabel={`Mood: ${cfg.label}`}
           >
             <Text style={styles.moodOptionEmoji}>{cfg.emoji}</Text>
-            <Text
-              style={[
-                styles.moodOptionLabel,
-                isSelected && { color: Colors.textPrimary },
-              ]}
-            >
+            <Text style={[styles.moodOptionLabel, isSelected && { color: Colors.textPrimary }]}>
               {cfg.label}
             </Text>
           </TouchableOpacity>
@@ -242,9 +235,7 @@ export default function MoodScreen() {
             <Text style={styles.entryBadgeText}>{cfg.label}</Text>
           </View>
         </View>
-        {entry.notes ? (
-          <Text style={styles.entryNotes}>💬 {entry.notes}</Text>
-        ) : null}
+        {entry.notes ? <Text style={styles.entryNotes}>💬 {entry.notes}</Text> : null}
       </LinearGradient>
     );
   };
@@ -283,9 +274,7 @@ export default function MoodScreen() {
           {todayEntry ? (
             <>
               <View style={styles.checkinHeader}>
-                <Text style={styles.checkinEmoji}>
-                  {MOOD_CONFIG[todayEntry.level].emoji}
-                </Text>
+                <Text style={styles.checkinEmoji}>{MOOD_CONFIG[todayEntry.level].emoji}</Text>
                 <View>
                   <Text style={styles.checkinTitle}>Today's Mood</Text>
                   <Text
@@ -304,9 +293,7 @@ export default function MoodScreen() {
             </>
           ) : (
             <>
-              <Text style={styles.checkinPrompt}>
-                {MOOD_PROMPTS[randomPromptIndex]}
-              </Text>
+              <Text style={styles.checkinPrompt}>{MOOD_PROMPTS[randomPromptIndex]}</Text>
               <Text style={styles.checkinHint}>Tap below to log your mood</Text>
             </>
           )}
@@ -435,9 +422,7 @@ export default function MoodScreen() {
             <Text style={styles.modalTitle}>How are you feeling?</Text>
             <MoodSelector />
 
-            <Text style={styles.inputLabel}>
-              {MOOD_PROMPTS[randomPromptIndex]} (optional)
-            </Text>
+            <Text style={styles.inputLabel}>{MOOD_PROMPTS[randomPromptIndex]} (optional)</Text>
             <TextInput
               style={[styles.textInput, styles.notesInput]}
               value={notes}

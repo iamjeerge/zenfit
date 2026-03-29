@@ -31,12 +31,7 @@ import {
   Shadows,
   HIT_SLOP,
 } from '../../theme/colors';
-import {
-  GlassCard,
-  StatCard,
-  SectionHeader,
-  AnimatedEntry,
-} from '../../components';
+import { GlassCard, StatCard, SectionHeader, AnimatedEntry } from '../../components';
 
 const CLAUDE_API_KEY = process.env.EXPO_PUBLIC_CLAUDE_API_KEY ?? '';
 const CLAUDE_URL = 'https://api.anthropic.com/v1/messages';
@@ -55,8 +50,10 @@ const MANTRAS = [
 const QUICK_ACTIONS = [
   { icon: '🧘', label: 'Start Yoga', route: '/yoga' as const },
   { icon: '🌬️', label: 'Breathe', route: '/breathe' as const },
-  { icon: '🍽️', label: 'Log Meal', route: '/nutrition' as const },  { icon: '🏆', label: 'Challenges', route: '/challenges' as const },
-  { icon: '📝', label: 'Journal', route: '/journal' as const },  { icon: '�', label: 'Habits', route: '/habits' as const },
+  { icon: '🍽️', label: 'Log Meal', route: '/nutrition' as const },
+  { icon: '🏆', label: 'Challenges', route: '/challenges' as const },
+  { icon: '📝', label: 'Journal', route: '/journal' as const },
+  { icon: '�', label: 'Habits', route: '/habits' as const },
   { icon: '�💧', label: 'Water', route: '/water' as const },
   { icon: '🩺', label: 'Recovery', route: '/recovery' as const },
   { icon: '📏', label: 'Measure', route: '/body-measurements' as const },
@@ -81,14 +78,14 @@ export default function HomeScreen() {
       Animated.sequence([
         Animated.timing(aurora1, { toValue: 1, duration: 6000, useNativeDriver: true }),
         Animated.timing(aurora1, { toValue: 0, duration: 6000, useNativeDriver: true }),
-      ])
+      ]),
     ).start();
     Animated.loop(
       Animated.sequence([
         Animated.delay(3000),
         Animated.timing(aurora2, { toValue: 1, duration: 6000, useNativeDriver: true }),
         Animated.timing(aurora2, { toValue: 0, duration: 6000, useNativeDriver: true }),
-      ])
+      ]),
     ).start();
   }, []);
 
@@ -125,7 +122,7 @@ export default function HomeScreen() {
 
     try {
       const waterRaw = await AsyncStorage.getItem(`zenfit:water_intake:${today}`);
-      const waterMl = waterRaw ? JSON.parse(waterRaw).totalMl ?? 0 : 0;
+      const waterMl = waterRaw ? (JSON.parse(waterRaw).totalMl ?? 0) : 0;
       const prompt = `You are a friendly wellness coach for the ZenFit app. Write a short, motivational daily ${timeOfDay} briefing for ${name}. Keep it to 2-3 sentences. Include one specific tip based on: water intake today ${waterMl}ml (goal 2000ml), streak ${profile?.streak_days ?? 0} days, current heart zone fatburn. Be warm, personal, and energising. No markdown, plain text only.`;
       const res = await fetch(CLAUDE_URL, {
         method: 'POST',
@@ -154,7 +151,7 @@ export default function HomeScreen() {
   const getOfflineBriefing = () => {
     const briefings = [
       'Start your day with intention. Move your body, nourish your mind, and embrace the journey ahead.',
-      'Every small step counts. Stay hydrated, breathe deeply, and celebrate today\'s progress.',
+      "Every small step counts. Stay hydrated, breathe deeply, and celebrate today's progress.",
       'Your consistency is building something beautiful. Keep showing up — your future self will thank you.',
     ];
     return briefings[new Date().getDay() % briefings.length];
@@ -182,35 +179,28 @@ export default function HomeScreen() {
     return map[heartZone] ?? 'Unknown';
   };
 
-  const handleQuickAction = useCallback((route: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push(route as any);
-  }, [router]);
+  const handleQuickAction = useCallback(
+    (route: string) => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      router.push(route as any);
+    },
+    [router],
+  );
 
   const firstName = profile?.full_name?.split(' ')[0] || 'Friend';
-  const greeting = new Date().getHours() < 12 ? 'Good Morning' : new Date().getHours() < 17 ? 'Good Afternoon' : 'Good Evening';
+  const greeting =
+    new Date().getHours() < 12
+      ? 'Good Morning'
+      : new Date().getHours() < 17
+        ? 'Good Afternoon'
+        : 'Good Evening';
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Aurora background blobs */}
-      <Animated.View
-        style={[
-          styles.auroraBlob1,
-          { opacity: aurora1 },
-        ]}
-        pointerEvents="none"
-      />
-      <Animated.View
-        style={[
-          styles.auroraBlob2,
-          { opacity: aurora2 },
-        ]}
-        pointerEvents="none"
-      />
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <Animated.View style={[styles.auroraBlob1, { opacity: aurora1 }]} pointerEvents="none" />
+      <Animated.View style={[styles.auroraBlob2, { opacity: aurora2 }]} pointerEvents="none" />
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {/* Header with Aurora Gradient */}
         <AnimatedEntry delay={0} duration={600}>
           <LinearGradient
@@ -247,7 +237,11 @@ export default function HomeScreen() {
               <Text style={styles.briefingIcon}>🤖</Text>
               <Text style={styles.briefingLabel}>AI DAILY BRIEFING</Text>
               <TouchableOpacity
-                onPress={() => { hasFetched.current = false; setBriefing(null); fetchDailyBriefing(); }}
+                onPress={() => {
+                  hasFetched.current = false;
+                  setBriefing(null);
+                  fetchDailyBriefing();
+                }}
                 accessibilityLabel="Refresh briefing"
                 hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
               >
@@ -260,7 +254,9 @@ export default function HomeScreen() {
                 <Text style={styles.briefingLoadingText}>Crafting your briefing…</Text>
               </View>
             ) : (
-              <Text style={styles.briefingText}>{briefing ?? 'Loading your personalized briefing…'}</Text>
+              <Text style={styles.briefingText}>
+                {briefing ?? 'Loading your personalized briefing…'}
+              </Text>
             )}
           </LinearGradient>
         </AnimatedEntry>

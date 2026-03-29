@@ -5,25 +5,11 @@
  */
 
 import React, { useState } from 'react';
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-  TouchableOpacity,
-  Text,
-  FlatList,
-} from 'react-native';
+import { View, ScrollView, StyleSheet, TouchableOpacity, Text, FlatList } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Haptics from '../utils/haptics';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 import AnimatedEntry from '../components/AnimatedEntry';
 import SectionHeader from '../components/SectionHeader';
 
@@ -158,10 +144,7 @@ export default function VideosScreen() {
 
   const CategoryTab = ({ category }: { category: Category }) => (
     <TouchableOpacity
-      style={[
-        styles.categoryTab,
-        selectedCategory === category && styles.categoryTabActive,
-      ]}
+      style={[styles.categoryTab, selectedCategory === category && styles.categoryTabActive]}
       onPress={() => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         setSelectedCategory(category);
@@ -264,10 +247,10 @@ export default function VideosScreen() {
       />
 
       <AnimatedEntry delay={0}>
-      <View style={styles.header}>
-        <Text style={styles.title}>Videos</Text>
-        <Text style={styles.subtitle}>Explore our video library</Text>
-      </View>
+        <View style={styles.header}>
+          <Text style={styles.title}>Videos</Text>
+          <Text style={styles.subtitle}>Explore our video library</Text>
+        </View>
       </AnimatedEntry>
 
       {/* Category Tabs */}
@@ -291,23 +274,23 @@ export default function VideosScreen() {
         {/* Featured Video */}
         {featuredVideo && (
           <AnimatedEntry delay={200}>
-          <View style={styles.featuredSection}>
-            <SectionHeader title="Featured" />
-            <FeaturedCard video={featuredVideo} />
-          </View>
+            <View style={styles.featuredSection}>
+              <SectionHeader title="Featured" />
+              <FeaturedCard video={featuredVideo} />
+            </View>
           </AnimatedEntry>
         )}
 
         {/* Video Grid */}
         <AnimatedEntry delay={300}>
-        <View style={styles.videosSection}>
-          <SectionHeader title={selectedCategory === 'All' ? 'All Videos' : selectedCategory} />
-          <View style={styles.videoGrid}>
-            {filteredVideos.slice(1).map((video) => (
-              <VideoCard key={video.id} video={video} />
-            ))}
+          <View style={styles.videosSection}>
+            <SectionHeader title={selectedCategory === 'All' ? 'All Videos' : selectedCategory} />
+            <View style={styles.videoGrid}>
+              {filteredVideos.slice(1).map((video) => (
+                <VideoCard key={video.id} video={video} />
+              ))}
+            </View>
           </View>
-        </View>
         </AnimatedEntry>
       </ScrollView>
     </SafeAreaView>

@@ -137,14 +137,22 @@ function AppNavigator() {
           <Stack.Screen name="Sleep" component={SleepScreen} />
           <Stack.Screen name="Mood" component={MoodScreen} />
           <Stack.Screen name="BMI" component={BMIScreen} />
-          <Stack.Screen name="ActiveWorkout" component={ActiveWorkoutScreen} options={{ animation: 'slide_from_bottom' }} />
+          <Stack.Screen
+            name="ActiveWorkout"
+            component={ActiveWorkoutScreen}
+            options={{ animation: 'slide_from_bottom' }}
+          />
           <Stack.Screen name="Water" component={WaterTrackerScreen} />
           <Stack.Screen name="Recovery" component={RecoveryScreen} />
           <Stack.Screen name="BodyMeasurements" component={BodyMeasurementsScreen} />
           <Stack.Screen name="Habits" component={HabitChainScreen} />
           <Stack.Screen name="Journal" component={GratitudeJournalScreen} />
           <Stack.Screen name="Challenges" component={ChallengeRoomsScreen} />
-          <Stack.Screen name="BarcodeScanner" component={BarcodeScannerScreen} options={{ animation: 'slide_from_bottom' }} />
+          <Stack.Screen
+            name="BarcodeScanner"
+            component={BarcodeScannerScreen}
+            options={{ animation: 'slide_from_bottom' }}
+          />
           <Stack.Screen name="Progress" component={ProgressScreen} />
           <Stack.Screen name="Appearance" component={AppearanceScreen} />
           <Stack.Screen name="Settings" component={SettingsScreen} />
@@ -179,4 +187,3 @@ export default function App() {
     </GestureHandlerRootView>
   );
 }
-

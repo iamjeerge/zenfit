@@ -20,16 +20,16 @@ describe('SplashScreen', () => {
       replace: jest.fn(),
       back: jest.fn(),
     };
-    (useRouter as jest.Mock).mockReturnValue(mockRouter);
+    (useRouter as unknown as jest.Mock).mockReturnValue(mockRouter);
 
-    mockUseAuthStore = jest.fn((selector) => {
+    mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
       const state = {
         session: null,
         initialized: true,
       };
       return typeof selector === 'function' ? selector(state) : state;
     });
-    (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+    (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
   });
 
   afterEach(() => {
@@ -66,7 +66,7 @@ describe('SplashScreen', () => {
 
   describe('Navigation', () => {
     it('should navigate to onboarding when not authenticated', async () => {
-      mockUseAuthStore.mockImplementation((selector) => {
+      mockUseAuthStore.mockImplementation((selector: (s: unknown) => unknown) => {
         const state = {
           session: null,
           initialized: true,
@@ -84,7 +84,7 @@ describe('SplashScreen', () => {
     });
 
     it('should navigate to tabs when authenticated', async () => {
-      mockUseAuthStore.mockImplementation((selector) => {
+      mockUseAuthStore.mockImplementation((selector: (s: unknown) => unknown) => {
         const state = {
           session: { access_token: 'test-token', user: { id: 'user-id' } },
           initialized: true,
@@ -102,7 +102,7 @@ describe('SplashScreen', () => {
     });
 
     it('should not navigate if not initialized', async () => {
-      mockUseAuthStore.mockImplementation((selector) => {
+      mockUseAuthStore.mockImplementation((selector: (s: unknown) => unknown) => {
         const state = {
           session: null,
           initialized: false,

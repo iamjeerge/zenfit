@@ -18,12 +18,12 @@ export type MutationTable =
   | 'nutrition_logs';
 
 export interface QueuedMutation {
-  id: string;           // UUID generated client-side
+  id: string; // UUID generated client-side
   table: MutationTable;
   operation: 'insert' | 'upsert';
   payload: Record<string, unknown>;
   conflictKey?: string; // column(s) for upsert conflict resolution
-  enqueuedAt: string;   // ISO timestamp
+  enqueuedAt: string; // ISO timestamp
 }
 
 function uuid(): string {

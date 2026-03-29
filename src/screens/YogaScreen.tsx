@@ -140,10 +140,7 @@ export default function YogaScreen() {
       >
         {/* Thumbnail Placeholder */}
         <View style={styles.thumbnail}>
-          <LinearGradient
-            colors={Gradients.lotus}
-            style={styles.thumbnailGradient}
-          >
+          <LinearGradient colors={Gradients.lotus} style={styles.thumbnailGradient}>
             <Text style={styles.thumbnailIcon}>🧘</Text>
           </LinearGradient>
         </View>
@@ -165,12 +162,7 @@ export default function YogaScreen() {
                 },
               ]}
             >
-              <Text
-                style={[
-                  styles.difficultyText,
-                  { color: getDifficultyColor(item.difficulty) },
-                ]}
-              >
+              <Text style={[styles.difficultyText, { color: getDifficultyColor(item.difficulty) }]}>
                 {item.difficulty}
               </Text>
             </View>
@@ -183,14 +175,13 @@ export default function YogaScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <AnimatedEntry delay={0} duration={500}>
           <View style={styles.header}>
-            <Text style={styles.title} accessibilityRole="header">Yoga & Meditation</Text>
+            <Text style={styles.title} accessibilityRole="header">
+              Yoga & Meditation
+            </Text>
             <Text style={styles.subtitle}>Find your perfect practice</Text>
           </View>
         </AnimatedEntry>
@@ -222,8 +213,7 @@ export default function YogaScreen() {
                 <Text
                   style={[
                     styles.filterChipText,
-                    selectedFilter === filter.value &&
-                      styles.filterChipTextActive,
+                    selectedFilter === filter.value && styles.filterChipTextActive,
                   ]}
                 >
                   {filter.label}
@@ -235,85 +225,72 @@ export default function YogaScreen() {
 
         {/* Featured Class */}
         <AnimatedEntry delay={200} duration={600}>
-        <View style={styles.featuredContainer}>
-          <SectionHeader title="Featured Class" />
-          <TouchableOpacity style={styles.featuredCard} activeOpacity={0.8}>
-            <LinearGradient
-              colors={Gradients.cardPrimary}
-              style={styles.featuredGradient}
-            >
-              {/* Featured Header */}
-              <View style={styles.featuredHeader}>
-                <View style={styles.featuredThumbnail}>
-                  <LinearGradient
-                    colors={Gradients.sunrise}
-                    style={styles.featuredThumbnailGradient}
-                  >
-                    <Text style={styles.featuredIcon}>🌅</Text>
-                  </LinearGradient>
+          <View style={styles.featuredContainer}>
+            <SectionHeader title="Featured Class" />
+            <TouchableOpacity style={styles.featuredCard} activeOpacity={0.8}>
+              <LinearGradient colors={Gradients.cardPrimary} style={styles.featuredGradient}>
+                {/* Featured Header */}
+                <View style={styles.featuredHeader}>
+                  <View style={styles.featuredThumbnail}>
+                    <LinearGradient
+                      colors={Gradients.sunrise}
+                      style={styles.featuredThumbnailGradient}
+                    >
+                      <Text style={styles.featuredIcon}>🌅</Text>
+                    </LinearGradient>
+                  </View>
+                  <View style={styles.featuredBadge}>
+                    <Text style={styles.badgeText}>Featured</Text>
+                  </View>
                 </View>
-                <View style={styles.featuredBadge}>
-                  <Text style={styles.badgeText}>Featured</Text>
-                </View>
-              </View>
 
-              {/* Featured Info */}
-              <Text style={styles.featuredTitle}>{FEATURED_CLASS.title}</Text>
-              <Text style={styles.featuredDescription}>
-                {FEATURED_CLASS.description}
-              </Text>
+                {/* Featured Info */}
+                <Text style={styles.featuredTitle}>{FEATURED_CLASS.title}</Text>
+                <Text style={styles.featuredDescription}>{FEATURED_CLASS.description}</Text>
 
-              {/* Featured Stats */}
-              <View style={styles.featuredStats}>
-                <View style={styles.statItem}>
-                  <Text style={styles.statIcon}>⭐</Text>
-                  <Text style={styles.statText}>{FEATURED_CLASS.rating}</Text>
+                {/* Featured Stats */}
+                <View style={styles.featuredStats}>
+                  <View style={styles.statItem}>
+                    <Text style={styles.statIcon}>⭐</Text>
+                    <Text style={styles.statText}>{FEATURED_CLASS.rating}</Text>
+                  </View>
+                  <View style={styles.statItem}>
+                    <Text style={styles.statIcon}>👥</Text>
+                    <Text style={styles.statText}>{FEATURED_CLASS.students.toLocaleString()}</Text>
+                  </View>
+                  <View style={styles.statItem}>
+                    <Text style={styles.statIcon}>⏱️</Text>
+                    <Text style={styles.statText}>{FEATURED_CLASS.duration}m</Text>
+                  </View>
                 </View>
-                <View style={styles.statItem}>
-                  <Text style={styles.statIcon}>👥</Text>
-                  <Text style={styles.statText}>
-                    {FEATURED_CLASS.students.toLocaleString()}
-                  </Text>
-                </View>
-                <View style={styles.statItem}>
-                  <Text style={styles.statIcon}>⏱️</Text>
-                  <Text style={styles.statText}>{FEATURED_CLASS.duration}m</Text>
-                </View>
-              </View>
 
-              {/* Instructor */}
-              <View style={styles.instructorInfo}>
-                <View style={styles.instructorAvatar}>
-                  <Text style={styles.avatarInitial}>
-                    {FEATURED_CLASS.instructor.charAt(0)}
-                  </Text>
+                {/* Instructor */}
+                <View style={styles.instructorInfo}>
+                  <View style={styles.instructorAvatar}>
+                    <Text style={styles.avatarInitial}>{FEATURED_CLASS.instructor.charAt(0)}</Text>
+                  </View>
+                  <View style={styles.instructorDetails}>
+                    <Text style={styles.instructorName}>{FEATURED_CLASS.instructor}</Text>
+                    <Text style={styles.instructorTitle}>Yoga Instructor</Text>
+                  </View>
                 </View>
-                <View style={styles.instructorDetails}>
-                  <Text style={styles.instructorName}>
-                    {FEATURED_CLASS.instructor}
-                  </Text>
-                  <Text style={styles.instructorTitle}>Yoga Instructor</Text>
-                </View>
-              </View>
-            </LinearGradient>
-          </TouchableOpacity>
-        </View>
-
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
         </AnimatedEntry>
 
         {/* Class List */}
         <AnimatedEntry delay={400} duration={600}>
-        <View style={styles.classesContainer}>
-          <SectionHeader title="All Classes" />
-          <FlatList
-            data={filteredClasses}
-            renderItem={renderClassCard}
-            keyExtractor={(item) => item.id}
-            scrollEnabled={false}
-            contentContainerStyle={styles.classListContent}
-          />
-        </View>
-
+          <View style={styles.classesContainer}>
+            <SectionHeader title="All Classes" />
+            <FlatList
+              data={filteredClasses}
+              renderItem={renderClassCard}
+              keyExtractor={(item) => item.id}
+              scrollEnabled={false}
+              contentContainerStyle={styles.classListContent}
+            />
+          </View>
         </AnimatedEntry>
 
         {/* Footer spacing */}

@@ -16,7 +16,7 @@
  * ```
  */
 
-import ReactNativeHapticFeedback from 'react-native-haptic-feedback';
+import ReactNativeHapticFeedback, { HapticFeedbackTypes } from 'react-native-haptic-feedback';
 
 /** Native haptic engine options passed to every trigger call. */
 const options = {
@@ -65,7 +65,7 @@ export const SelectionFeedbackStyle = { Selection: 'selection' } as const;
 export const impactAsync = (
   style: (typeof ImpactFeedbackStyle)[keyof typeof ImpactFeedbackStyle] = ImpactFeedbackStyle.Medium,
 ) => {
-  ReactNativeHapticFeedback.trigger(style as string, options);
+  ReactNativeHapticFeedback.trigger(style as unknown as HapticFeedbackTypes, options);
 };
 
 /**
@@ -76,7 +76,7 @@ export const impactAsync = (
 export const notificationAsync = (
   type: (typeof NotificationFeedbackType)[keyof typeof NotificationFeedbackType] = NotificationFeedbackType.Success,
 ) => {
-  ReactNativeHapticFeedback.trigger(type as string, options);
+  ReactNativeHapticFeedback.trigger(type as unknown as HapticFeedbackTypes, options);
 };
 
 /**

@@ -26,23 +26,18 @@ const useCameraPermissions = (): [PermissionStatus | null, () => Promise<void>] 
   async () => {},
 ];
 const CameraView = ({ style, ...props }: any) => (
-  <View style={[style, { backgroundColor: '#1a1a2e', justifyContent: 'center', alignItems: 'center' }]}>
+  <View
+    style={[style, { backgroundColor: '#1a1a2e', justifyContent: 'center', alignItems: 'center' }]}
+  >
     <Text style={{ color: '#ffffff', fontSize: 16, textAlign: 'center', padding: 20 }}>
-      📷 Camera unavailable{"\n"}(Barcode scanning coming soon)
+      📷 Camera unavailable{'\n'}(Barcode scanning coming soon)
     </Text>
   </View>
 );
 import LinearGradient from 'react-native-linear-gradient';
 import * as Haptics from '../utils/haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 import { AnimatedEntry, GlassCard, GradientButton } from '../components';
 
 interface NutrientInfo {
@@ -84,12 +79,13 @@ export default function BarcodeScannerScreen() {
     setLoading(true);
     setProduct(null);
     try {
-      const res = await fetch(
-        `https://world.openfoodfacts.org/api/v0/product/${barcode}.json`
-      );
+      const res = await fetch(`https://world.openfoodfacts.org/api/v0/product/${barcode}.json`);
       const json = await res.json();
       if (json.status !== 1 || !json.product) {
-        Alert.alert('Not Found', 'No product found for this barcode. Try another or enter details manually.');
+        Alert.alert(
+          'Not Found',
+          'No product found for this barcode. Try another or enter details manually.',
+        );
         setScanned(false);
         return;
       }
@@ -121,7 +117,9 @@ export default function BarcodeScannerScreen() {
   function handleBarcodeScanned({ data }: { data: string }) {
     if (scanCooldown.current || scanned) return;
     scanCooldown.current = true;
-    setTimeout(() => { scanCooldown.current = false; }, 2000);
+    setTimeout(() => {
+      scanCooldown.current = false;
+    }, 2000);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setScanned(true);
     fetchProduct(data);
@@ -145,7 +143,7 @@ export default function BarcodeScannerScreen() {
         addedAt: new Date().toISOString(),
       });
       await AsyncStorage.setItem(key, JSON.stringify(log));
-      setLoggedToday(prev => [...prev, product.barcode]);
+      setLoggedToday((prev) => [...prev, product.barcode]);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert('Added!', `${product.name} added to today's nutrition log.`);
     } catch {
@@ -191,10 +189,7 @@ export default function BarcodeScannerScreen() {
               <Text style={styles.permissionButtonText}>Allow Camera Access</Text>
             </LinearGradient>
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.manualFallbackBtn}
-            onPress={() => setShowManual(true)}
-          >
+          <TouchableOpacity style={styles.manualFallbackBtn} onPress={() => setShowManual(true)}>
             <Text style={styles.manualFallbackText}>Enter barcode manually instead</Text>
           </TouchableOpacity>
           {showManual && (
@@ -231,10 +226,7 @@ export default function BarcodeScannerScreen() {
             facing="back"
             onBarcodeScanned={handleBarcodeScanned}
             barcodeScannerSettings={{
-              barcodeTypes: [
-                'ean13', 'ean8', 'upc_a', 'upc_e',
-                'code128', 'code39', 'qr',
-              ],
+              barcodeTypes: ['ean13', 'ean8', 'upc_a', 'upc_e', 'code128', 'code39', 'qr'],
             }}
           />
           {/* Overlay */}
@@ -254,11 +246,8 @@ export default function BarcodeScannerScreen() {
             </View>
             <View style={styles.overlayBottom}>
               <Text style={styles.scanHint}>Align barcode within the frame</Text>
-              <TouchableOpacity
-                style={styles.manualBtn}
-                onPress={() => setShowManual(v => !v)}
-              >
-                <Text style={styles.manualBtnText}>⌨️  Enter Manually</Text>
+              <TouchableOpacity style={styles.manualBtn} onPress={() => setShowManual((v) => !v)}>
+                <Text style={styles.manualBtnText}>⌨️ Enter Manually</Text>
               </TouchableOpacity>
               {showManual && (
                 <AnimatedEntry delay={0} duration={300}>
@@ -308,10 +297,10 @@ export default function BarcodeScannerScreen() {
               >
                 <Text style={styles.productEmoji}>🍎</Text>
                 <View style={styles.productHeaderText}>
-                  <Text style={styles.productName} numberOfLines={2}>{product.name}</Text>
-                  {product.brand ? (
-                    <Text style={styles.productBrand}>{product.brand}</Text>
-                  ) : null}
+                  <Text style={styles.productName} numberOfLines={2}>
+                    {product.name}
+                  </Text>
+                  {product.brand ? <Text style={styles.productBrand}>{product.brand}</Text> : null}
                   <Text style={styles.productServing}>per {product.servingSize}</Text>
                 </View>
               </LinearGradient>
@@ -324,9 +313,27 @@ export default function BarcodeScannerScreen() {
 
               {/* Macros Grid */}
               <View style={styles.macrosGrid}>
-                <MacroCard label="Protein" value={product.nutrients.protein} unit="g" color={Colors.rosePetal} icon="🥩" />
-                <MacroCard label="Carbs" value={product.nutrients.carbs} unit="g" color={Colors.sacredGold} icon="🍞" />
-                <MacroCard label="Fat" value={product.nutrients.fat} unit="g" color={Colors.cosmicBlue} icon="🥑" />
+                <MacroCard
+                  label="Protein"
+                  value={product.nutrients.protein}
+                  unit="g"
+                  color={Colors.rosePetal}
+                  icon="🥩"
+                />
+                <MacroCard
+                  label="Carbs"
+                  value={product.nutrients.carbs}
+                  unit="g"
+                  color={Colors.sacredGold}
+                  icon="🍞"
+                />
+                <MacroCard
+                  label="Fat"
+                  value={product.nutrients.fat}
+                  unit="g"
+                  color={Colors.cosmicBlue}
+                  icon="🥑"
+                />
               </View>
 
               {/* Extra nutrients */}
@@ -362,7 +369,11 @@ export default function BarcodeScannerScreen() {
                     <Text style={styles.alreadyLoggedText}>✅ Added to today's log</Text>
                   </View>
                 ) : (
-                  <TouchableOpacity style={styles.addButton} onPress={handleAddToLog} activeOpacity={0.85}>
+                  <TouchableOpacity
+                    style={styles.addButton}
+                    onPress={handleAddToLog}
+                    activeOpacity={0.85}
+                  >
                     <LinearGradient
                       colors={Gradients.aurora as unknown as [string, string, ...string[]]}
                       start={{ x: 0, y: 0 }}
@@ -374,7 +385,7 @@ export default function BarcodeScannerScreen() {
                   </TouchableOpacity>
                 )}
                 <TouchableOpacity style={styles.scanAgainButton} onPress={handleScanAgain}>
-                  <Text style={styles.scanAgainText}>📷  Scan Another</Text>
+                  <Text style={styles.scanAgainText}>📷 Scan Another</Text>
                 </TouchableOpacity>
               </View>
 
@@ -387,8 +398,18 @@ export default function BarcodeScannerScreen() {
   );
 }
 
-function MacroCard({ label, value, unit, color, icon }: {
-  label: string; value: number; unit: string; color: string; icon: string;
+function MacroCard({
+  label,
+  value,
+  unit,
+  color,
+  icon,
+}: {
+  label: string;
+  value: number;
+  unit: string;
+  color: string;
+  icon: string;
 }) {
   return (
     <View style={styles.macroCard}>
@@ -397,7 +418,10 @@ function MacroCard({ label, value, unit, color, icon }: {
         style={styles.macroCardGradient}
       >
         <Text style={styles.macroIcon}>{icon}</Text>
-        <Text style={[styles.macroValue, { color }]}>{value}<Text style={styles.macroUnit}>{unit}</Text></Text>
+        <Text style={[styles.macroValue, { color }]}>
+          {value}
+          <Text style={styles.macroUnit}>{unit}</Text>
+        </Text>
         <Text style={styles.macroLabel}>{label}</Text>
       </LinearGradient>
     </View>
@@ -415,7 +439,12 @@ function ExtraRow({ label, value }: { label: string; value: string }) {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
-  centered: { flex: 1, backgroundColor: Colors.background, alignItems: 'center', justifyContent: 'center' },
+  centered: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 
   // Camera
   cameraContainer: { flex: 1 },
@@ -490,7 +519,13 @@ const styles = StyleSheet.create({
     borderColor: 'rgba(255,255,255,0.2)',
   },
   manualLookupBtn: { borderRadius: BorderRadius.md, overflow: 'hidden' },
-  manualLookupText: { textAlign: 'center', color: '#fff', fontWeight: '700', fontSize: FontSizes.md, paddingVertical: Spacing.sm },
+  manualLookupText: {
+    textAlign: 'center',
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: FontSizes.md,
+    paddingVertical: Spacing.sm,
+  },
 
   // Permission
   permissionContent: {
@@ -512,8 +547,19 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginBottom: Spacing.xl,
   },
-  permissionButton: { width: '100%', borderRadius: BorderRadius.lg, overflow: 'hidden', marginBottom: Spacing.md },
-  permissionButtonText: { textAlign: 'center', color: '#fff', fontWeight: '700', fontSize: FontSizes.md, paddingVertical: Spacing.md },
+  permissionButton: {
+    width: '100%',
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+    marginBottom: Spacing.md,
+  },
+  permissionButtonText: {
+    textAlign: 'center',
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: FontSizes.md,
+    paddingVertical: Spacing.md,
+  },
   manualFallbackBtn: { marginTop: Spacing.sm },
   manualFallbackText: { color: Colors.violet, fontSize: FontSizes.sm },
 
@@ -589,19 +635,40 @@ const styles = StyleSheet.create({
   macroLabel: { fontSize: FontSizes.xs, color: Colors.textSecondary, marginTop: 2 },
 
   extrasCard: { marginBottom: Spacing.md, padding: Spacing.md },
-  extrasTitle: { fontSize: FontSizes.sm, fontWeight: '600', color: Colors.textSecondary, marginBottom: Spacing.sm },
+  extrasTitle: {
+    fontSize: FontSizes.sm,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+    marginBottom: Spacing.sm,
+  },
   extrasList: { gap: 6 },
   extraRow: { flexDirection: 'row', justifyContent: 'space-between' },
   extraLabel: { color: Colors.textSecondary, fontSize: FontSizes.sm },
   extraValue: { color: Colors.textPrimary, fontSize: FontSizes.sm, fontWeight: '600' },
 
-  barcodeCard: { marginBottom: Spacing.lg, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  barcodeCard: {
+    marginBottom: Spacing.lg,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   barcodeLabel: { color: Colors.textSecondary, fontSize: FontSizes.sm },
-  barcodeValue: { color: Colors.textPrimary, fontSize: FontSizes.sm, fontWeight: '600', fontVariant: ['tabular-nums'] },
+  barcodeValue: {
+    color: Colors.textPrimary,
+    fontSize: FontSizes.sm,
+    fontWeight: '600',
+    fontVariant: ['tabular-nums'],
+  },
 
   actions: { gap: Spacing.sm },
   addButton: { borderRadius: BorderRadius.xl, overflow: 'hidden' },
-  addButtonText: { textAlign: 'center', color: '#fff', fontWeight: '700', fontSize: FontSizes.md, paddingVertical: Spacing.md },
+  addButtonText: {
+    textAlign: 'center',
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: FontSizes.md,
+    paddingVertical: Spacing.md,
+  },
   alreadyLogged: {
     borderRadius: BorderRadius.xl,
     paddingVertical: Spacing.md,

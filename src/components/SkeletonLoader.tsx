@@ -33,7 +33,7 @@ export function Skeleton({ width = '100%', height = 16, borderRadius = 8, style 
     shimmer.value = withRepeat(
       withTiming(1, { duration: 1200, easing: Easing.inOut(Easing.ease) }),
       -1,
-      false
+      false,
     );
   }, []);
 
@@ -42,13 +42,7 @@ export function Skeleton({ width = '100%', height = 16, borderRadius = 8, style 
   }));
 
   return (
-    <View
-      style={[
-        styles.base,
-        { width: width as any, height, borderRadius },
-        style,
-      ]}
-    >
+    <View style={[styles.base, { width: width as any, height, borderRadius }, style]}>
       <Animated.View style={[StyleSheet.absoluteFill, animatedStyle]}>
         <LinearGradient
           colors={[
@@ -84,8 +78,17 @@ export function SkeletonStatRow() {
     <View style={styles.statRow}>
       {[1, 2, 3].map((k) => (
         <View key={k} style={styles.statCard}>
-          <Skeleton height={20} width={36} borderRadius={10} style={{ marginBottom: Spacing.xs, alignSelf: 'center' }} />
-          <Skeleton height={24} width="60%" style={{ marginBottom: Spacing.xs, alignSelf: 'center' }} />
+          <Skeleton
+            height={20}
+            width={36}
+            borderRadius={10}
+            style={{ marginBottom: Spacing.xs, alignSelf: 'center' }}
+          />
+          <Skeleton
+            height={24}
+            width="60%"
+            style={{ marginBottom: Spacing.xs, alignSelf: 'center' }}
+          />
           <Skeleton height={12} width="80%" style={{ alignSelf: 'center' }} />
         </View>
       ))}
@@ -110,11 +113,17 @@ export function SkeletonListItem({ style }: { style?: ViewStyle }) {
 }
 
 /** Default export — a full-page skeleton layout (header + stat row + 3 cards) */
-export default function SkeletonLoader({ variant = 'default' }: { variant?: 'default' | 'list' | 'minimal' }) {
+export default function SkeletonLoader({
+  variant = 'default',
+}: {
+  variant?: 'default' | 'list' | 'minimal';
+}) {
   if (variant === 'list') {
     return (
       <View style={styles.container}>
-        {[1, 2, 3, 4].map((k) => <SkeletonListItem key={k} style={{ marginBottom: Spacing.sm }} />)}
+        {[1, 2, 3, 4].map((k) => (
+          <SkeletonListItem key={k} style={{ marginBottom: Spacing.sm }} />
+        ))}
       </View>
     );
   }
@@ -140,7 +149,11 @@ export default function SkeletonLoader({ variant = 'default' }: { variant?: 'def
       <SkeletonStatRow />
 
       {/* Cards */}
-      <Skeleton height={14} width="40%" style={{ marginTop: Spacing.xl, marginBottom: Spacing.sm }} />
+      <Skeleton
+        height={14}
+        width="40%"
+        style={{ marginTop: Spacing.xl, marginBottom: Spacing.sm }}
+      />
       <SkeletonCard style={{ marginBottom: Spacing.sm }} />
       <SkeletonCard style={{ marginBottom: Spacing.sm }} />
       <SkeletonCard />

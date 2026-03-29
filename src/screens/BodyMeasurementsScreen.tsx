@@ -23,14 +23,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Haptics from '../utils/haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 import AnimatedEntry from '../components/AnimatedEntry';
 import SectionHeader from '../components/SectionHeader';
 import AnimatedEmptyState from '../components/AnimatedEmptyState';
@@ -77,7 +70,9 @@ export default function BodyMeasurementsScreen() {
   const [activeMetric, setActiveMetric] = useState<MeasurementKey>('weight');
   const [isSaving, setIsSaving] = useState(false);
 
-  useEffect(() => { loadEntries(); }, []);
+  useEffect(() => {
+    loadEntries();
+  }, []);
 
   const loadEntries = async () => {
     setIsLoading(true);
@@ -177,15 +172,25 @@ export default function BodyMeasurementsScreen() {
                     }}
                   >
                     <LinearGradient
-                      colors={activeMetric === f.key ? Gradients.cardPrimary : Gradients.cardSecondary}
+                      colors={
+                        activeMetric === f.key ? Gradients.cardPrimary : Gradients.cardSecondary
+                      }
                       style={styles.statCardGradient}
                     >
                       <Text style={styles.statEmoji}>{f.emoji}</Text>
-                      <Text style={styles.statValue}>{val} {f.unit}</Text>
+                      <Text style={styles.statValue}>
+                        {val} {f.unit}
+                      </Text>
                       <Text style={styles.statLabel}>{f.label}</Text>
                       {change && (
-                        <Text style={[styles.statChange, { color: change.positive ? Colors.error : Colors.sageLeaf }]}>
-                          {change.positive ? '▲' : '▼'} {Math.abs(parseFloat(change.delta))} {f.unit}
+                        <Text
+                          style={[
+                            styles.statChange,
+                            { color: change.positive ? Colors.error : Colors.sageLeaf },
+                          ]}
+                        >
+                          {change.positive ? '▲' : '▼'} {Math.abs(parseFloat(change.delta))}{' '}
+                          {f.unit}
                         </Text>
                       )}
                     </LinearGradient>
@@ -235,7 +240,8 @@ export default function BodyMeasurementsScreen() {
                   <View style={styles.historyMetrics}>
                     {MEASUREMENT_FIELDS.filter((f) => entry[f.key]).map((f) => (
                       <Text key={f.key} style={styles.historyMetric}>
-                        {f.emoji} {entry[f.key]}{f.unit}
+                        {f.emoji} {entry[f.key]}
+                        {f.unit}
                       </Text>
                     ))}
                   </View>
@@ -255,15 +261,25 @@ export default function BodyMeasurementsScreen() {
       </ScrollView>
 
       {/* Log Modal */}
-      <Modal visible={showModal} transparent animationType="slide" onRequestClose={() => setShowModal(false)}>
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.modalOverlay}>
+      <Modal
+        visible={showModal}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowModal(false)}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalOverlay}
+        >
           <LinearGradient colors={['#1A1730', '#2D2554']} style={styles.modal}>
             <Text style={styles.modalTitle}>📏 Log Measurements</Text>
             <Text style={styles.modalSubtitle}>Leave fields blank to skip</Text>
             <ScrollView showsVerticalScrollIndicator={false} style={styles.modalScroll}>
               {MEASUREMENT_FIELDS.map((f) => (
                 <View key={f.key} style={styles.inputRow}>
-                  <Text style={styles.inputLabel}>{f.emoji} {f.label} ({f.unit})</Text>
+                  <Text style={styles.inputLabel}>
+                    {f.emoji} {f.label} ({f.unit})
+                  </Text>
                   <TextInput
                     style={styles.input}
                     value={form[f.key] ?? ''}
@@ -298,7 +314,12 @@ const styles = StyleSheet.create({
 
   header: { paddingTop: Spacing.lg, marginBottom: Spacing.lg },
   title: { fontSize: FontSizes.xxxl, fontWeight: '900', color: Colors.textPrimary },
-  subtitle: { fontSize: FontSizes.sm, color: Colors.textSecondary, marginTop: 4, marginBottom: Spacing.md },
+  subtitle: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
+    marginTop: 4,
+    marginBottom: Spacing.md,
+  },
   logBtn: { borderRadius: BorderRadius.lg, overflow: 'hidden', alignSelf: 'flex-start' },
   logBtnGradient: { paddingVertical: Spacing.sm, paddingHorizontal: Spacing.xl },
   logBtnText: { color: Colors.textPrimary, fontWeight: '800', fontSize: FontSizes.md },
@@ -335,14 +356,29 @@ const styles = StyleSheet.create({
     borderColor: Colors.glassBorder,
     marginBottom: Spacing.sm,
   },
-  historyDate: { fontSize: FontSizes.sm, fontWeight: '700', color: Colors.textPrimary, marginBottom: Spacing.xs },
+  historyDate: {
+    fontSize: FontSizes.sm,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: Spacing.xs,
+  },
   historyMetrics: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs },
   historyMetric: { fontSize: FontSizes.xs, color: Colors.textSecondary },
 
   emptyState: { alignItems: 'center', paddingVertical: Spacing.xxl },
   emptyEmoji: { fontSize: 64, marginBottom: Spacing.md },
-  emptyTitle: { fontSize: FontSizes.xl, fontWeight: '800', color: Colors.textPrimary, marginBottom: Spacing.xs },
-  emptySubtitle: { fontSize: FontSizes.md, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22 },
+  emptyTitle: {
+    fontSize: FontSizes.xl,
+    fontWeight: '800',
+    color: Colors.textPrimary,
+    marginBottom: Spacing.xs,
+  },
+  emptySubtitle: {
+    fontSize: FontSizes.md,
+    color: Colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 22,
+  },
 
   modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.6)' },
   modal: {
@@ -354,11 +390,21 @@ const styles = StyleSheet.create({
     borderColor: Colors.glassBorder,
     maxHeight: '80%',
   },
-  modalTitle: { fontSize: FontSizes.xl, fontWeight: '900', color: Colors.textPrimary, marginBottom: 4 },
+  modalTitle: {
+    fontSize: FontSizes.xl,
+    fontWeight: '900',
+    color: Colors.textPrimary,
+    marginBottom: 4,
+  },
   modalSubtitle: { fontSize: FontSizes.sm, color: Colors.textSecondary, marginBottom: Spacing.md },
   modalScroll: { maxHeight: 400 },
   inputRow: { marginBottom: Spacing.md },
-  inputLabel: { fontSize: FontSizes.sm, color: Colors.textSecondary, fontWeight: '600', marginBottom: 4 },
+  inputLabel: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
+    fontWeight: '600',
+    marginBottom: 4,
+  },
   input: {
     backgroundColor: Colors.card,
     borderRadius: BorderRadius.md,

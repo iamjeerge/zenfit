@@ -30,7 +30,7 @@ const TabIcon = ({ name, focused }: { name: string; focused: boolean }) => {
         Animated.sequence([
           Animated.timing(glowAnim, { toValue: 1, duration: 1200, useNativeDriver: true }),
           Animated.timing(glowAnim, { toValue: 0.4, duration: 1200, useNativeDriver: true }),
-        ])
+        ]),
       ).start();
     } else {
       glowAnim.stopAnimation();
@@ -46,9 +46,7 @@ const TabIcon = ({ name, focused }: { name: string; focused: boolean }) => {
       <Text style={[styles.tabLabel, { color: focused ? Colors.lavender : Colors.textMuted }]}>
         {tab.label}
       </Text>
-      {focused && (
-        <Animated.View style={[styles.glowIndicator, { opacity: glowAnim }]} />
-      )}
+      {focused && <Animated.View style={[styles.glowIndicator, { opacity: glowAnim }]} />}
     </View>
   );
 };

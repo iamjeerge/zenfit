@@ -10,12 +10,7 @@
  *   </BottomSheet>
  *   <Button title="Open" onPress={sheet.open} />
  */
-import React, {
-  useCallback,
-  useImperativeHandle,
-  forwardRef,
-  useState,
-} from 'react';
+import React, { useCallback, useImperativeHandle, forwardRef, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -69,14 +64,8 @@ export function useBottomSheet() {
 }
 
 const BottomSheet = forwardRef<BottomSheetHandle, BottomSheetProps>(function BottomSheet(
-  {
-    children,
-    snapHeight = 400,
-    onClose,
-    dismissable = true,
-    scrollable = false,
-  },
-  ref
+  { children, snapHeight = 400, onClose, dismissable = true, scrollable = false },
+  ref,
 ) {
   const [visible, setVisible] = useState(false);
   const translateY = useSharedValue(snapHeight);
@@ -129,10 +118,7 @@ const BottomSheet = forwardRef<BottomSheetHandle, BottomSheetProps>(function Bot
         style={styles.keyboardView}
       >
         {/* Backdrop */}
-        <TouchableWithoutFeedback
-          onPress={dismissable ? hide : undefined}
-          accessible={false}
-        >
+        <TouchableWithoutFeedback onPress={dismissable ? hide : undefined} accessible={false}>
           <Animated.View style={[styles.backdrop, backdropStyle]} />
         </TouchableWithoutFeedback>
 
@@ -152,7 +138,10 @@ const BottomSheet = forwardRef<BottomSheetHandle, BottomSheetProps>(function Bot
           <ContentWrapper
             style={styles.content}
             {...(scrollable
-              ? { showsVerticalScrollIndicator: false, keyboardShouldPersistTaps: 'handled' as const }
+              ? {
+                  showsVerticalScrollIndicator: false,
+                  keyboardShouldPersistTaps: 'handled' as const,
+                }
               : {})}
           >
             {children}

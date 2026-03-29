@@ -22,7 +22,7 @@ describe('E2E: App Flow Integration Tests', () => {
       replace: jest.fn(),
       back: jest.fn(),
     };
-    (useRouter as jest.Mock).mockReturnValue(mockRouter);
+    (useRouter as unknown as jest.Mock).mockReturnValue(mockRouter);
   });
 
   afterEach(() => {
@@ -32,7 +32,7 @@ describe('E2E: App Flow Integration Tests', () => {
 
   describe('Complete User Journey: New User', () => {
     beforeEach(() => {
-      mockUseAuthStore = jest.fn((selector) => {
+      mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
         const state = {
           session: null,
           initialized: true,
@@ -41,7 +41,7 @@ describe('E2E: App Flow Integration Tests', () => {
         };
         return typeof selector === 'function' ? selector(state) : state;
       });
-      (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+      (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
     });
 
     it('should navigate from Splash to Onboarding when not authenticated', async () => {
@@ -83,7 +83,7 @@ describe('E2E: App Flow Integration Tests', () => {
     it('should allow sign up from auth screen', async () => {
       const mockSignUpWithEmail = jest.fn(() => Promise.resolve());
 
-      mockUseAuthStore = jest.fn((selector) => {
+      mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
         const state = {
           session: null,
           signUpWithEmail: mockSignUpWithEmail,
@@ -91,7 +91,7 @@ describe('E2E: App Flow Integration Tests', () => {
         };
         return typeof selector === 'function' ? selector(state) : state;
       });
-      (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+      (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
 
       render(<AuthScreen />);
 
@@ -114,7 +114,7 @@ describe('E2E: App Flow Integration Tests', () => {
         expect(mockSignUpWithEmail).toHaveBeenCalledWith(
           'jane@example.com',
           'securePassword123',
-          'Jane Doe'
+          'Jane Doe',
         );
       });
     });
@@ -122,7 +122,7 @@ describe('E2E: App Flow Integration Tests', () => {
 
   describe('Complete User Journey: Returning User', () => {
     beforeEach(() => {
-      mockUseAuthStore = jest.fn((selector) => {
+      mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
         const state = {
           session: {
             access_token: 'test-token',
@@ -139,7 +139,7 @@ describe('E2E: App Flow Integration Tests', () => {
         };
         return typeof selector === 'function' ? selector(state) : state;
       });
-      (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+      (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
     });
 
     it('should navigate directly to home for authenticated users', async () => {
@@ -169,7 +169,7 @@ describe('E2E: App Flow Integration Tests', () => {
     it('should handle sign in flow correctly', async () => {
       const mockSignInWithEmail = jest.fn(() => Promise.resolve());
 
-      mockUseAuthStore = jest.fn((selector) => {
+      mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
         const state = {
           session: null,
           signInWithEmail: mockSignInWithEmail,
@@ -177,7 +177,7 @@ describe('E2E: App Flow Integration Tests', () => {
         };
         return typeof selector === 'function' ? selector(state) : state;
       });
-      (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+      (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
 
       render(<AuthScreen />);
 
@@ -190,10 +190,7 @@ describe('E2E: App Flow Integration Tests', () => {
       fireEvent.press(submitButton);
 
       await waitFor(() => {
-        expect(mockSignInWithEmail).toHaveBeenCalledWith(
-          'john@example.com',
-          'password123'
-        );
+        expect(mockSignInWithEmail).toHaveBeenCalledWith('john@example.com', 'password123');
       });
 
       expect(mockRouter.replace).toHaveBeenCalledWith('/(tabs)');
@@ -202,7 +199,7 @@ describe('E2E: App Flow Integration Tests', () => {
     it('should handle sign up to home navigation', async () => {
       const mockSignUpWithEmail = jest.fn(() => Promise.resolve());
 
-      mockUseAuthStore = jest.fn((selector) => {
+      mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
         const state = {
           session: null,
           signUpWithEmail: mockSignUpWithEmail,
@@ -210,7 +207,7 @@ describe('E2E: App Flow Integration Tests', () => {
         };
         return typeof selector === 'function' ? selector(state) : state;
       });
-      (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+      (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
 
       render(<AuthScreen />);
 
@@ -233,7 +230,7 @@ describe('E2E: App Flow Integration Tests', () => {
     });
 
     it('should display validation errors in sign up', async () => {
-      mockUseAuthStore = jest.fn((selector) => {
+      mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
         const state = {
           session: null,
           signUpWithEmail: jest.fn(() => Promise.resolve()),
@@ -241,7 +238,7 @@ describe('E2E: App Flow Integration Tests', () => {
         };
         return typeof selector === 'function' ? selector(state) : state;
       });
-      (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+      (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
 
       render(<AuthScreen />);
 
@@ -258,7 +255,7 @@ describe('E2E: App Flow Integration Tests', () => {
     });
 
     it('should display validation errors in sign in', async () => {
-      mockUseAuthStore = jest.fn((selector) => {
+      mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
         const state = {
           session: null,
           signInWithEmail: jest.fn(),
@@ -266,7 +263,7 @@ describe('E2E: App Flow Integration Tests', () => {
         };
         return typeof selector === 'function' ? selector(state) : state;
       });
-      (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+      (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
 
       render(<AuthScreen />);
 
@@ -282,14 +279,14 @@ describe('E2E: App Flow Integration Tests', () => {
   describe('Navigation Between Screens', () => {
     it('should allow navigation from splash based on auth state', async () => {
       // Test with no auth
-      mockUseAuthStore = jest.fn((selector) => {
+      mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
         const state = {
           session: null,
           initialized: true,
         };
         return typeof selector === 'function' ? selector(state) : state;
       });
-      (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+      (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
 
       const { unmount } = render(<SplashScreen />);
 
@@ -302,14 +299,14 @@ describe('E2E: App Flow Integration Tests', () => {
       unmount();
 
       // Test with auth
-      mockUseAuthStore = jest.fn((selector) => {
+      mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
         const state = {
           session: { access_token: 'token', user: { id: 'id' } },
           initialized: true,
         };
         return typeof selector === 'function' ? selector(state) : state;
       });
-      (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+      (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
 
       jest.clearAllMocks();
 
@@ -323,14 +320,14 @@ describe('E2E: App Flow Integration Tests', () => {
     });
 
     it('should handle auth state changes during app lifetime', async () => {
-      mockUseAuthStore = jest.fn((selector) => {
+      mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
         const state = {
           session: null,
           initialized: true,
         };
         return typeof selector === 'function' ? selector(state) : state;
       });
-      (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+      (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
 
       render(<SplashScreen />);
 
@@ -343,10 +340,10 @@ describe('E2E: App Flow Integration Tests', () => {
   describe('Error Recovery', () => {
     it('should recover from sign up error', async () => {
       const mockSignUpWithEmail = jest.fn(() =>
-        Promise.reject(new Error('Email already registered'))
+        Promise.reject(new Error('Email already registered')),
       );
 
-      mockUseAuthStore = jest.fn((selector) => {
+      mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
         const state = {
           session: null,
           signUpWithEmail: mockSignUpWithEmail,
@@ -354,7 +351,7 @@ describe('E2E: App Flow Integration Tests', () => {
         };
         return typeof selector === 'function' ? selector(state) : state;
       });
-      (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+      (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
 
       render(<AuthScreen />);
 
@@ -380,11 +377,9 @@ describe('E2E: App Flow Integration Tests', () => {
     });
 
     it('should recover from sign in error', async () => {
-      const mockSignInWithEmail = jest.fn(() =>
-        Promise.reject(new Error('Invalid credentials'))
-      );
+      const mockSignInWithEmail = jest.fn(() => Promise.reject(new Error('Invalid credentials')));
 
-      mockUseAuthStore = jest.fn((selector) => {
+      mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
         const state = {
           session: null,
           signInWithEmail: mockSignInWithEmail,
@@ -392,7 +387,7 @@ describe('E2E: App Flow Integration Tests', () => {
         };
         return typeof selector === 'function' ? selector(state) : state;
       });
-      (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+      (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
 
       render(<AuthScreen />);
 
@@ -420,7 +415,7 @@ describe('E2E: App Flow Integration Tests', () => {
         resolveAuth = resolve;
       });
 
-      mockUseAuthStore = jest.fn((selector) => {
+      mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
         const state = {
           session: null,
           signInWithEmail: jest.fn(() => authPromise),
@@ -428,7 +423,7 @@ describe('E2E: App Flow Integration Tests', () => {
         };
         return typeof selector === 'function' ? selector(state) : state;
       });
-      (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+      (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
 
       render(<AuthScreen />);
 
@@ -454,14 +449,14 @@ describe('E2E: App Flow Integration Tests', () => {
   describe('Full Onboarding to Home Journey', () => {
     it('should complete full new user journey', async () => {
       // Step 1: Splash screen
-      mockUseAuthStore = jest.fn((selector) => {
+      mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
         const state = {
           session: null,
           initialized: true,
         };
         return typeof selector === 'function' ? selector(state) : state;
       });
-      (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+      (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
 
       const { unmount: unmountSplash } = render(<SplashScreen />);
 
@@ -489,7 +484,7 @@ describe('E2E: App Flow Integration Tests', () => {
       // Step 3: Auth - Sign Up
       jest.clearAllMocks();
 
-      mockUseAuthStore = jest.fn((selector) => {
+      mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
         const state = {
           session: null,
           signSignUpWithEmail: jest.fn(() => Promise.resolve()),
@@ -497,7 +492,7 @@ describe('E2E: App Flow Integration Tests', () => {
         };
         return typeof selector === 'function' ? selector(state) : state;
       });
-      (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+      (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
 
       render(<AuthScreen />);
 

@@ -31,14 +31,7 @@ const Notifications = {
   SchedulableTriggerInputTypes: { CALENDAR: 'calendar' },
 };
 import * as Haptics from '../utils/haptics';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../store/authStore';
 import AnimatedEntry from '../components/AnimatedEntry';
@@ -71,13 +64,21 @@ interface Reminder {
 }
 
 const TEMPLATES: Record<ReminderType, { emoji: string; title: string; body: string }> = {
-  water:       { emoji: '💧', title: 'Hydration Time',       body: 'Time to drink a glass of water!'          },
-  workout:     { emoji: '🏋️', title: 'Workout Time',          body: 'Time for your scheduled workout!'         },
-  sleep:       { emoji: '🌙', title: 'Bedtime Soon',          body: 'Wind down — your sleep goal is 8 hours.'  },
-  meal:        { emoji: '🍽️', title: 'Meal Reminder',         body: 'Log your meal to hit your macros.'        },
-  mood:        { emoji: '😊', title: 'How are you feeling?',  body: "Take 10 seconds to log today's mood."     },
-  meditation:  { emoji: '🧘', title: 'Mindfulness Break',     body: 'Take a moment to breathe and be present.' },
-  supplement:  { emoji: '💊', title: 'Supplement Reminder',   body: 'Time to take your supplements!'           },
+  water: { emoji: '💧', title: 'Hydration Time', body: 'Time to drink a glass of water!' },
+  workout: { emoji: '🏋️', title: 'Workout Time', body: 'Time for your scheduled workout!' },
+  sleep: { emoji: '🌙', title: 'Bedtime Soon', body: 'Wind down — your sleep goal is 8 hours.' },
+  meal: { emoji: '🍽️', title: 'Meal Reminder', body: 'Log your meal to hit your macros.' },
+  mood: {
+    emoji: '😊',
+    title: 'How are you feeling?',
+    body: "Take 10 seconds to log today's mood.",
+  },
+  meditation: {
+    emoji: '🧘',
+    title: 'Mindfulness Break',
+    body: 'Take a moment to breathe and be present.',
+  },
+  supplement: { emoji: '💊', title: 'Supplement Reminder', body: 'Time to take your supplements!' },
 };
 
 const ALL_DAYS = [1, 2, 3, 4, 5, 6, 7];
@@ -87,7 +88,7 @@ const DAY_LABELS = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
 async function requestPermissions(): Promise<boolean> {
   const { status } = await Notifications.requestPermissionsAsync();
-  if (status !== 'granted') {
+  if ((status as string) !== 'granted') {
     Alert.alert(
       'Notifications Disabled',
       'Enable notifications in Settings to receive reminders.',
@@ -141,13 +142,76 @@ function formatTime(hh: number, mm: number): string {
 }
 
 const DEFAULT_REMINDERS: Reminder[] = [
-  { id: 'r-water',      type: 'water',      ...TEMPLATES.water,      time_hh: 9,  time_mm: 0,  days_of_week: ALL_DAYS,  enabled: true,  notification_id: null },
-  { id: 'r-workout',    type: 'workout',    ...TEMPLATES.workout,    time_hh: 7,  time_mm: 0,  days_of_week: [1,3,5],  enabled: true,  notification_id: null },
-  { id: 'r-sleep',      type: 'sleep',      ...TEMPLATES.sleep,      time_hh: 22, time_mm: 30, days_of_week: ALL_DAYS,  enabled: true,  notification_id: null },
-  { id: 'r-meal',       type: 'meal',       ...TEMPLATES.meal,       time_hh: 13, time_mm: 0,  days_of_week: ALL_DAYS,  enabled: false, notification_id: null },
-  { id: 'r-mood',       type: 'mood',       ...TEMPLATES.mood,       time_hh: 21, time_mm: 0,  days_of_week: ALL_DAYS,  enabled: true,  notification_id: null },
-  { id: 'r-meditation', type: 'meditation', ...TEMPLATES.meditation, time_hh: 7,  time_mm: 30, days_of_week: [1,2,3,4,5], enabled: false, notification_id: null },
-  { id: 'r-supplement', type: 'supplement', ...TEMPLATES.supplement, time_hh: 9,  time_mm: 0,  days_of_week: ALL_DAYS,  enabled: false, notification_id: null },
+  {
+    id: 'r-water',
+    type: 'water',
+    ...TEMPLATES.water,
+    time_hh: 9,
+    time_mm: 0,
+    days_of_week: ALL_DAYS,
+    enabled: true,
+    notification_id: null,
+  },
+  {
+    id: 'r-workout',
+    type: 'workout',
+    ...TEMPLATES.workout,
+    time_hh: 7,
+    time_mm: 0,
+    days_of_week: [1, 3, 5],
+    enabled: true,
+    notification_id: null,
+  },
+  {
+    id: 'r-sleep',
+    type: 'sleep',
+    ...TEMPLATES.sleep,
+    time_hh: 22,
+    time_mm: 30,
+    days_of_week: ALL_DAYS,
+    enabled: true,
+    notification_id: null,
+  },
+  {
+    id: 'r-meal',
+    type: 'meal',
+    ...TEMPLATES.meal,
+    time_hh: 13,
+    time_mm: 0,
+    days_of_week: ALL_DAYS,
+    enabled: false,
+    notification_id: null,
+  },
+  {
+    id: 'r-mood',
+    type: 'mood',
+    ...TEMPLATES.mood,
+    time_hh: 21,
+    time_mm: 0,
+    days_of_week: ALL_DAYS,
+    enabled: true,
+    notification_id: null,
+  },
+  {
+    id: 'r-meditation',
+    type: 'meditation',
+    ...TEMPLATES.meditation,
+    time_hh: 7,
+    time_mm: 30,
+    days_of_week: [1, 2, 3, 4, 5],
+    enabled: false,
+    notification_id: null,
+  },
+  {
+    id: 'r-supplement',
+    type: 'supplement',
+    ...TEMPLATES.supplement,
+    time_hh: 9,
+    time_mm: 0,
+    days_of_week: ALL_DAYS,
+    enabled: false,
+    notification_id: null,
+  },
 ];
 
 // ─── Screen ───────────────────────────────────────────────────────────────────
@@ -169,7 +233,7 @@ export default function RemindersScreen() {
 
   const checkPermission = async () => {
     const { status } = await Notifications.getPermissionsAsync();
-    setPermissionGranted(status === 'granted');
+    setPermissionGranted((status as string) === 'granted');
   };
 
   const loadReminders = async () => {
@@ -188,7 +252,7 @@ export default function RemindersScreen() {
             enabled: row.enabled ?? r.enabled,
             notification_id: row.notification_id ?? r.notification_id,
           };
-        })
+        }),
       );
     }
   };
@@ -273,7 +337,11 @@ export default function RemindersScreen() {
         </View>
       </AnimatedEntry>
 
-      <ScrollView style={styles.content} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+      <ScrollView
+        style={styles.content}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
+      >
         {reminders.map((reminder, index) => (
           <AnimatedEntry key={reminder.id} delay={100 + index * 50}>
             <LinearGradient
@@ -285,10 +353,18 @@ export default function RemindersScreen() {
                   <Text style={styles.emoji}>{reminder.emoji}</Text>
                   <View style={styles.reminderInfo}>
                     <Text style={styles.reminderTitle}>{reminder.title}</Text>
-                    <Text style={styles.reminderTime}>{formatTime(reminder.time_hh, reminder.time_mm)}</Text>
+                    <Text style={styles.reminderTime}>
+                      {formatTime(reminder.time_hh, reminder.time_mm)}
+                    </Text>
                     <View style={styles.daysRow}>
                       {ALL_DAYS.map((d, i) => (
-                        <Text key={d} style={[styles.dayDot, reminder.days_of_week.includes(d) && styles.dayDotActive]}>
+                        <Text
+                          key={d}
+                          style={[
+                            styles.dayDot,
+                            reminder.days_of_week.includes(d) && styles.dayDotActive,
+                          ]}
+                        >
                           {DAY_LABELS[i]}
                         </Text>
                       ))}
@@ -308,18 +384,38 @@ export default function RemindersScreen() {
       </ScrollView>
 
       {/* Edit Modal */}
-      <Modal visible={!!editingReminder} transparent animationType="slide" onRequestClose={() => setEditingReminder(null)}>
+      <Modal
+        visible={!!editingReminder}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setEditingReminder(null)}
+      >
         <View style={styles.modalOverlay}>
-          <LinearGradient colors={['#1A1730', '#2D2554']} style={[styles.modalContent, { borderColor: Colors.glassBorder }]}>
+          <LinearGradient
+            colors={['#1A1730', '#2D2554']}
+            style={[styles.modalContent, { borderColor: Colors.glassBorder }]}
+          >
             <Text style={styles.modalTitle}>Edit Reminder</Text>
             <View style={styles.timeRow}>
               <View style={styles.timeGroup}>
                 <Text style={styles.inputLabel}>Hour (0–23)</Text>
-                <TextInput style={styles.textInput} value={editHH} onChangeText={setEditHH} keyboardType="number-pad" placeholderTextColor={Colors.textMuted} />
+                <TextInput
+                  style={styles.textInput}
+                  value={editHH}
+                  onChangeText={setEditHH}
+                  keyboardType="number-pad"
+                  placeholderTextColor={Colors.textMuted}
+                />
               </View>
               <View style={styles.timeGroup}>
                 <Text style={styles.inputLabel}>Minute (0–59)</Text>
-                <TextInput style={styles.textInput} value={editMM} onChangeText={setEditMM} keyboardType="number-pad" placeholderTextColor={Colors.textMuted} />
+                <TextInput
+                  style={styles.textInput}
+                  value={editMM}
+                  onChangeText={setEditMM}
+                  keyboardType="number-pad"
+                  placeholderTextColor={Colors.textMuted}
+                />
               </View>
             </View>
             <Text style={styles.inputLabel}>Days of Week</Text>
@@ -328,9 +424,17 @@ export default function RemindersScreen() {
                 <TouchableOpacity
                   key={d}
                   style={[styles.dayChip, editDays.includes(d) && styles.dayChipActive]}
-                  onPress={() => setEditDays((prev) => prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d].sort())}
+                  onPress={() =>
+                    setEditDays((prev) =>
+                      prev.includes(d) ? prev.filter((x) => x !== d) : [...prev, d].sort(),
+                    )
+                  }
                 >
-                  <Text style={[styles.dayChipText, editDays.includes(d) && styles.dayChipTextActive]}>{DAY_LABELS[i]}</Text>
+                  <Text
+                    style={[styles.dayChipText, editDays.includes(d) && styles.dayChipTextActive]}
+                  >
+                    {DAY_LABELS[i]}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -339,8 +443,15 @@ export default function RemindersScreen() {
                 <Text style={styles.cancelText}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.saveBtn} onPress={saveEdit} disabled={isSaving}>
-                <LinearGradient colors={Gradients.aurora as unknown as [string, string, ...string[]]} style={styles.saveBtnGradient}>
-                  {isSaving ? <ActivityIndicator color={Colors.textPrimary} /> : <Text style={styles.saveText}>Save</Text>}
+                <LinearGradient
+                  colors={Gradients.aurora as unknown as [string, string, ...string[]]}
+                  style={styles.saveBtnGradient}
+                >
+                  {isSaving ? (
+                    <ActivityIndicator color={Colors.textPrimary} />
+                  ) : (
+                    <Text style={styles.saveText}>Save</Text>
+                  )}
                 </LinearGradient>
               </TouchableOpacity>
             </View>
@@ -354,59 +465,108 @@ export default function RemindersScreen() {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: Colors.background },
   header: { paddingHorizontal: Spacing.lg, paddingTop: Spacing.lg, paddingBottom: Spacing.md },
-  title: { fontSize: FontSizes.xxxl, fontWeight: '700', color: Colors.textPrimary, marginBottom: Spacing.xs },
+  title: {
+    fontSize: FontSizes.xxxl,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: Spacing.xs,
+  },
   subtitle: { fontSize: FontSizes.md, color: Colors.textSecondary },
   permBanner: {
-    backgroundColor: '#F59E0B20', borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.sm, paddingHorizontal: Spacing.md, marginTop: Spacing.sm,
-    borderWidth: 1, borderColor: '#F59E0B40',
+    backgroundColor: '#F59E0B20',
+    borderRadius: BorderRadius.md,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.md,
+    marginTop: Spacing.sm,
+    borderWidth: 1,
+    borderColor: '#F59E0B40',
   },
   permText: { fontSize: FontSizes.sm, color: '#F59E0B', fontWeight: '600' },
   content: { flex: 1, paddingHorizontal: Spacing.lg },
   scrollContent: { paddingBottom: 120 },
   reminderCard: {
-    borderWidth: 1, borderRadius: BorderRadius.lg,
-    padding: Spacing.md, marginBottom: Spacing.md,
-    backgroundColor: Colors.glassBackground, ...Shadows.card,
+    borderWidth: 1,
+    borderRadius: BorderRadius.lg,
+    padding: Spacing.md,
+    marginBottom: Spacing.md,
+    backgroundColor: Colors.glassBackground,
+    ...Shadows.card,
   },
   reminderContent: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   reminderLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   emoji: { fontSize: 32, marginRight: Spacing.md },
   reminderInfo: { flex: 1 },
-  reminderTitle: { fontSize: FontSizes.lg, fontWeight: '600', color: Colors.textPrimary, marginBottom: 2 },
+  reminderTitle: {
+    fontSize: FontSizes.lg,
+    fontWeight: '600',
+    color: Colors.textPrimary,
+    marginBottom: 2,
+  },
   reminderTime: { fontSize: FontSizes.sm, color: Colors.lavender, marginBottom: 6 },
   daysRow: { flexDirection: 'row', gap: 4 },
   dayDot: { fontSize: 10, color: Colors.textMuted, width: 16, textAlign: 'center' },
   dayDotActive: { color: Colors.sageLeaf, fontWeight: '700' },
   modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.6)' },
   modalContent: {
-    borderTopLeftRadius: BorderRadius.xl, borderTopRightRadius: BorderRadius.xl,
-    borderWidth: 1, padding: Spacing.xl, paddingBottom: 48,
+    borderTopLeftRadius: BorderRadius.xl,
+    borderTopRightRadius: BorderRadius.xl,
+    borderWidth: 1,
+    padding: Spacing.xl,
+    paddingBottom: 48,
   },
-  modalTitle: { fontSize: FontSizes.xl, fontWeight: '700', color: Colors.textPrimary, marginBottom: Spacing.md },
+  modalTitle: {
+    fontSize: FontSizes.xl,
+    fontWeight: '700',
+    color: Colors.textPrimary,
+    marginBottom: Spacing.md,
+  },
   timeRow: { flexDirection: 'row', gap: Spacing.md },
   timeGroup: { flex: 1 },
-  inputLabel: { fontSize: FontSizes.sm, color: Colors.textSecondary, marginBottom: 6, fontWeight: '600', marginTop: Spacing.sm },
-  textInput: {
-    backgroundColor: Colors.card, borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.md, paddingVertical: Spacing.sm,
-    color: Colors.textPrimary, fontSize: FontSizes.md,
-    borderWidth: 1, borderColor: Colors.glassBorder,
+  inputLabel: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
+    marginBottom: 6,
+    fontWeight: '600',
+    marginTop: Spacing.sm,
   },
-  daysEditRow: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.xs, marginBottom: Spacing.md },
+  textInput: {
+    backgroundColor: Colors.card,
+    borderRadius: BorderRadius.md,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.sm,
+    color: Colors.textPrimary,
+    fontSize: FontSizes.md,
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
+  },
+  daysEditRow: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    marginTop: Spacing.xs,
+    marginBottom: Spacing.md,
+  },
   dayChip: {
-    width: 36, height: 36, borderRadius: 18, backgroundColor: Colors.card,
-    alignItems: 'center', justifyContent: 'center',
-    borderWidth: 1, borderColor: Colors.glassBorder,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.card,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
   },
   dayChipActive: { backgroundColor: Colors.violet, borderColor: Colors.violet },
   dayChipText: { fontSize: FontSizes.sm, color: Colors.textSecondary, fontWeight: '600' },
   dayChipTextActive: { color: Colors.textPrimary },
   modalButtons: { flexDirection: 'row', gap: Spacing.md },
   cancelBtn: {
-    flex: 1, paddingVertical: Spacing.md, borderRadius: BorderRadius.lg,
-    backgroundColor: Colors.card, alignItems: 'center',
-    borderWidth: 1, borderColor: Colors.glassBorder,
+    flex: 1,
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    backgroundColor: Colors.card,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: Colors.glassBorder,
   },
   cancelText: { fontSize: FontSizes.md, fontWeight: '600', color: Colors.textSecondary },
   saveBtn: { flex: 1, borderRadius: BorderRadius.lg, overflow: 'hidden' },

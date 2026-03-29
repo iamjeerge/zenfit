@@ -42,7 +42,7 @@ describe('WorkoutScreen', () => {
       expect(screen.getByText(/Pull-ups/i)).toBeTruthy();
     });
 
-    it('should show today\'s exercises section', () => {
+    it("should show today's exercises section", () => {
       render(<WorkoutScreen />);
       expect(screen.getByText(/Today's Exercises/i)).toBeTruthy();
     });
@@ -60,7 +60,9 @@ describe('WorkoutScreen', () => {
     it('should display empty sessions when no sessions logged', () => {
       render(<WorkoutScreen />);
       // Sessions are fetched from Supabase — empty by default in tests
-      expect(screen.queryByText(/No sessions logged yet/i) || screen.queryByText(/Recent Sessions/i)).toBeTruthy();
+      expect(
+        screen.queryByText(/No sessions logged yet/i) || screen.queryByText(/Recent Sessions/i),
+      ).toBeTruthy();
     });
   });
 

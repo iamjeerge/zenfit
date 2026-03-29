@@ -27,14 +27,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import * as Haptics from '../utils/haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-  Shadows,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
 import AnimatedEntry from '../components/AnimatedEntry';
 import SectionHeader from '../components/SectionHeader';
 import { useCelebration } from '../components/CelebrationOverlay';
@@ -97,9 +90,7 @@ function WaterFill({ progress, amountMl, goalMl }: WaterFillProps) {
         <View style={styles.bottleInner}>
           <Animated.View style={[styles.waterFill, fillStyle]}>
             <LinearGradient
-              colors={pct >= 100
-                ? ['#34D399', '#059669']
-                : ['#60A5FA', '#3B82F6']}
+              colors={pct >= 100 ? ['#34D399', '#059669'] : ['#60A5FA', '#3B82F6']}
               style={StyleSheet.absoluteFill}
             />
             {/* Wave ripple effect using opacity pulse */}
@@ -178,46 +169,46 @@ export default function WaterTrackerScreen() {
     setWeeklyData(results);
   };
 
-  const handleAdd = useCallback(async (ml: number) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  const handleAdd = useCallback(
+    async (ml: number) => {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
-    // Bounce animation
-    addBtnScale.value = withSequence(
-      withSpring(0.93, { damping: 8, stiffness: 400 }),
-      withSpring(1, { damping: 10, stiffness: 300 })
-    );
+      // Bounce animation
+      addBtnScale.value = withSequence(
+        withSpring(0.93, { damping: 8, stiffness: 400 }),
+        withSpring(1, { damping: 10, stiffness: 300 }),
+      );
 
-    const newAmount = todayLog.amountMl + ml;
-    const newLog: WaterLog = {
-      date: todayKey(),
-      amountMl: newAmount,
-      logs: [
-        ...todayLog.logs,
-        { time: formatTime(new Date()), ml },
-      ],
-    };
+      const newAmount = todayLog.amountMl + ml;
+      const newLog: WaterLog = {
+        date: todayKey(),
+        amountMl: newAmount,
+        logs: [...todayLog.logs, { time: formatTime(new Date()), ml }],
+      };
 
-    setTodayLog(newLog);
+      setTodayLog(newLog);
 
-    // Save to AsyncStorage
-    try {
-      await AsyncStorage.setItem(`${STORAGE_KEY}:${todayKey()}`, JSON.stringify(newLog));
-    } catch {}
+      // Save to AsyncStorage
+      try {
+        await AsyncStorage.setItem(`${STORAGE_KEY}:${todayKey()}`, JSON.stringify(newLog));
+      } catch {}
 
-    // Celebrate on goal reached (first time only)
-    if (!prevGoalReached.current && newAmount >= DAILY_GOAL_ML) {
-      prevGoalReached.current = true;
-      setTimeout(() => celebrate('💧', 'Hydrated!', '2L daily goal reached!'), 400);
-    }
+      // Celebrate on goal reached (first time only)
+      if (!prevGoalReached.current && newAmount >= DAILY_GOAL_ML) {
+        prevGoalReached.current = true;
+        setTimeout(() => celebrate('💧', 'Hydrated!', '2L daily goal reached!'), 400);
+      }
 
-    // Update weekly
-    setWeeklyData((prev) =>
-      prev.map((d, i) => (i === prev.length - 1 ? { ...d, ml: newAmount } : d))
-    );
-  }, [todayLog]);
+      // Update weekly
+      setWeeklyData((prev) =>
+        prev.map((d, i) => (i === prev.length - 1 ? { ...d, ml: newAmount } : d)),
+      );
+    },
+    [todayLog],
+  );
 
   const handleReset = () => {
-    Alert.alert('Reset Today?', 'This will clear today\'s water intake.', [
+    Alert.alert('Reset Today?', "This will clear today's water intake.", [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Reset',
@@ -247,10 +238,7 @@ export default function WaterTrackerScreen() {
     <SafeAreaView style={styles.container}>
       <LinearGradient colors={Gradients.cosmic} style={StyleSheet.absoluteFill} />
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <AnimatedEntry delay={0}>
           <View style={styles.header}>
@@ -264,11 +252,7 @@ export default function WaterTrackerScreen() {
 
         {/* Water fill circle */}
         <AnimatedEntry delay={100} style={styles.fillRow}>
-          <WaterFill
-            progress={progress}
-            amountMl={todayLog.amountMl}
-            goalMl={DAILY_GOAL_ML}
-          />
+          <WaterFill progress={progress} amountMl={todayLog.amountMl} goalMl={DAILY_GOAL_ML} />
         </AnimatedEntry>
 
         {/* Quick add buttons */}
@@ -299,10 +283,7 @@ export default function WaterTrackerScreen() {
         {/* Weekly bar chart */}
         <AnimatedEntry delay={300}>
           <SectionHeader title="Weekly Overview" style={styles.sectionHeader} />
-          <LinearGradient
-            colors={Gradients.cardSecondary}
-            style={styles.weeklyCard}
-          >
+          <LinearGradient colors={Gradients.cardSecondary} style={styles.weeklyCard}>
             <View style={styles.weeklyBars}>
               {weeklyData.map((d, idx) => {
                 const barHeight = Math.max((d.ml / maxWeekly) * 90, 4);
@@ -314,9 +295,13 @@ export default function WaterTrackerScreen() {
                     </Text>
                     <View style={styles.weeklyBarTrack}>
                       <LinearGradient
-                        colors={isToday
-                          ? (d.ml >= DAILY_GOAL_ML ? ['#34D399', '#059669'] : ['#60A5FA', '#3B82F6'])
-                          : ['rgba(96,165,250,0.5)', 'rgba(59,130,246,0.3)']}
+                        colors={
+                          isToday
+                            ? d.ml >= DAILY_GOAL_ML
+                              ? ['#34D399', '#059669']
+                              : ['#60A5FA', '#3B82F6']
+                            : ['rgba(96,165,250,0.5)', 'rgba(59,130,246,0.3)']
+                        }
                         style={[styles.weeklyBar, { height: barHeight }]}
                       />
                     </View>
@@ -351,11 +336,7 @@ export default function WaterTrackerScreen() {
         <AnimatedEntry delay={500}>
           <SectionHeader title="Hydration Tips" style={styles.sectionHeader} />
           {tips.map((tip, i) => (
-            <LinearGradient
-              key={i}
-              colors={Gradients.cardSecondary}
-              style={styles.tipCard}
-            >
+            <LinearGradient key={i} colors={Gradients.cardSecondary} style={styles.tipCard}>
               <Text style={styles.tipEmoji}>{tip.emoji}</Text>
               <Text style={styles.tipText}>{tip.text}</Text>
             </LinearGradient>
@@ -462,7 +443,12 @@ const styles = StyleSheet.create({
     marginBottom: Spacing.sm,
   },
   quickAddBtnWrap: { width: '47%' },
-  quickAddBtn: { borderRadius: BorderRadius.xl, overflow: 'hidden', borderWidth: 1, borderColor: 'rgba(96,165,250,0.3)' },
+  quickAddBtn: {
+    borderRadius: BorderRadius.xl,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(96,165,250,0.3)',
+  },
   quickAddGradient: {
     padding: Spacing.md,
     alignItems: 'center',
@@ -479,15 +465,30 @@ const styles = StyleSheet.create({
     borderColor: Colors.glassBorder,
     marginBottom: Spacing.sm,
   },
-  weeklyBars: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', height: 120 },
+  weeklyBars: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-end',
+    height: 120,
+  },
   weeklyBarCol: { alignItems: 'center', flex: 1 },
   weeklyBarMl: { fontSize: 9, color: Colors.textMuted, marginBottom: 2 },
   weeklyBarTrack: { width: 20, alignItems: 'center', height: 90, justifyContent: 'flex-end' },
   weeklyBar: { width: 16, borderRadius: 4 },
   weeklyGoalLine: { height: 1, width: 16, backgroundColor: 'rgba(96,165,250,0.4)', marginTop: 2 },
-  weeklyBarDay: { fontSize: FontSizes.xs, color: Colors.textSecondary, marginTop: 4, fontWeight: '600' },
+  weeklyBarDay: {
+    fontSize: FontSizes.xs,
+    color: Colors.textSecondary,
+    marginTop: 4,
+    fontWeight: '600',
+  },
   weeklyBarDayToday: { color: Colors.cosmicBlue },
-  weeklyGoalLabel: { fontSize: FontSizes.xs, color: 'rgba(96,165,250,0.6)', marginTop: Spacing.xs, textAlign: 'right' },
+  weeklyGoalLabel: {
+    fontSize: FontSizes.xs,
+    color: 'rgba(96,165,250,0.6)',
+    marginTop: Spacing.xs,
+    textAlign: 'right',
+  },
 
   // Log
   logCard: {

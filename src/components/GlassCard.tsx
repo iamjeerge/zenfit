@@ -29,15 +29,16 @@ export default function GlassCard({
 
   return (
     <View
-      style={[
-        styles.container,
-        shadowStyle,
-        variant === 'subtle' && styles.subtleContainer,
-        style,
-      ]}
+      style={[styles.container, shadowStyle, variant === 'subtle' && styles.subtleContainer, style]}
     >
       <LinearGradient
-        colors={(gradient ?? [Colors.glassBackgroundLight, Colors.glassBackground]) as [string, string, ...string[]]}
+        colors={
+          (gradient ?? [Colors.glassBackgroundLight, Colors.glassBackground]) as [
+            string,
+            string,
+            ...string[],
+          ]
+        }
         style={[styles.gradient, padded && styles.padded]}
       >
         {children}

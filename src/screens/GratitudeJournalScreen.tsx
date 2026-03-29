@@ -21,13 +21,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import LinearGradient from 'react-native-linear-gradient';
 import * as Haptics from '../utils/haptics';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import {
-  Colors,
-  Gradients,
-  Spacing,
-  BorderRadius,
-  FontSizes,
-} from '../theme/colors';
+import { Colors, Gradients, Spacing, BorderRadius, FontSizes } from '../theme/colors';
 import AnimatedEntry from '../components/AnimatedEntry';
 import SectionHeader from '../components/SectionHeader';
 import AnimatedEmptyState from '../components/AnimatedEmptyState';
@@ -76,7 +70,9 @@ export default function GratitudeJournalScreen() {
   const [selectedMood, setSelectedMood] = useState(3);
   const [todayPrompt] = useState(PROMPTS[new Date().getDay() % PROMPTS.length]);
 
-  useEffect(() => { loadEntries(); }, []);
+  useEffect(() => {
+    loadEntries();
+  }, []);
 
   const loadEntries = async () => {
     setIsLoading(true);
@@ -184,7 +180,10 @@ export default function GratitudeJournalScreen() {
                     <TouchableOpacity
                       key={i}
                       style={[styles.moodBtn, selectedMood === i + 1 && styles.moodBtnActive]}
-                      onPress={() => { setSelectedMood(i + 1); Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light); }}
+                      onPress={() => {
+                        setSelectedMood(i + 1);
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      }}
                     >
                       <Text style={styles.moodEmoji}>{emoji}</Text>
                     </TouchableOpacity>
@@ -220,7 +219,11 @@ export default function GratitudeJournalScreen() {
                 <View style={styles.writingBtns}>
                   <TouchableOpacity
                     style={styles.cancelBtn}
-                    onPress={() => { setIsWriting(false); setGratitudeText(''); setReflectionText(''); }}
+                    onPress={() => {
+                      setIsWriting(false);
+                      setGratitudeText('');
+                      setReflectionText('');
+                    }}
                   >
                     <Text style={styles.cancelBtnText}>Cancel</Text>
                   </TouchableOpacity>
@@ -235,10 +238,15 @@ export default function GratitudeJournalScreen() {
           ) : (
             <AnimatedEntry delay={100}>
               {hasTodayEntry ? (
-                <LinearGradient colors={['rgba(52, 211, 153, 0.15)', 'rgba(52, 211, 153, 0.05)']} style={styles.todayDoneCard}>
+                <LinearGradient
+                  colors={['rgba(52, 211, 153, 0.15)', 'rgba(52, 211, 153, 0.05)']}
+                  style={styles.todayDoneCard}
+                >
                   <Text style={styles.todayDoneEmoji}>✅</Text>
                   <Text style={styles.todayDoneText}>Today's entry saved!</Text>
-                  <Text style={styles.todayDoneHint}>Come back tomorrow to continue your streak.</Text>
+                  <Text style={styles.todayDoneHint}>
+                    Come back tomorrow to continue your streak.
+                  </Text>
                 </LinearGradient>
               ) : (
                 <TouchableOpacity onPress={() => setIsWriting(true)}>
@@ -275,7 +283,8 @@ export default function GratitudeJournalScreen() {
                     <View>
                       <Text style={styles.entryDate}>{formatDate(entry.date)}</Text>
                       <Text style={styles.entryMood}>
-                        {MOOD_EMOJIS[entry.mood - 1]} {['Sad', 'Low', 'Okay', 'Good', 'Great'][entry.mood - 1]}
+                        {MOOD_EMOJIS[entry.mood - 1]}{' '}
+                        {['Sad', 'Low', 'Okay', 'Good', 'Great'][entry.mood - 1]}
                       </Text>
                     </View>
                     <TouchableOpacity
@@ -315,7 +324,12 @@ const styles = StyleSheet.create({
 
   header: { paddingTop: Spacing.lg, marginBottom: Spacing.md },
   title: { fontSize: FontSizes.xxxl, fontWeight: '900', color: Colors.textPrimary },
-  subtitle: { fontSize: FontSizes.sm, color: Colors.textSecondary, marginTop: 4, marginBottom: Spacing.sm },
+  subtitle: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
+    marginTop: 4,
+    marginBottom: Spacing.sm,
+  },
   streakBadge: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -432,7 +446,12 @@ const styles = StyleSheet.create({
   },
   todayDoneEmoji: { fontSize: 40, marginBottom: Spacing.xs },
   todayDoneText: { fontSize: FontSizes.lg, fontWeight: '800', color: Colors.textPrimary },
-  todayDoneHint: { fontSize: FontSizes.sm, color: Colors.textSecondary, marginTop: 4, textAlign: 'center' },
+  todayDoneHint: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
+    marginTop: 4,
+    textAlign: 'center',
+  },
 
   sectionHeader: { marginTop: Spacing.lg, marginBottom: Spacing.sm },
 

@@ -11,7 +11,7 @@ describe('HomeScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
 
-    mockUseAuthStore = jest.fn((selector) => {
+    mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
       const state = {
         profile: {
           id: 'test-user-id',
@@ -25,13 +25,15 @@ describe('HomeScreen', () => {
       };
       return typeof selector === 'function' ? selector(state) : state;
     });
-    (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+    (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
   });
 
   describe('Rendering', () => {
     it('should render the home screen', () => {
       render(<HomeScreen />);
-      expect(screen.getAllByText(/DAILY MANTRA|Good Morning|Good Afternoon|Good Evening/i).length).toBeGreaterThan(0);
+      expect(
+        screen.getAllByText(/DAILY MANTRA|Good Morning|Good Afternoon|Good Evening/i).length,
+      ).toBeGreaterThan(0);
     });
 
     it('should render greeting with user name', async () => {
@@ -161,7 +163,7 @@ describe('HomeScreen', () => {
 
   describe('Empty States', () => {
     it('should handle missing profile gracefully', () => {
-      mockUseAuthStore.mockImplementation((selector) => {
+      mockUseAuthStore.mockImplementation((selector: (s: unknown) => unknown) => {
         const state = {
           profile: null,
           session: { access_token: 'test-token', user: { id: 'user-id' } },
@@ -175,7 +177,7 @@ describe('HomeScreen', () => {
     });
 
     it('should show placeholder when stats are zero', () => {
-      mockUseAuthStore.mockImplementation((selector) => {
+      mockUseAuthStore.mockImplementation((selector: (s: unknown) => unknown) => {
         const state = {
           profile: {
             id: 'test-user-id',

@@ -21,10 +21,10 @@ export default function OfflineBanner({ isConnected, pendingCount, isSyncing }: 
   const message = isSyncing
     ? `Syncing ${pendingCount} pending ${pendingCount === 1 ? 'item' : 'items'}…`
     : !isConnected && pendingCount > 0
-    ? `Offline · ${pendingCount} pending ${pendingCount === 1 ? 'item' : 'items'}`
-    : !isConnected
-    ? 'Offline · data will sync when connected'
-    : null;
+      ? `Offline · ${pendingCount} pending ${pendingCount === 1 ? 'item' : 'items'}`
+      : !isConnected
+        ? 'Offline · data will sync when connected'
+        : null;
 
   if (!message) return null;
 

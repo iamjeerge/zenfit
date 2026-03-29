@@ -20,11 +20,11 @@ describe('ProfileScreen', () => {
       replace: jest.fn(),
       back: jest.fn(),
     };
-    (useRouter as jest.Mock).mockReturnValue(mockRouter);
+    (useRouter as unknown as jest.Mock).mockReturnValue(mockRouter);
 
     mockSignOut = jest.fn(() => Promise.resolve());
 
-    mockUseAuthStore = jest.fn((selector) => {
+    mockUseAuthStore = jest.fn((selector: (s: unknown) => unknown) => {
       const state = {
         profile: {
           id: 'test-user-id',
@@ -41,7 +41,7 @@ describe('ProfileScreen', () => {
       };
       return typeof selector === 'function' ? selector(state) : state;
     });
-    (useAuthStore as jest.Mock).mockImplementation(mockUseAuthStore);
+    (useAuthStore as unknown as jest.Mock).mockImplementation(mockUseAuthStore);
   });
 
   describe('Rendering', () => {
@@ -69,7 +69,9 @@ describe('ProfileScreen', () => {
 
       await waitFor(() => {
         // Free users see "📱 Free Member"
-        expect(screen.queryAllByText(/Free Member|Premium Member|Member/i).length).toBeGreaterThan(0);
+        expect(screen.queryAllByText(/Free Member|Premium Member|Member/i).length).toBeGreaterThan(
+          0,
+        );
       });
     });
   });
@@ -295,7 +297,9 @@ describe('ProfileScreen', () => {
     it('should display subscription benefits', () => {
       render(<ProfileScreen />);
       // Subscription menu item shows "Free Plan" or "Premium Active"
-      expect(screen.queryAllByText(/Free Plan|Premium Active|Subscription/i).length).toBeGreaterThan(0);
+      expect(
+        screen.queryAllByText(/Free Plan|Premium Active|Subscription/i).length,
+      ).toBeGreaterThan(0);
     });
 
     it('should allow navigating to subscription screen', () => {
@@ -307,7 +311,7 @@ describe('ProfileScreen', () => {
 
   describe('Empty States', () => {
     it('should handle missing profile data gracefully', () => {
-      mockUseAuthStore.mockImplementation((selector) => {
+      mockUseAuthStore.mockImplementation((selector: (s: unknown) => unknown) => {
         const state = {
           profile: null,
           session: { access_token: 'test-token', user: { id: 'user-id' } },
@@ -322,7 +326,7 @@ describe('ProfileScreen', () => {
     });
 
     it('should handle missing session', () => {
-      mockUseAuthStore.mockImplementation((selector) => {
+      mockUseAuthStore.mockImplementation((selector: (s: unknown) => unknown) => {
         const state = {
           profile: {
             id: 'test-user-id',
@@ -363,7 +367,7 @@ describe('ProfileScreen', () => {
     it('should update when profile data changes', async () => {
       const { rerender } = render(<ProfileScreen />);
 
-      mockUseAuthStore.mockImplementation((selector) => {
+      mockUseAuthStore.mockImplementation((selector: (s: unknown) => unknown) => {
         const state = {
           profile: {
             id: 'test-user-id',
