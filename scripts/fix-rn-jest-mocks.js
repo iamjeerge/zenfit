@@ -24,8 +24,8 @@ const filePath = path.join(
 try {
   const content = fs.readFileSync(filePath, 'utf8');
   const fixed = content.replace(
-    /RealComponent\.prototype != null &&\n(\s*)RealComponent\.prototype\.constructor/,
-    'RealComponent.prototype?.constructor',
+    /RealComponent\.prototype\.constructor instanceof/,
+    'RealComponent.prototype?.constructor instanceof',
   );
   if (fixed !== content) {
     fs.writeFileSync(filePath, fixed);
