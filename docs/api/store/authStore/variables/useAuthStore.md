@@ -8,7 +8,7 @@
 
 > `const` **useAuthStore**: `UseBoundStore`\<`StoreApi`\<`AuthState`\>\>
 
-Defined in: [store/authStore.ts:123](https://github.com/iamjeerge/zenfit/blob/main/src/store/authStore.ts#L123)
+Defined in: [store/authStore.ts:125](https://github.com/iamjeerge/zenfit/blob/main/src/store/authStore.ts#L125)
 
 Global singleton store for authentication state.
 

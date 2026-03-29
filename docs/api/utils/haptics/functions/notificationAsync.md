@@ -8,7 +8,7 @@
 
 > **notificationAsync**(`type?`): `void`
 
-Defined in: utils/haptics.ts:76
+Defined in: [utils/haptics.ts:76](https://github.com/iamjeerge/zenfit/blob/main/src/utils/haptics.ts#L76)
 
 Trigger a notification haptic (success / warning / error pattern).
 

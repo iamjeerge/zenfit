@@ -8,7 +8,7 @@
 
 > **SkeletonListItem**(`__namedParameters`): `Element`
 
-Defined in: [components/SkeletonLoader.tsx:97](https://github.com/iamjeerge/zenfit/blob/main/src/components/SkeletonLoader.tsx#L97)
+Defined in: [components/SkeletonLoader.tsx:100](https://github.com/iamjeerge/zenfit/blob/main/src/components/SkeletonLoader.tsx#L100)
 
 List item skeleton
 

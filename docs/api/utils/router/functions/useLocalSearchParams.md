@@ -8,7 +8,7 @@
 
 > **useLocalSearchParams**(): `Record`\<`string`, `string`\>
 
-Defined in: utils/router.ts:58
+Defined in: [utils/router.ts:72](https://github.com/iamjeerge/zenfit/blob/main/src/utils/router.ts#L72)
 
 ## Returns
 

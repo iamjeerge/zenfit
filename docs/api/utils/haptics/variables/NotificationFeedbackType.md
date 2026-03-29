@@ -8,7 +8,7 @@
 
 > `const` **NotificationFeedbackType**: `object`
 
-Defined in: utils/haptics.ts:48
+Defined in: [utils/haptics.ts:48](https://github.com/iamjeerge/zenfit/blob/main/src/utils/haptics.ts#L48)
 
 Maps Expo `NotificationFeedbackType` enum values to the underlying
 `react-native-haptic-feedback` trigger strings.

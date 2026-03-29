@@ -8,7 +8,7 @@
 
 > **useCelebration**(): `object`
 
-Defined in: [components/CelebrationOverlay.tsx:191](https://github.com/iamjeerge/zenfit/blob/main/src/components/CelebrationOverlay.tsx#L191)
+Defined in: [components/CelebrationOverlay.tsx:207](https://github.com/iamjeerge/zenfit/blob/main/src/components/CelebrationOverlay.tsx#L207)
 
 ## Returns
 

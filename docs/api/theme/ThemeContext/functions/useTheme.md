@@ -8,7 +8,7 @@
 
 > **useTheme**(): `ThemeContextValue`
 
-Defined in: [theme/ThemeContext.tsx:74](https://github.com/iamjeerge/zenfit/blob/main/src/theme/ThemeContext.tsx#L74)
+Defined in: [theme/ThemeContext.tsx:66](https://github.com/iamjeerge/zenfit/blob/main/src/theme/ThemeContext.tsx#L66)
 
 ## Returns
 

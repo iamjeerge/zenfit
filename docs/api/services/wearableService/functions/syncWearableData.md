@@ -8,7 +8,7 @@
 
 > **syncWearableData**(`userId`, `since`): `Promise`\<[`WearableSyncResult`](../interfaces/WearableSyncResult.md)\>
 
-Defined in: [services/wearableService.ts:150](https://github.com/iamjeerge/zenfit/blob/main/src/services/wearableService.ts#L150)
+Defined in: [services/wearableService.ts:197](https://github.com/iamjeerge/zenfit/blob/main/src/services/wearableService.ts#L197)
 
 ## Parameters
 

@@ -15,6 +15,16 @@ Maps 1-to-1 with the `profiles` schema defined in `supabase/schema.sql`.
 
 ## Properties
 
+### activity\_level
+
+> **activity\_level**: `string` \| `null`
+
+Defined in: [store/authStore.ts:52](https://github.com/iamjeerge/zenfit/blob/main/src/store/authStore.ts#L52)
+
+Activity level for TDEE calculation, e.g. "sedentary" | "light" | "moderate" | "active"
+
+***
+
 ### avatar\_url
 
 > **avatar\_url**: `string` \| `null`
@@ -29,7 +39,7 @@ Public URL of the user's avatar image
 
 > **created\_at**: `string`
 
-Defined in: [store/authStore.ts:52](https://github.com/iamjeerge/zenfit/blob/main/src/store/authStore.ts#L52)
+Defined in: [store/authStore.ts:54](https://github.com/iamjeerge/zenfit/blob/main/src/store/authStore.ts#L54)
 
 ISO timestamp of profile creation
 

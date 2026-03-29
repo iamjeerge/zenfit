@@ -8,7 +8,7 @@
 
 > **useRouter**(): `object`
 
-Defined in: utils/router.ts:45
+Defined in: [utils/router.ts:54](https://github.com/iamjeerge/zenfit/blob/main/src/utils/router.ts#L54)
 
 ## Returns
 
@@ -32,13 +32,13 @@ Defined in: utils/router.ts:45
 
 ### navigate
 
-> **navigate**: (`path`) => `void`
+> **navigate**: (`arg`) => `void`
 
 #### Parameters
 
-##### path
+##### arg
 
-`string`
+`PushArg`
 
 #### Returns
 
@@ -46,13 +46,13 @@ Defined in: utils/router.ts:45
 
 ### push
 
-> **push**: (`path`) => `void`
+> **push**: (`arg`) => `void`
 
 #### Parameters
 
-##### path
+##### arg
 
-`string`
+`PushArg`
 
 #### Returns
 

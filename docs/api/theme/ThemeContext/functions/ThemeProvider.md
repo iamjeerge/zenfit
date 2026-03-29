@@ -8,7 +8,7 @@
 
 > **ThemeProvider**(`__namedParameters`): `Element`
 
-Defined in: [theme/ThemeContext.tsx:37](https://github.com/iamjeerge/zenfit/blob/main/src/theme/ThemeContext.tsx#L37)
+Defined in: [theme/ThemeContext.tsx:35](https://github.com/iamjeerge/zenfit/blob/main/src/theme/ThemeContext.tsx#L35)
 
 ## Parameters
 

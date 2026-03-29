@@ -22,7 +22,7 @@ Defined in: [theme/colors.ts:85](https://github.com/iamjeerge/zenfit/blob/main/s
 
 #### card.shadowColor
 
-> **shadowColor**: `string` = `"#000"`
+> **shadowColor**: `string` = `'#000'`
 
 #### card.shadowOffset
 
@@ -54,7 +54,7 @@ Defined in: [theme/colors.ts:85](https://github.com/iamjeerge/zenfit/blob/main/s
 
 #### glow.shadowColor
 
-> **shadowColor**: `string` = `"#7C3AED"`
+> **shadowColor**: `string` = `'#7C3AED'`
 
 #### glow.shadowOffset
 
@@ -86,7 +86,7 @@ Defined in: [theme/colors.ts:85](https://github.com/iamjeerge/zenfit/blob/main/s
 
 #### subtle.shadowColor
 
-> **shadowColor**: `string` = `"#7C3AED"`
+> **shadowColor**: `string` = `'#7C3AED'`
 
 #### subtle.shadowOffset
 

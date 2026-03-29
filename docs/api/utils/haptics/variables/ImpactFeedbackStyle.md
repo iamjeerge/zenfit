@@ -8,7 +8,7 @@
 
 > `const` **ImpactFeedbackStyle**: `object`
 
-Defined in: utils/haptics.ts:31
+Defined in: [utils/haptics.ts:31](https://github.com/iamjeerge/zenfit/blob/main/src/utils/haptics.ts#L31)
 
 Maps Expo `ImpactFeedbackStyle` enum values to the underlying
 `react-native-haptic-feedback` trigger strings.

@@ -8,7 +8,7 @@
 
 > `const` **LightShadows**: `object`
 
-Defined in: [theme/colors.ts:221](https://github.com/iamjeerge/zenfit/blob/main/src/theme/colors.ts#L221)
+Defined in: [theme/colors.ts:213](https://github.com/iamjeerge/zenfit/blob/main/src/theme/colors.ts#L213)
 
 ## Type Declaration
 
@@ -22,7 +22,7 @@ Defined in: [theme/colors.ts:221](https://github.com/iamjeerge/zenfit/blob/main/
 
 #### card.shadowColor
 
-> **shadowColor**: `string` = `"#94A3B8"`
+> **shadowColor**: `string` = `'#94A3B8'`
 
 #### card.shadowOffset
 
@@ -54,7 +54,7 @@ Defined in: [theme/colors.ts:221](https://github.com/iamjeerge/zenfit/blob/main/
 
 #### glow.shadowColor
 
-> **shadowColor**: `string` = `"#7C3AED"`
+> **shadowColor**: `string` = `'#7C3AED'`
 
 #### glow.shadowOffset
 
@@ -86,7 +86,7 @@ Defined in: [theme/colors.ts:221](https://github.com/iamjeerge/zenfit/blob/main/
 
 #### subtle.shadowColor
 
-> **shadowColor**: `string` = `"#7C3AED"`
+> **shadowColor**: `string` = `'#7C3AED'`
 
 #### subtle.shadowOffset
 

@@ -6,7 +6,7 @@
 
 # Interface: BottomSheetHandle
 
-Defined in: [components/BottomSheet.tsx:40](https://github.com/iamjeerge/zenfit/blob/main/src/components/BottomSheet.tsx#L40)
+Defined in: [components/BottomSheet.tsx:35](https://github.com/iamjeerge/zenfit/blob/main/src/components/BottomSheet.tsx#L35)
 
 ## Properties
 
@@ -14,7 +14,7 @@ Defined in: [components/BottomSheet.tsx:40](https://github.com/iamjeerge/zenfit/
 
 > **close**: () => `void`
 
-Defined in: [components/BottomSheet.tsx:42](https://github.com/iamjeerge/zenfit/blob/main/src/components/BottomSheet.tsx#L42)
+Defined in: [components/BottomSheet.tsx:37](https://github.com/iamjeerge/zenfit/blob/main/src/components/BottomSheet.tsx#L37)
 
 #### Returns
 
@@ -26,7 +26,7 @@ Defined in: [components/BottomSheet.tsx:42](https://github.com/iamjeerge/zenfit/
 
 > **open**: () => `void`
 
-Defined in: [components/BottomSheet.tsx:41](https://github.com/iamjeerge/zenfit/blob/main/src/components/BottomSheet.tsx#L41)
+Defined in: [components/BottomSheet.tsx:36](https://github.com/iamjeerge/zenfit/blob/main/src/components/BottomSheet.tsx#L36)
 
 #### Returns
 

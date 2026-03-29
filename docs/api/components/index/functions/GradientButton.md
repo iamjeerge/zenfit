@@ -8,7 +8,7 @@
 
 > **GradientButton**(`__namedParameters`): `Element`
 
-Defined in: [components/GradientButton.tsx:41](https://github.com/iamjeerge/zenfit/blob/main/src/components/GradientButton.tsx#L41)
+Defined in: [components/GradientButton.tsx:30](https://github.com/iamjeerge/zenfit/blob/main/src/components/GradientButton.tsx#L30)
 
 ## Parameters
 

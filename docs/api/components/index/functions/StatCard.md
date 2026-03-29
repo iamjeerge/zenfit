@@ -8,7 +8,7 @@
 
 > **StatCard**(`__namedParameters`): `Element`
 
-Defined in: [components/StatCard.tsx:28](https://github.com/iamjeerge/zenfit/blob/main/src/components/StatCard.tsx#L28)
+Defined in: [components/StatCard.tsx:22](https://github.com/iamjeerge/zenfit/blob/main/src/components/StatCard.tsx#L22)
 
 ## Parameters
 

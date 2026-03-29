@@ -8,7 +8,7 @@
 
 > **SectionHeader**(`__namedParameters`): `Element`
 
-Defined in: [components/SectionHeader.tsx:19](https://github.com/iamjeerge/zenfit/blob/main/src/components/SectionHeader.tsx#L19)
+Defined in: [components/SectionHeader.tsx:20](https://github.com/iamjeerge/zenfit/blob/main/src/components/SectionHeader.tsx#L20)
 
 ## Parameters
 

@@ -8,7 +8,7 @@
 
 > **SkeletonCard**(`__namedParameters`): `Element`
 
-Defined in: [components/SkeletonLoader.tsx:71](https://github.com/iamjeerge/zenfit/blob/main/src/components/SkeletonLoader.tsx#L71)
+Defined in: [components/SkeletonLoader.tsx:65](https://github.com/iamjeerge/zenfit/blob/main/src/components/SkeletonLoader.tsx#L65)
 
 Card-sized skeleton placeholder
 

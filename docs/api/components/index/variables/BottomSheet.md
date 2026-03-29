@@ -8,4 +8,4 @@
 
 > `const` **BottomSheet**: `ForwardRefExoticComponent`\<`BottomSheetProps` & `RefAttributes`\<[`BottomSheetHandle`](../interfaces/BottomSheetHandle.md)\>\>
 
-Defined in: [components/BottomSheet.tsx:71](https://github.com/iamjeerge/zenfit/blob/main/src/components/BottomSheet.tsx#L71)
+Defined in: [components/BottomSheet.tsx:66](https://github.com/iamjeerge/zenfit/blob/main/src/components/BottomSheet.tsx#L66)

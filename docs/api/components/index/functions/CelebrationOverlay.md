@@ -8,7 +8,7 @@
 
 > **CelebrationOverlay**(`__namedParameters`): `Element` \| `null`
 
-Defined in: [components/CelebrationOverlay.tsx:123](https://github.com/iamjeerge/zenfit/blob/main/src/components/CelebrationOverlay.tsx#L123)
+Defined in: [components/CelebrationOverlay.tsx:129](https://github.com/iamjeerge/zenfit/blob/main/src/components/CelebrationOverlay.tsx#L129)
 
 ## Parameters
 

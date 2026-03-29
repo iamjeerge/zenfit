@@ -8,7 +8,7 @@
 
 > **SkeletonStatRow**(): `Element`
 
-Defined in: [components/SkeletonLoader.tsx:82](https://github.com/iamjeerge/zenfit/blob/main/src/components/SkeletonLoader.tsx#L82)
+Defined in: [components/SkeletonLoader.tsx:76](https://github.com/iamjeerge/zenfit/blob/main/src/components/SkeletonLoader.tsx#L76)
 
 Stat row skeleton (3 side-by-side cards)
 

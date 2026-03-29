@@ -8,7 +8,7 @@
 
 > **useBottomSheet**(): `object`
 
-Defined in: [components/BottomSheet.tsx:64](https://github.com/iamjeerge/zenfit/blob/main/src/components/BottomSheet.tsx#L64)
+Defined in: [components/BottomSheet.tsx:59](https://github.com/iamjeerge/zenfit/blob/main/src/components/BottomSheet.tsx#L59)
 
 ## Returns
 

@@ -8,7 +8,7 @@
 
 > **DonutChart**(`__namedParameters`): `Element`
 
-Defined in: [components/InteractiveChart.tsx:356](https://github.com/iamjeerge/zenfit/blob/main/src/components/InteractiveChart.tsx#L356)
+Defined in: [components/InteractiveChart.tsx:357](https://github.com/iamjeerge/zenfit/blob/main/src/components/InteractiveChart.tsx#L357)
 
 ## Parameters
 

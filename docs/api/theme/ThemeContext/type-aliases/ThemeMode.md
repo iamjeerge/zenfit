@@ -8,4 +8,4 @@
 
 > **ThemeMode** = `"dark"` \| `"light"` \| `"system"`
 
-Defined in: [theme/ThemeContext.tsx:15](https://github.com/iamjeerge/zenfit/blob/main/src/theme/ThemeContext.tsx#L15)
+Defined in: [theme/ThemeContext.tsx:13](https://github.com/iamjeerge/zenfit/blob/main/src/theme/ThemeContext.tsx#L13)

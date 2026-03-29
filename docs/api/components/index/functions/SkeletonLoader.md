@@ -8,7 +8,7 @@
 
 > **SkeletonLoader**(`__namedParameters`): `Element`
 
-Defined in: [components/SkeletonLoader.tsx:113](https://github.com/iamjeerge/zenfit/blob/main/src/components/SkeletonLoader.tsx#L113)
+Defined in: [components/SkeletonLoader.tsx:116](https://github.com/iamjeerge/zenfit/blob/main/src/components/SkeletonLoader.tsx#L116)
 
 Default export — a full-page skeleton layout (header + stat row + 3 cards)
 

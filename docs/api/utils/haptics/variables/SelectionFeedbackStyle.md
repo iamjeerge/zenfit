@@ -8,7 +8,7 @@
 
 > `const` **SelectionFeedbackStyle**: `object`
 
-Defined in: utils/haptics.ts:58
+Defined in: [utils/haptics.ts:58](https://github.com/iamjeerge/zenfit/blob/main/src/utils/haptics.ts#L58)
 
 Selection feedback — a single subtle click for picker/segmented-control changes.
 

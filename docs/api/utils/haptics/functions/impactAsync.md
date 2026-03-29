@@ -8,7 +8,7 @@
 
 > **impactAsync**(`style?`): `void`
 
-Defined in: utils/haptics.ts:65
+Defined in: [utils/haptics.ts:65](https://github.com/iamjeerge/zenfit/blob/main/src/utils/haptics.ts#L65)
 
 Trigger an impact haptic (physical collision feel).
 
