@@ -17,7 +17,8 @@
     "test:coverage": "jest --coverage --forceExit",
     "validate": "npm run typecheck && npm run lint && npm run test",
     "docs": "typedoc",
-    "docs:pages": "typedoc && echo 'Docs generated in docs/api/ → served at https://iamjeerge.github.io/zenfit/'"
+    "docs:pages": "typedoc && echo 'Docs generated in docs/api/ → served at https://iamjeerge.github.io/zenfit/'",
+    "postinstall": "node scripts/fix-rn-jest-mocks.js"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "^3.0.1",

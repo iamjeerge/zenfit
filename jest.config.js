@@ -11,11 +11,6 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
-    // Redirect react-native's mockComponent to @react-native/jest-preset's version
-    // which uses optional chaining (?.constructor) — fixes Node 20 crash:
-    // "Cannot read properties of undefined (reading 'constructor')"
-    '^.*/react-native/jest/mockComponent$':
-      '<rootDir>/node_modules/@react-native/jest-preset/jest/mockComponent',
   },
   testPathIgnorePatterns: [
     '/node_modules/',
