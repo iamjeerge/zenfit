@@ -451,3 +451,23 @@ alter table public.profiles
   add column if not exists stripe_customer_id text unique,
   add column if not exists activity_level text
     check (activity_level in ('sedentary', 'lightly_active', 'moderately_active', 'very_active', 'extra_active'));
+
+-- ═══════════════════════════════════════════════
+-- 24. HEALTH REPORTS
+-- ═══════════════════════════════════════════════
+create table if not exists public.health_reports (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid references public.profiles(id) on delete cascade not null,
+  month       text not null,                     -- format: 'YYYY-MM'
+  report_data jsonb not null default '{}',
+  created_at  timestamptz default now(),
+  updated_at  timestamptz default now(),
+  unique(user_id, month)
+);
+
+alter table public.health_reports enable row level security;
+
+create policy "Users manage own reports"
+  on public.health_reports for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
