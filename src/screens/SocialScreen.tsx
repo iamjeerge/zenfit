@@ -26,6 +26,8 @@ import { useAuthStore } from '../store/authStore';
 import AnimatedEntry from '../components/AnimatedEntry';
 import SectionHeader from '../components/SectionHeader';
 import SkeletonLoader, { SkeletonListItem } from '../components/SkeletonLoader';
+import GlassCard from '../components/GlassCard';
+import { useRouter } from '../utils/router';
 
 type LeaderboardTab = 'steps' | 'workouts' | 'streak';
 
@@ -53,6 +55,7 @@ interface LeaderboardEntry {
 export default function SocialScreen() {
   const user = useAuthStore((s) => s.user);
   const profile = useAuthStore((s) => s.profile);
+  const router = useRouter();
 
   const [tab, setTab] = useState<'friends' | 'leaderboard'>('friends');
   const [leaderboardTab, setLeaderboardTab] = useState<LeaderboardTab>('steps');
@@ -229,6 +232,40 @@ export default function SocialScreen() {
       <View style={styles.header}>
         <Text style={styles.title}>Social</Text>
         <Text style={styles.subtitle}>Connect. Compete. Inspire.</Text>
+      </View>
+
+      {/* Quick Actions */}
+      <View style={styles.quickActions}>
+        <TouchableOpacity
+          style={styles.quickAction}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            router.push('/group-challenges');
+          }}
+        >
+          <LinearGradient
+            colors={Gradients.auroraSubtle as unknown as [string, string]}
+            style={styles.quickActionGradient}
+          >
+            <Text style={styles.quickActionEmoji}>🏆</Text>
+            <Text style={styles.quickActionText}>Group Challenges</Text>
+          </LinearGradient>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.quickAction}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            router.push('/trainer-marketplace');
+          }}
+        >
+          <LinearGradient
+            colors={Gradients.auroraSubtle as unknown as [string, string]}
+            style={styles.quickActionGradient}
+          >
+            <Text style={styles.quickActionEmoji}>🏋️</Text>
+            <Text style={styles.quickActionText}>Find Trainers</Text>
+          </LinearGradient>
+        </TouchableOpacity>
       </View>
 
       {/* Tab Toggle */}
@@ -582,5 +619,27 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     textAlign: 'center',
     marginVertical: Spacing.md,
+  },
+  quickActions: {
+    flexDirection: 'row',
+    marginHorizontal: Spacing.lg,
+    marginBottom: Spacing.md,
+    gap: Spacing.sm,
+  },
+  quickAction: {
+    flex: 1,
+    borderRadius: BorderRadius.lg,
+    overflow: 'hidden',
+  },
+  quickActionGradient: {
+    paddingVertical: Spacing.md,
+    alignItems: 'center',
+    borderRadius: BorderRadius.lg,
+  },
+  quickActionEmoji: { fontSize: 24, marginBottom: 4 },
+  quickActionText: {
+    color: Colors.textPrimary,
+    fontWeight: '700',
+    fontSize: FontSizes.sm,
   },
 });

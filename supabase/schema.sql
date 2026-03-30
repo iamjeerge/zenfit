@@ -451,3 +451,84 @@ alter table public.profiles
   add column if not exists stripe_customer_id text unique,
   add column if not exists activity_level text
     check (activity_level in ('sedentary', 'lightly_active', 'moderately_active', 'very_active', 'extra_active'));
+
+-- ═══════════════════════════════════════════════
+-- 24. GROUP CHALLENGES (Social Feature)
+-- ═══════════════════════════════════════════════
+create table if not exists public.group_challenges (
+  id uuid default uuid_generate_v4() primary key,
+  title text not null,
+  description text,
+  type text not null check (type in ('steps', 'workouts', 'meditation', 'streak', 'water')),
+  target_value integer not null check (target_value > 0),
+  start_date date not null,
+  end_date date not null,
+  status text default 'active' check (status in ('active', 'upcoming', 'completed')),
+  created_by uuid references public.profiles(id) on delete cascade not null,
+  max_participants integer default 20 check (max_participants > 0),
+  xp_reward integer default 0,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.challenge_participants (
+  id uuid default uuid_generate_v4() primary key,
+  challenge_id uuid references public.group_challenges(id) on delete cascade not null,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  progress integer default 0,
+  joined_at timestamptz default now(),
+  unique(challenge_id, user_id)
+);
+
+alter table public.group_challenges enable row level security;
+alter table public.challenge_participants enable row level security;
+
+create policy "Anyone can view challenges" on public.group_challenges for select using (true);
+create policy "Auth users can create challenges" on public.group_challenges for insert with check (auth.uid() = created_by);
+create policy "Creators can update challenges" on public.group_challenges for update using (auth.uid() = created_by);
+
+create policy "Anyone can view participants" on public.challenge_participants for select using (true);
+create policy "Users can join challenges" on public.challenge_participants for insert with check (auth.uid() = user_id);
+create policy "Users can update own progress" on public.challenge_participants for update using (auth.uid() = user_id);
+
+-- ═══════════════════════════════════════════════
+-- 25. TRAINER MARKETPLACE (Social Feature)
+-- ═══════════════════════════════════════════════
+create table if not exists public.trainer_profiles (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null unique,
+  display_name text not null,
+  bio text,
+  specialties text[] not null default '{}',
+  certification text,
+  years_experience integer default 0,
+  rating numeric(3,2) default 0,
+  total_reviews integer default 0,
+  hourly_rate_cents integer not null check (hourly_rate_cents > 0),
+  currency text default 'USD',
+  is_available boolean default true,
+  total_clients integer default 0,
+  created_at timestamptz default now()
+);
+
+create table if not exists public.trainer_bookings (
+  id uuid default uuid_generate_v4() primary key,
+  trainer_id uuid references public.trainer_profiles(id) on delete cascade not null,
+  client_id uuid references public.profiles(id) on delete cascade not null,
+  status text default 'pending' check (status in ('pending', 'confirmed', 'completed', 'cancelled')),
+  scheduled_at timestamptz,
+  notes text,
+  requested_at timestamptz default now(),
+  created_at timestamptz default now()
+);
+
+alter table public.trainer_profiles enable row level security;
+alter table public.trainer_bookings enable row level security;
+
+create policy "Anyone can view trainers" on public.trainer_profiles for select using (true);
+create policy "Users can manage own trainer profile" on public.trainer_profiles for all using (auth.uid() = user_id);
+
+create policy "Users can view own bookings" on public.trainer_bookings for select
+  using (auth.uid() = client_id or auth.uid() in (select user_id from public.trainer_profiles where id = trainer_id));
+create policy "Users can create bookings" on public.trainer_bookings for insert with check (auth.uid() = client_id);
+create policy "Involved users can update bookings" on public.trainer_bookings for update
+  using (auth.uid() = client_id or auth.uid() in (select user_id from public.trainer_profiles where id = trainer_id));
