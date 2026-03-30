@@ -451,3 +451,80 @@ alter table public.profiles
   add column if not exists stripe_customer_id text unique,
   add column if not exists activity_level text
     check (activity_level in ('sedentary', 'lightly_active', 'moderately_active', 'very_active', 'extra_active'));
+
+-- ═══════════════════════════════════════════════
+-- 24. GROUP CHALLENGES (Roadmap: Social features)
+-- ═══════════════════════════════════════════════
+create table public.group_challenges (
+  id uuid default uuid_generate_v4() primary key,
+  name text not null,
+  description text,
+  type text not null check (type in ('steps', 'workouts', 'meditation', 'water', 'streak')),
+  target_value integer not null,
+  start_date timestamptz not null,
+  end_date timestamptz not null,
+  created_by uuid references public.profiles(id) on delete cascade not null,
+  created_at timestamptz default now()
+);
+
+create table public.challenge_participants (
+  id uuid default uuid_generate_v4() primary key,
+  challenge_id uuid references public.group_challenges(id) on delete cascade not null,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  progress integer default 0,
+  joined_at timestamptz default now(),
+  unique(challenge_id, user_id)
+);
+
+alter table public.group_challenges enable row level security;
+alter table public.challenge_participants enable row level security;
+create policy "Anyone can view challenges" on public.group_challenges for select using (true);
+create policy "Auth users can create challenges" on public.group_challenges for insert with check (auth.uid() = created_by);
+create policy "Users can manage own challenge participants" on public.challenge_participants for all using (auth.uid() = user_id);
+create policy "Anyone can view participants" on public.challenge_participants for select using (true);
+
+-- ═══════════════════════════════════════════════
+-- 25. TRAINER MARKETPLACE (Roadmap: Social features)
+-- ═══════════════════════════════════════════════
+create table public.trainers (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null unique,
+  bio text,
+  specialties text[] default '{}',
+  hourly_rate_cents integer not null default 5000,
+  currency text default 'USD',
+  rating numeric(3,2) default 0,
+  total_reviews integer default 0,
+  total_sessions integer default 0,
+  is_verified boolean default false,
+  created_at timestamptz default now()
+);
+
+create table public.trainer_bookings (
+  id uuid default uuid_generate_v4() primary key,
+  trainer_id uuid references public.trainers(id) on delete cascade not null,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  status text default 'pending' check (status in ('pending', 'confirmed', 'completed', 'cancelled')),
+  requested_at timestamptz default now(),
+  session_at timestamptz,
+  notes text
+);
+
+create table public.trainer_reviews (
+  id uuid default uuid_generate_v4() primary key,
+  trainer_id uuid references public.trainers(id) on delete cascade not null,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  rating integer not null check (rating between 1 and 5),
+  comment text,
+  created_at timestamptz default now(),
+  unique(trainer_id, user_id)
+);
+
+alter table public.trainers enable row level security;
+alter table public.trainer_bookings enable row level security;
+alter table public.trainer_reviews enable row level security;
+create policy "Anyone can view trainers" on public.trainers for select using (true);
+create policy "Trainers can update own profile" on public.trainers for update using (auth.uid() = user_id);
+create policy "Users can manage own bookings" on public.trainer_bookings for all using (auth.uid() = user_id);
+create policy "Anyone can view reviews" on public.trainer_reviews for select using (true);
+create policy "Users can write own reviews" on public.trainer_reviews for insert with check (auth.uid() = user_id);
