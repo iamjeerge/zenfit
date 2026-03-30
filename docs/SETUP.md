@@ -4,9 +4,8 @@ Complete setup instructions for developing ZenFit locally.
 
 ## Prerequisites
 
-- **Node.js**: 18.0.0 or higher
-- **npm** or **yarn**: Latest version
-- **Expo CLI**: Installed globally
+- **Node.js**: 18.0.0 or higher (with Corepack enabled)
+- **Yarn**: 4.x (managed automatically via Corepack — no manual install needed)
 - **Git**: For version control
 - **Supabase Account**: Free tier available at https://supabase.com
 - **iOS Simulator** (macOS) or **Android Emulator**: For local testing
@@ -32,21 +31,21 @@ git clone https://github.com/yourusername/zenfit.git
 cd zenfit
 ```
 
-### 2. Install Dependencies
+### 2. Enable Corepack
+
+Corepack ships with Node.js 18+ and manages the correct Yarn version automatically:
 
 ```bash
-# Using npm
-npm install
+corepack enable
+```
 
-# Or using yarn
+### 3. Install Dependencies
+
+```bash
 yarn install
 ```
 
-### 3. Install Expo CLI Globally
-
-```bash
-npm install -g expo-cli
-```
+> **Note:** The `packageManager` field in `package.json` pins Yarn 4.12.0. Corepack will download and use that exact version automatically — no global install needed.
 
 ### 4. Create Supabase Project
 
@@ -109,7 +108,7 @@ In Supabase dashboard:
 
 ```bash
 # Start development server
-npm start
+yarn start
 
 # You should see:
 # ▶︎ Expo Go (Android): exp://localhost:19000
@@ -124,7 +123,7 @@ npm start
 ### Development Server
 
 ```bash
-npm start
+yarn start
 ```
 
 Opens interactive mode with options:
@@ -138,8 +137,8 @@ Opens interactive mode with options:
 ### iOS Development
 
 ```bash
-# Option 1: Using Expo CLI
-npm run ios
+# Option 1: Using Yarn
+yarn ios
 
 # Option 2: Direct to Simulator
 expo start --ios
@@ -153,8 +152,8 @@ expo start --ios
 ### Android Development
 
 ```bash
-# Option 1: Using Expo CLI
-npm run android
+# Option 1: Using Yarn
+yarn android
 
 # Option 2: Direct to Emulator
 expo start --android
@@ -168,7 +167,7 @@ expo start --android
 ### Web Development
 
 ```bash
-npm run web
+yarn web
 ```
 
 Opens http://localhost:19000 in browser. Hot reload enabled.
@@ -277,7 +276,7 @@ eas submit --platform android
 **Solution:**
 ```bash
 # Clear cache and restart
-npm start -- --clear
+yarn start --clear
 ```
 
 ### Issue: "Cannot find module '@/lib/supabase'"

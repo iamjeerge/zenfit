@@ -10,8 +10,8 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md). We are committ
 
 ### Prerequisites
 
-- Node.js 18+
-- npm or yarn
+- Node.js 18+ (with Corepack enabled)
+- Yarn 4 (managed via Corepack — no manual install needed)
 - Git
 - Supabase account (free tier available)
 - Familiarity with React Native and TypeScript
@@ -35,10 +35,11 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md). We are committ
    git remote add upstream https://github.com/originalrepo/zenfit.git
    ```
 
-4. **Install dependencies**
+4. **Enable Corepack and install dependencies**
 
    ```bash
-   npm install
+   corepack enable
+   yarn install
    ```
 
 5. **Create `.env` file**
@@ -51,7 +52,7 @@ Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md). We are committ
 6. **Start development server**
 
    ```bash
-   npm start
+   yarn start
    ```
 
    See [SETUP.md](docs/SETUP.md) for detailed setup instructions.
@@ -93,33 +94,33 @@ Branch naming conventions:
 
    Run tests:
    ```bash
-   npm test
+   yarn test
    ```
 
 3. **Format and lint code**
 
    ```bash
    # Automatic formatting
-   npm run format
+   yarn format
 
    # Lint check
-   npm run lint
+   yarn lint
 
    # Type check
-   npm run type-check
+   yarn typecheck
    ```
 
 4. **Test locally**
 
    ```bash
    # iOS Simulator
-   npm run ios
+   yarn ios
 
    # Android Emulator
-   npm run android
+   yarn android
 
    # Web
-   npm run web
+   yarn web
    ```
 
 ### Code Style Guide
@@ -328,10 +329,9 @@ BREAKING CHANGE: removed setUser action"
 2. **Test thoroughly**
 
    ```bash
-   npm run type-check
-   npm run lint
-   npm test
-   npm run build
+   yarn typecheck
+   yarn lint
+   yarn test
    ```
 
 3. **Update documentation**

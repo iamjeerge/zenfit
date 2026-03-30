@@ -89,8 +89,8 @@ ZenFit is a comprehensive fitness companion that goes beyond basic workout track
 
 ### Prerequisites
 
-- Node.js 18+ and npm
-- Expo CLI (`npm install -g expo-cli`)
+- Node.js 18+ (with Corepack enabled)
+- Yarn 4 (managed via Corepack — no manual install needed)
 - iOS Simulator (macOS) or Android Emulator
 - A [Supabase](https://supabase.com) account (free tier works)
 
@@ -101,8 +101,11 @@ ZenFit is a comprehensive fitness companion that goes beyond basic workout track
 git clone https://github.com/yourusername/zenfit.git
 cd zenfit
 
-# Install dependencies
-npm install
+# Enable Corepack (ships with Node.js 18+)
+corepack enable
+
+# Install dependencies (Corepack auto-activates Yarn 4)
+yarn install
 
 # Copy environment variables
 cp .env.example .env
@@ -136,10 +139,10 @@ npx expo start --web
 
 ```bash
 # Run all unit & integration tests
-npm test
+yarn test
 
 # Run with coverage report
-npm test -- --coverage
+yarn test --coverage
 
 # Run E2E tests with Detox (iOS)
 detox test --configuration ios.sim.debug
