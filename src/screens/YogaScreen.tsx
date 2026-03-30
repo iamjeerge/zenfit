@@ -133,23 +133,36 @@ export default function YogaScreen() {
   };
 
   const renderClassCard = ({ item }: any) => (
-    <TouchableOpacity style={styles.classCard} activeOpacity={0.8}>
+    <TouchableOpacity
+      style={styles.classCard}
+      activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={`${item.title}, ${item.duration} minutes, ${item.difficulty}`}
+    >
       <LinearGradient
         colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
         style={styles.classCardGradient}
       >
-        {/* Thumbnail Placeholder */}
+        {/* Thumbnail with Play Overlay */}
         <View style={styles.thumbnail}>
-          <LinearGradient colors={Gradients.lotus} style={styles.thumbnailGradient}>
+          <LinearGradient colors={Gradients.lotus as unknown as [string, string, ...string[]]} style={styles.thumbnailGradient}>
             <Text style={styles.thumbnailIcon}>🧘</Text>
           </LinearGradient>
+          <View style={styles.playOverlay}>
+            <LinearGradient
+              colors={['rgba(124,58,237,0.9)', 'rgba(244,114,182,0.9)']}
+              style={styles.playButton}
+            >
+              <Text style={styles.playIcon}>▶</Text>
+            </LinearGradient>
+          </View>
         </View>
 
         {/* Class Info */}
         <View style={styles.classInfo}>
-          <Text style={styles.className}>{item.title}</Text>
+          <Text style={styles.className} numberOfLines={1}>{item.title}</Text>
           <View style={styles.classMetaRow}>
-            <View style={styles.classMetaRow}>
+            <View style={styles.classMeta}>
               <Text style={styles.classMetaIcon}>⏱️</Text>
               <Text style={styles.classMetaText}>{item.duration} min</Text>
             </View>
@@ -178,12 +191,33 @@ export default function YogaScreen() {
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
         {/* Header */}
         <AnimatedEntry delay={0} duration={500}>
-          <View style={styles.header}>
+          <LinearGradient
+            colors={Gradients.lotus as unknown as [string, string, ...string[]]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 1 }}
+            style={styles.headerBanner}
+          >
             <Text style={styles.title} accessibilityRole="header">
               Yoga & Meditation
             </Text>
             <Text style={styles.subtitle}>Find your perfect practice</Text>
-          </View>
+            <View style={styles.headerStats}>
+              <View style={styles.headerStatItem}>
+                <Text style={styles.headerStatValue}>6</Text>
+                <Text style={styles.headerStatLabel}>Classes</Text>
+              </View>
+              <View style={styles.headerStatDivider} />
+              <View style={styles.headerStatItem}>
+                <Text style={styles.headerStatValue}>4</Text>
+                <Text style={styles.headerStatLabel}>Styles</Text>
+              </View>
+              <View style={styles.headerStatDivider} />
+              <View style={styles.headerStatItem}>
+                <Text style={styles.headerStatValue}>All</Text>
+                <Text style={styles.headerStatLabel}>Levels</Text>
+              </View>
+            </View>
+          </LinearGradient>
         </AnimatedEntry>
 
         {/* Filter Chips */}
@@ -311,6 +345,37 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: Spacing.lg,
+  },
+  headerBanner: {
+    borderRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    paddingTop: Spacing.xl,
+    paddingBottom: Spacing.xl,
+    marginBottom: Spacing.lg,
+  },
+  headerStats: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: Spacing.md,
+  },
+  headerStatItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  headerStatValue: {
+    fontSize: FontSizes.xl,
+    fontWeight: '800',
+    color: Colors.textPrimary,
+  },
+  headerStatLabel: {
+    fontSize: FontSizes.xs,
+    color: 'rgba(255,255,255,0.65)',
+    marginTop: 2,
+  },
+  headerStatDivider: {
+    width: 1,
+    height: 32,
+    backgroundColor: 'rgba(255,255,255,0.2)',
   },
   title: {
     fontSize: FontSizes.xxxl,
@@ -492,12 +557,32 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.lg,
     overflow: 'hidden',
     flexShrink: 0,
+    position: 'relative',
   },
   thumbnailGradient: {
     width: '100%',
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  playOverlay: {
+    position: 'absolute',
+    inset: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.25)',
+  },
+  playButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  playIcon: {
+    fontSize: 12,
+    color: Colors.textPrimary,
+    marginLeft: 2,
   },
   thumbnailIcon: {
     fontSize: 32,
@@ -519,6 +604,11 @@ const styles = StyleSheet.create({
     gap: Spacing.sm,
     marginBottom: Spacing.xs,
   },
+  classMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.xs,
+  },
   classMetaIcon: {
     fontSize: FontSizes.sm,
   },
@@ -526,11 +616,6 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.sm,
     color: Colors.textSecondary,
     fontWeight: '500',
-  },
-  classMetaRow2: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.sm,
   },
   difficultyBadge: {
     paddingHorizontal: Spacing.sm,

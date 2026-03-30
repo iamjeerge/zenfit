@@ -9,7 +9,6 @@ import React from 'react';
 import { StyleSheet, View, Text, ViewStyle } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { Colors, Spacing, BorderRadius, FontSizes, Shadows } from '../theme/colors';
-
 interface StatCardProps {
   value: string;
   label: string;
@@ -43,14 +42,11 @@ export default function StatCard({
             style={styles.progressTrack}
             accessibilityLabel={`${Math.round(progress * 100)}% complete`}
           >
-            <View
-              style={[
-                styles.progressBar,
-                {
-                  width: `${Math.min(progress * 100, 100)}%`,
-                  backgroundColor: progressColor,
-                },
-              ]}
+            <LinearGradient
+              colors={[progressColor, `${progressColor}88`]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={[styles.progressBar, { width: `${Math.min(progress * 100, 100)}%` }]}
             />
           </View>
         )}

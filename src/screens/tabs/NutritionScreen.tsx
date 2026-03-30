@@ -94,8 +94,6 @@ export default function NutritionScreen() {
 
   const renderMacroRing = (macro: Macro) => {
     const percentage = Math.min((macro.current / macro.target) * 100, 100);
-    const circumference = 2 * Math.PI * 40;
-    const offset = circumference - (percentage / 100) * circumference;
 
     return (
       <View key={macro.label} style={styles.macroRingContainer}>
@@ -106,17 +104,32 @@ export default function NutritionScreen() {
             </View>
           </View>
           <View style={styles.macroDetails}>
-            <Text style={styles.macroLabel}>{macro.label}</Text>
+            <View style={styles.macroLabelRow}>
+              <Text style={styles.macroLabel}>{macro.label}</Text>
+              <Text style={[styles.macroPct, { color: macro.color }]}>{Math.round(percentage)}%</Text>
+            </View>
             <Text style={styles.macroValue}>
               {macro.current}
               <Text style={styles.macroUnit}>g</Text>
+              <Text style={styles.macroTarget}>  / {macro.target}g</Text>
             </Text>
-            <Text style={styles.macroTarget}>of {macro.target}g</Text>
+            <View style={styles.macroProgressTrack}>
+              <View
+                style={[
+                  styles.macroProgressFill,
+                  { width: `${percentage}%` as any, backgroundColor: macro.color },
+                ]}
+              />
+            </View>
           </View>
         </View>
       </View>
     );
   };
+
+  const totalCalories = meals.reduce((sum, m) => sum + m.calories, 0);
+  const calorieGoal = 2000;
+  const caloriePct = Math.min(totalCalories / calorieGoal, 1);
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
@@ -144,6 +157,8 @@ export default function NutritionScreen() {
                     router.push('/barcode-scanner');
                   }}
                   activeOpacity={0.8}
+                  accessibilityLabel="Scan barcode"
+                  accessibilityRole="button"
                 >
                   <Text style={styles.scanButtonEmoji}>📷</Text>
                   <Text style={styles.scanButtonLabel}>Scan</Text>
@@ -151,6 +166,33 @@ export default function NutritionScreen() {
               </View>
             </View>
           </LinearGradient>
+        </AnimatedEntry>
+
+        {/* Calorie Summary Card */}
+        <AnimatedEntry delay={80} duration={600}>
+          <GlassCard style={styles.calorieCard}>
+            <View style={styles.calorieRow}>
+              <View style={styles.calorieLeft}>
+                <Text style={styles.calorieLabel}>CALORIES TODAY</Text>
+                <View style={styles.calorieValueRow}>
+                  <Text style={styles.calorieValue}>{totalCalories}</Text>
+                  <Text style={styles.calorieGoalText}> / {calorieGoal} kcal</Text>
+                </View>
+              </View>
+              <View style={styles.calorieRight}>
+                <Text style={styles.calorieRemaining}>{calorieGoal - totalCalories}</Text>
+                <Text style={styles.calorieRemainingLabel}>remaining</Text>
+              </View>
+            </View>
+            <View style={styles.calorieProgressTrack}>
+              <LinearGradient
+                colors={Gradients.sunrise as unknown as [string, string, ...string[]]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={[styles.calorieProgressFill, { width: `${caloriePct * 100}%` as any }]}
+              />
+            </View>
+          </GlassCard>
         </AnimatedEntry>
 
         {/* Macro Tracking */}
@@ -398,10 +440,21 @@ const styles = StyleSheet.create({
     color: Colors.textSecondary,
     marginBottom: Spacing.xs,
   },
+  macroLabelRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: Spacing.xs,
+  },
+  macroPct: {
+    fontSize: FontSizes.xs,
+    fontWeight: '700',
+  },
   macroValue: {
     fontSize: FontSizes.xl,
     fontWeight: '700',
     color: Colors.textPrimary,
+    marginBottom: Spacing.sm,
   },
   macroUnit: {
     fontSize: FontSizes.sm,
@@ -410,7 +463,71 @@ const styles = StyleSheet.create({
   macroTarget: {
     fontSize: FontSizes.xs,
     color: Colors.textSecondary,
-    marginTop: Spacing.xs,
+  },
+  macroProgressTrack: {
+    height: 6,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: BorderRadius.full,
+    overflow: 'hidden',
+  },
+  macroProgressFill: {
+    height: '100%',
+    borderRadius: BorderRadius.full,
+  },
+  calorieCard: {
+    marginBottom: Spacing.lg,
+  },
+  calorieRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: Spacing.md,
+  },
+  calorieLeft: {
+    flex: 1,
+  },
+  calorieLabel: {
+    fontSize: FontSizes.xs,
+    fontWeight: '700',
+    color: Colors.textMuted,
+    letterSpacing: 1.5,
+    marginBottom: Spacing.xs,
+  },
+  calorieValueRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  calorieValue: {
+    fontSize: FontSizes.xxxl,
+    fontWeight: '800',
+    color: Colors.textPrimary,
+  },
+  calorieGoalText: {
+    fontSize: FontSizes.sm,
+    color: Colors.textSecondary,
+    fontWeight: '500',
+  },
+  calorieRight: {
+    alignItems: 'flex-end',
+  },
+  calorieRemaining: {
+    fontSize: FontSizes.xxl,
+    fontWeight: '800',
+    color: Colors.sageLeaf,
+  },
+  calorieRemainingLabel: {
+    fontSize: FontSizes.xs,
+    color: Colors.textSecondary,
+  },
+  calorieProgressTrack: {
+    height: 8,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: BorderRadius.full,
+    overflow: 'hidden',
+  },
+  calorieProgressFill: {
+    height: '100%',
+    borderRadius: BorderRadius.full,
   },
   waterSection: {
     marginBottom: Spacing.xl,

@@ -147,21 +147,28 @@ export default function ProfileScreen() {
             style={styles.headerGradient}
           >
             <View style={styles.profileHeader}>
-              {/* Avatar */}
+              {/* Avatar with gradient ring */}
               <View style={styles.avatarContainer}>
-                <View style={styles.avatar}>
-                  <Text style={styles.avatarInitial}>{getInitial()}</Text>
-                </View>
+                <LinearGradient
+                  colors={Gradients.aurora as unknown as [string, string, ...string[]]}
+                  style={styles.avatarRing}
+                >
+                  <View style={styles.avatar}>
+                    <Text style={styles.avatarInitial}>{getInitial()}</Text>
+                  </View>
+                </LinearGradient>
               </View>
 
               {/* User Info */}
               <View style={styles.userInfo}>
                 <Text style={styles.userName}>{profile?.full_name || 'Welcome to ZenFit'}</Text>
-                <Text style={styles.userEmail}>
-                  {profile?.subscription_status === 'premium'
-                    ? '✨ Premium Member'
-                    : '📱 Free Member'}
-                </Text>
+                <View style={styles.memberBadge}>
+                  <Text style={styles.memberBadgeText}>
+                    {profile?.subscription_status === 'premium'
+                      ? '✨ Premium Member'
+                      : '📱 Free Member'}
+                  </Text>
+                </View>
               </View>
             </View>
           </LinearGradient>
@@ -172,19 +179,20 @@ export default function ProfileScreen() {
           <View style={styles.statsRow}>
             <View style={styles.statCard}>
               <LinearGradient
-                colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
+                colors={['rgba(124,58,237,0.25)', 'rgba(124,58,237,0.05)']}
                 style={styles.statGradient}
               >
+                <Text style={styles.statEmoji}>⚡</Text>
                 <Text style={styles.statLabel}>Level</Text>
                 <Text style={styles.statValue}>{profile?.level || 1}</Text>
                 <View style={styles.levelBar}>
-                  <View
+                  <LinearGradient
+                    colors={Gradients.auroraSubtle as unknown as [string, string, ...string[]]}
+                    start={{ x: 0, y: 0 }}
+                    end={{ x: 1, y: 0 }}
                     style={[
                       styles.levelProgress,
-                      {
-                        width: `${((profile?.xp || 0) % 1000) / 10}%`,
-                        backgroundColor: Colors.violet,
-                      },
+                      { width: `${((profile?.xp || 0) % 1000) / 10}%` as any },
                     ]}
                   />
                 </View>
@@ -193,9 +201,10 @@ export default function ProfileScreen() {
 
             <View style={styles.statCard}>
               <LinearGradient
-                colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
+                colors={['rgba(196,181,253,0.2)', 'rgba(196,181,253,0.05)']}
                 style={styles.statGradient}
               >
+                <Text style={styles.statEmoji}>🏅</Text>
                 <Text style={styles.statLabel}>XP</Text>
                 <Text style={styles.statValue}>{profile?.xp || 0}</Text>
                 <Text style={styles.xpSubtext}>XP earned</Text>
@@ -204,11 +213,12 @@ export default function ProfileScreen() {
 
             <View style={styles.statCard}>
               <LinearGradient
-                colors={[Colors.glassBackgroundLight, Colors.glassBackground]}
+                colors={['rgba(251,191,36,0.2)', 'rgba(251,191,36,0.05)']}
                 style={styles.statGradient}
               >
-                <Text style={styles.statLabel}>🔥 Streak</Text>
-                <Text style={styles.statValue}>{profile?.streak_days || 0}</Text>
+                <Text style={styles.statEmoji}>🔥</Text>
+                <Text style={styles.statLabel}>Streak</Text>
+                <Text style={[styles.statValue, { color: Colors.sacredGold }]}>{profile?.streak_days || 0}</Text>
                 <Text style={styles.streakSubtext}>days</Text>
               </LinearGradient>
             </View>
@@ -317,17 +327,23 @@ const styles = StyleSheet.create({
   avatarContainer: {
     position: 'relative',
   },
+  avatarRing: {
+    width: 92,
+    height: 92,
+    borderRadius: 46,
+    padding: 3,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
+    width: 84,
+    height: 84,
+    borderRadius: 42,
     backgroundColor: Colors.violet,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: Colors.violet,
-    shadowOpacity: 0.5,
-    shadowRadius: 15,
-    elevation: 8,
+    borderWidth: 2,
+    borderColor: Colors.background,
   },
   avatarInitial: {
     fontSize: FontSizes.xxxl,
@@ -341,11 +357,21 @@ const styles = StyleSheet.create({
     fontSize: FontSizes.lg,
     fontWeight: '700',
     color: Colors.textPrimary,
-    marginBottom: Spacing.xs,
+    marginBottom: Spacing.sm,
   },
-  userEmail: {
-    fontSize: FontSizes.md,
-    color: Colors.textSecondary,
+  memberBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: Spacing.xs,
+    borderRadius: BorderRadius.full,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.25)',
+  },
+  memberBadgeText: {
+    fontSize: FontSizes.xs,
+    color: Colors.textPrimary,
+    fontWeight: '600',
   },
   statsRow: {
     flexDirection: 'row',
@@ -363,6 +389,11 @@ const styles = StyleSheet.create({
   statGradient: {
     padding: Spacing.md,
     alignItems: 'center',
+    gap: Spacing.xs,
+  },
+  statEmoji: {
+    fontSize: 22,
+    marginBottom: 2,
   },
   statLabel: {
     fontSize: FontSizes.xs,

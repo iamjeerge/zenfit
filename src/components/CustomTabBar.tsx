@@ -22,10 +22,17 @@ const TAB_ICONS: Record<string, { emoji: string; label: string }> = {
 
 const TabIcon = ({ name, focused }: { name: string; focused: boolean }) => {
   const tab = TAB_ICONS[name] ?? { emoji: '•', label: name };
+  const scaleAnim = useRef(new Animated.Value(1)).current;
   const glowAnim = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (focused) {
+      // Pop animation on focus
+      Animated.sequence([
+        Animated.timing(scaleAnim, { toValue: 1.3, duration: 150, useNativeDriver: true }),
+        Animated.timing(scaleAnim, { toValue: 1.1, duration: 100, useNativeDriver: true }),
+      ]).start();
+      // Glow pulse loop
       Animated.loop(
         Animated.sequence([
           Animated.timing(glowAnim, { toValue: 1, duration: 1200, useNativeDriver: true }),
@@ -33,6 +40,7 @@ const TabIcon = ({ name, focused }: { name: string; focused: boolean }) => {
         ]),
       ).start();
     } else {
+      Animated.timing(scaleAnim, { toValue: 1, duration: 150, useNativeDriver: true }).start();
       glowAnim.stopAnimation();
       Animated.timing(glowAnim, { toValue: 0, duration: 200, useNativeDriver: true }).start();
     }
@@ -40,9 +48,18 @@ const TabIcon = ({ name, focused }: { name: string; focused: boolean }) => {
 
   return (
     <View style={styles.iconContainer}>
-      <Text style={[styles.icon, { opacity: focused ? 1 : 0.5, fontSize: focused ? 26 : 22 }]}>
+      <Animated.Text
+        style={[
+          styles.icon,
+          {
+            opacity: focused ? 1 : 0.5,
+            fontSize: 22,
+            transform: [{ scale: scaleAnim }],
+          },
+        ]}
+      >
         {tab.emoji}
-      </Text>
+      </Animated.Text>
       <Text style={[styles.tabLabel, { color: focused ? Colors.lavender : Colors.textMuted }]}>
         {tab.label}
       </Text>

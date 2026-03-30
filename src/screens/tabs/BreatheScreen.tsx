@@ -355,27 +355,50 @@ export default function BreatheScreen() {
 
           {/* Main Circle Animation */}
           <AnimatedEntry delay={200} duration={800}>
-            <View style={styles.circleContainer}>
+            <View style={styles.circleWrapper}>
+              {/* Outer glow ring */}
               <Animated.View
                 style={[
-                  styles.breathingCircle,
+                  styles.outerRing,
                   {
-                    transform: [{ scale: scaleAnim }],
-                    backgroundColor: phaseColor,
-                    shadowColor: phaseColor,
+                    borderColor: phaseColor,
+                    opacity: scaleAnim.interpolate({
+                      inputRange: [0.3, 1],
+                      outputRange: [0.2, 0.6],
+                    }),
+                    transform: [
+                      {
+                        scale: scaleAnim.interpolate({
+                          inputRange: [0.3, 1],
+                          outputRange: [0.55, 1.15],
+                        }),
+                      },
+                    ],
                   },
                 ]}
               />
-              <View style={styles.phaseOverlay}>
-                <Text style={styles.phaseText}>{getPhaseLabel()}</Text>
-                {phase !== 'idle' && (
-                  <Text
-                    style={[styles.countdownText, { color: phaseColor }]}
-                    accessibilityLabel={`${countdown} seconds remaining`}
-                  >
-                    {countdown}
-                  </Text>
-                )}
+              <View style={styles.circleContainer}>
+                <Animated.View
+                  style={[
+                    styles.breathingCircle,
+                    {
+                      transform: [{ scale: scaleAnim }],
+                      backgroundColor: phaseColor,
+                      shadowColor: phaseColor,
+                    },
+                  ]}
+                />
+                <View style={styles.phaseOverlay}>
+                  <Text style={styles.phaseText}>{getPhaseLabel()}</Text>
+                  {phase !== 'idle' && (
+                    <Text
+                      style={[styles.countdownText, { color: phaseColor }]}
+                      accessibilityLabel={`${countdown} seconds remaining`}
+                    >
+                      {countdown}
+                    </Text>
+                  )}
+                </View>
               </View>
             </View>
           </AnimatedEntry>
@@ -383,15 +406,21 @@ export default function BreatheScreen() {
           {/* Stats Section */}
           <AnimatedEntry delay={300} duration={600}>
             <View style={styles.statsSection}>
-              <View style={styles.statBox}>
+              <LinearGradient
+                colors={['rgba(124,58,237,0.2)', 'rgba(124,58,237,0.05)']}
+                style={styles.statPill}
+              >
                 <Text style={styles.statLabel}>CYCLES</Text>
                 <Text style={styles.statValue}>{cycles}</Text>
-              </View>
+              </LinearGradient>
               <View style={styles.divider} />
-              <View style={styles.statBox}>
+              <LinearGradient
+                colors={['rgba(244,114,182,0.2)', 'rgba(244,114,182,0.05)']}
+                style={styles.statPill}
+              >
                 <Text style={styles.statLabel}>ELAPSED</Text>
                 <Text style={styles.statValue}>{formatTime(elapsedTime)}</Text>
-              </View>
+              </LinearGradient>
             </View>
           </AnimatedEntry>
 
@@ -508,21 +537,35 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.6)',
     fontStyle: 'italic',
   },
-  circleContainer: {
-    width: 260,
-    height: 260,
+  circleWrapper: {
+    width: 280,
+    height: 280,
     justifyContent: 'center',
     alignItems: 'center',
     marginVertical: Spacing.lg,
+    alignSelf: 'center',
+  },
+  outerRing: {
+    position: 'absolute',
+    width: 280,
+    height: 280,
+    borderRadius: 140,
+    borderWidth: 2,
+  },
+  circleContainer: {
+    width: 220,
+    height: 220,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   breathingCircle: {
     width: '100%',
     height: '100%',
-    borderRadius: 130,
-    opacity: 0.5,
-    shadowOpacity: 0.8,
-    shadowRadius: 40,
-    elevation: 12,
+    borderRadius: 110,
+    opacity: 0.55,
+    shadowOpacity: 0.9,
+    shadowRadius: 50,
+    elevation: 16,
   },
   phaseOverlay: {
     position: 'absolute',
@@ -546,8 +589,17 @@ const styles = StyleSheet.create({
   statsSection: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'center',
     gap: Spacing.xl,
     marginVertical: Spacing.md,
+  },
+  statPill: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: Spacing.md,
+    borderRadius: BorderRadius.lg,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
   },
   statBox: {
     alignItems: 'center',

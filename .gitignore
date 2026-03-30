@@ -41,3 +41,10 @@ yarn-error.*
 /ios
 /android
 coverage/
+
+# IDE
+.idea/
+
+# Yarn
+.yarn/
+.yarnrc.yml

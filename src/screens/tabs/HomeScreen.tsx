@@ -195,6 +195,18 @@ export default function HomeScreen() {
         ? 'Good Afternoon'
         : 'Good Evening';
 
+  // Heart rate pulse animation
+  const heartPulse = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    Animated.loop(
+      Animated.sequence([
+        Animated.timing(heartPulse, { toValue: 1.25, duration: 400, useNativeDriver: true }),
+        Animated.timing(heartPulse, { toValue: 1, duration: 600, useNativeDriver: true }),
+        Animated.delay(700),
+      ]),
+    ).start();
+  }, []);
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       {/* Aurora background blobs */}
@@ -305,15 +317,18 @@ export default function HomeScreen() {
                 </View>
               </View>
               <View style={styles.heartRateRight}>
-                <View
+                <Animated.View
                   style={[
                     styles.heartRateZoneIndicator,
                     {
                       backgroundColor: getHeartZoneColor(),
                       shadowColor: getHeartZoneColor(),
+                      transform: [{ scale: heartPulse }],
                     },
                   ]}
-                />
+                >
+                  <Text style={styles.heartIcon}>❤️</Text>
+                </Animated.View>
                 <Text style={styles.heartZoneLabel}>{getHeartZoneLabel()}</Text>
               </View>
             </View>
@@ -323,12 +338,12 @@ export default function HomeScreen() {
         {/* Quick Action Buttons */}
         <AnimatedEntry delay={400} duration={600}>
           <SectionHeader title="Quick Actions" />
-          <View style={styles.actionButtonsRow}>
-            {QUICK_ACTIONS.map((action, idx) => (
+          <View style={styles.actionButtonsGrid}>
+            {QUICK_ACTIONS.map((action) => (
               <TouchableOpacity
                 key={action.label}
                 style={styles.actionButton}
-                activeOpacity={0.7}
+                activeOpacity={0.75}
                 onPress={() => handleQuickAction(action.route)}
                 accessibilityRole="button"
                 accessibilityLabel={action.label}
@@ -339,7 +354,7 @@ export default function HomeScreen() {
                   style={styles.actionButtonGradient}
                 >
                   <Text style={styles.actionButtonIcon}>{action.icon}</Text>
-                  <Text style={styles.actionButtonText}>{action.label}</Text>
+                  <Text style={styles.actionButtonText} numberOfLines={1}>{action.label}</Text>
                 </LinearGradient>
               </TouchableOpacity>
             ))}
@@ -351,7 +366,12 @@ export default function HomeScreen() {
           <View style={styles.streakContainer}>
             <GlassCard style={{ flex: 1 }}>
               <View style={styles.streakContent}>
-                <Text style={styles.streakIcon}>🔥</Text>
+                <LinearGradient
+                  colors={['rgba(251,191,36,0.25)', 'rgba(251,191,36,0.05)']}
+                  style={styles.streakIconBadge}
+                >
+                  <Text style={styles.streakIcon}>🔥</Text>
+                </LinearGradient>
                 <View style={styles.streakInfo}>
                   <Text style={styles.streakDays}>{profile?.streak_days || 0}</Text>
                   <Text style={styles.streakLabel}>Day Streak</Text>
@@ -361,10 +381,13 @@ export default function HomeScreen() {
 
             <GlassCard style={{ flex: 1 }}>
               <View style={styles.xpContent}>
-                <View style={styles.levelBadge}>
+                <LinearGradient
+                  colors={['rgba(124,58,237,0.35)', 'rgba(124,58,237,0.1)']}
+                  style={styles.levelBadge}
+                >
                   <Text style={styles.levelText}>LV</Text>
                   <Text style={styles.levelNumber}>{profile?.level || 1}</Text>
-                </View>
+                </LinearGradient>
                 <View style={styles.xpInfo}>
                   <Text style={styles.xpValue}>{profile?.xp || 0}</Text>
                   <Text style={styles.xpLabel}>Total XP</Text>
@@ -538,41 +561,47 @@ const styles = StyleSheet.create({
     width: 52,
     height: 52,
     borderRadius: BorderRadius.full,
-    shadowOpacity: 0.6,
+    shadowOpacity: 0.7,
     shadowRadius: 16,
     elevation: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  heartIcon: {
+    fontSize: 22,
   },
   heartZoneLabel: {
     fontSize: FontSizes.sm,
     color: Colors.textSecondary,
     fontWeight: '600',
   },
-  actionButtonsRow: {
+  actionButtonsGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: Spacing.md,
+    gap: Spacing.sm,
     marginBottom: Spacing.lg,
   },
   actionButton: {
-    width: (width - Spacing.md * 2 - Spacing.md) / 2,
-    borderRadius: BorderRadius.lg,
+    width: (width - Spacing.md * 2 - Spacing.sm * 4) / 5,
+    borderRadius: BorderRadius.md,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: Colors.glassBorder,
     ...Shadows.subtle,
   },
   actionButtonGradient: {
-    padding: Spacing.lg,
+    paddingVertical: Spacing.sm,
+    paddingHorizontal: Spacing.xs,
     alignItems: 'center',
-    gap: Spacing.sm,
-    minHeight: 100,
+    gap: 4,
+    minHeight: 72,
     justifyContent: 'center',
   },
   actionButtonIcon: {
-    fontSize: 36,
+    fontSize: 26,
   },
   actionButtonText: {
-    fontSize: FontSizes.sm,
+    fontSize: 9,
     fontWeight: '600',
     color: Colors.textPrimary,
     textAlign: 'center',
@@ -587,8 +616,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: Spacing.md,
   },
+  streakIconBadge: {
+    width: 48,
+    height: 48,
+    borderRadius: BorderRadius.full,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   streakIcon: {
-    fontSize: 40,
+    fontSize: 24,
   },
   streakInfo: {
     flex: 1,
@@ -611,10 +647,8 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: BorderRadius.full,
-    backgroundColor: Colors.violet,
     justifyContent: 'center',
     alignItems: 'center',
-    ...Shadows.glow,
   },
   levelText: {
     fontSize: FontSizes.xs,
