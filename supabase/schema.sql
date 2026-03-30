@@ -451,3 +451,26 @@ alter table public.profiles
   add column if not exists stripe_customer_id text unique,
   add column if not exists activity_level text
     check (activity_level in ('sedentary', 'lightly_active', 'moderately_active', 'very_active', 'extra_active'));
+
+-- ═══════════════════════════════════════════════
+-- 24. BODY COMPOSITION (Roadmap: Body composition tracking with progress photos)
+-- ═══════════════════════════════════════════════
+create table public.body_composition (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  weight_kg numeric(5,2) not null,
+  body_fat_pct numeric(4,1),
+  muscle_mass_kg numeric(5,2),
+  waist_cm numeric(5,1),
+  chest_cm numeric(5,1),
+  hips_cm numeric(5,1),
+  arms_cm numeric(5,1),
+  thighs_cm numeric(5,1),
+  notes text,
+  logged_at date not null default current_date,
+  created_at timestamptz default now(),
+  unique(user_id, logged_at)
+);
+
+alter table public.body_composition enable row level security;
+create policy "Users can manage own body composition" on public.body_composition for all using (auth.uid() = user_id);
