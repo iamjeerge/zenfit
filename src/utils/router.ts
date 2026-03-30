@@ -33,6 +33,8 @@ const ROUTE_MAP: Record<string, keyof RootStackParamList> = {
   '/steps': 'Steps',
   '/progress-photos': 'ProgressPhotos',
   '/workout-plan': 'WorkoutPlan',
+  '/group-challenges': 'GroupChallenges',
+  '/trainer-marketplace': 'TrainerMarketplace',
   '/auth': 'Auth',
   '/onboarding': 'Onboarding',
 };

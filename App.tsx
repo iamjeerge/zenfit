@@ -54,6 +54,8 @@ import BeautyTipsScreen from './src/screens/BeautyTipsScreen';
 import VideosScreen from './src/screens/VideosScreen';
 import StepsScreen from './src/screens/StepsScreen';
 import ProgressPhotosScreen from './src/screens/ProgressPhotosScreen';
+import GroupChallengesScreen from './src/screens/GroupChallengesScreen';
+import TrainerMarketplaceScreen from './src/screens/TrainerMarketplaceScreen';
 
 import CustomTabBar from './src/components/CustomTabBar';
 
@@ -85,6 +87,8 @@ export type RootStackParamList = {
   Steps: undefined;
   ProgressPhotos: undefined;
   WorkoutPlan: undefined;
+  GroupChallenges: undefined;
+  TrainerMarketplace: undefined;
 };
 
 export type TabParamList = {
@@ -164,6 +168,8 @@ function AppNavigator() {
           <Stack.Screen name="Steps" component={StepsScreen} />
           <Stack.Screen name="ProgressPhotos" component={ProgressPhotosScreen} />
           <Stack.Screen name="WorkoutPlan" component={WorkoutScreen} />
+          <Stack.Screen name="GroupChallenges" component={GroupChallengesScreen} />
+          <Stack.Screen name="TrainerMarketplace" component={TrainerMarketplaceScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </View>
