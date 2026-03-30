@@ -451,3 +451,33 @@ alter table public.profiles
   add column if not exists stripe_customer_id text unique,
   add column if not exists activity_level text
     check (activity_level in ('sedentary', 'lightly_active', 'moderately_active', 'very_active', 'extra_active'));
+
+-- ═══════════════════════════════════════════════
+-- 24. WEARABLE CONNECTIONS
+-- ═══════════════════════════════════════════════
+create table if not exists public.wearable_connections (
+  id              uuid primary key default gen_random_uuid(),
+  user_id         uuid references public.profiles(id) on delete cascade not null,
+  brand           text not null check (brand in (
+                    'apple_watch', 'health_connect', 'garmin', 'fitbit',
+                    'samsung', 'oura', 'whoop'
+                  )),
+  connected_at    timestamptz default now(),
+  last_synced_at  timestamptz,
+  auto_sync       boolean default true,
+  sync_steps      boolean default true,
+  sync_heart_rate boolean default true,
+  sync_sleep      boolean default true,
+  sync_calories   boolean default true,
+  sync_hrv        boolean default false,
+  access_token    text,                    -- encrypted OAuth token (for third-party)
+  refresh_token   text,                    -- encrypted OAuth refresh token
+  unique(user_id, brand)
+);
+
+alter table public.wearable_connections enable row level security;
+
+create policy "Users manage own wearable connections"
+  on public.wearable_connections for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
