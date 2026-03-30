@@ -451,3 +451,16 @@ alter table public.profiles
   add column if not exists stripe_customer_id text unique,
   add column if not exists activity_level text
     check (activity_level in ('sedentary', 'lightly_active', 'moderately_active', 'very_active', 'extra_active'));
+
+-- ═══════════════════════════════════════════════
+-- 24. SLEEP ANALYSIS ENHANCEMENTS
+-- ═══════════════════════════════════════════════
+alter table public.sleep_logs
+  add column if not exists bedtime text,                -- 'HH:MM' format
+  add column if not exists wake_time text,              -- 'HH:MM' format
+  add column if not exists quality integer default 3
+    check (quality between 1 and 5),
+  add column if not exists deep_pct numeric(5,2),       -- percentage of deep sleep
+  add column if not exists rem_pct numeric(5,2),        -- percentage of REM sleep
+  add column if not exists light_pct numeric(5,2),      -- percentage of light sleep
+  add column if not exists awake_pct numeric(5,2);      -- percentage awake
