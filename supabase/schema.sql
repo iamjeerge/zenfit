@@ -451,3 +451,45 @@ alter table public.profiles
   add column if not exists stripe_customer_id text unique,
   add column if not exists activity_level text
     check (activity_level in ('sedentary', 'lightly_active', 'moderately_active', 'very_active', 'extra_active'));
+
+-- ═══════════════════════════════════════════════
+-- 24. SUPPLEMENT STORE (Roadmap: Supplement store with AI-curated recommendations)
+-- ═══════════════════════════════════════════════
+create table public.supplements (
+  id uuid default uuid_generate_v4() primary key,
+  name text not null,
+  description text,
+  category text not null check (category in ('protein', 'vitamins', 'pre_workout', 'recovery', 'wellness', 'weight_mgmt')),
+  price_cents integer not null,
+  currency text default 'USD',
+  image_url text,
+  rating numeric(3,2) default 0,
+  total_reviews integer default 0,
+  benefits text[] default '{}',
+  in_stock boolean default true,
+  created_at timestamptz default now()
+);
+
+create table public.supplement_recommendations (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  supplement_id uuid references public.supplements(id) on delete cascade not null,
+  ai_reasoning text,
+  created_at timestamptz default now()
+);
+
+create table public.supplement_orders (
+  id uuid default uuid_generate_v4() primary key,
+  user_id uuid references public.profiles(id) on delete cascade not null,
+  items jsonb not null default '[]', -- [{supplement_id, quantity, price_cents}]
+  total_cents integer not null,
+  status text default 'pending' check (status in ('pending', 'confirmed', 'shipped', 'delivered', 'cancelled')),
+  created_at timestamptz default now()
+);
+
+alter table public.supplements enable row level security;
+alter table public.supplement_recommendations enable row level security;
+alter table public.supplement_orders enable row level security;
+create policy "Anyone can view supplements" on public.supplements for select using (true);
+create policy "Users can view own recs" on public.supplement_recommendations for select using (auth.uid() = user_id);
+create policy "Users can manage own orders" on public.supplement_orders for all using (auth.uid() = user_id);
