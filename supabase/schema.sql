@@ -451,3 +451,28 @@ alter table public.profiles
   add column if not exists stripe_customer_id text unique,
   add column if not exists activity_level text
     check (activity_level in ('sedentary', 'lightly_active', 'moderately_active', 'very_active', 'extra_active'));
+
+-- ═══════════════════════════════════════════════
+-- 24. HRV READINGS (Stress & Mood Correlation)
+-- ═══════════════════════════════════════════════
+create table if not exists public.hrv_readings (
+  id            uuid primary key default gen_random_uuid(),
+  user_id       uuid references public.profiles(id) on delete cascade not null,
+  hrv_ms        integer not null check (hrv_ms > 0 and hrv_ms <= 300),
+  resting_hr    integer check (resting_hr > 0 and resting_hr <= 250),
+  stress_level  text not null check (stress_level in ('low', 'moderate', 'high', 'very_high')),
+  source        text not null default 'manual'
+                  check (source in ('manual', 'apple_watch', 'android_watch', 'health_connect', 'garmin', 'fitbit', 'oura')),
+  recorded_at   timestamptz not null default now(),
+  note          text,
+  created_at    timestamptz default now()
+);
+
+alter table public.hrv_readings enable row level security;
+
+create policy "Users manage own HRV readings"
+  on public.hrv_readings for all
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create index idx_hrv_readings_user_date on public.hrv_readings(user_id, recorded_at desc);
