@@ -54,6 +54,7 @@ import BeautyTipsScreen from './src/screens/BeautyTipsScreen';
 import VideosScreen from './src/screens/VideosScreen';
 import StepsScreen from './src/screens/StepsScreen';
 import ProgressPhotosScreen from './src/screens/ProgressPhotosScreen';
+import WearableSettingsScreen from './src/screens/WearableSettingsScreen';
 
 import CustomTabBar from './src/components/CustomTabBar';
 
@@ -85,6 +86,7 @@ export type RootStackParamList = {
   Steps: undefined;
   ProgressPhotos: undefined;
   WorkoutPlan: undefined;
+  WearableSettings: undefined;
 };
 
 export type TabParamList = {
@@ -164,6 +166,7 @@ function AppNavigator() {
           <Stack.Screen name="Steps" component={StepsScreen} />
           <Stack.Screen name="ProgressPhotos" component={ProgressPhotosScreen} />
           <Stack.Screen name="WorkoutPlan" component={WorkoutScreen} />
+          <Stack.Screen name="WearableSettings" component={WearableSettingsScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </View>
